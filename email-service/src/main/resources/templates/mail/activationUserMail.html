@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<!--suppress CssNoGenericFontName -->
+<html lang="en" th:lang="${#locale.language}"
+      xmlns:th="http://www.thymeleaf.org" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.thymeleaf.org">
+<link href='https://fonts.googleapis.com/css?family=Muli&display=swap' rel='stylesheet' type='text/css'>
+<head>
+    <title th:text="#{email.register.user.subject}"></title>
+    <meta charset="utf-8"/>
+</head>
+<body style="text-align: left; font-family: Arial, Helvetica, sans-serif;">
+<div style="">
+    <div style="">
+        <div style="text-align: left;color: #222;font-size: 13px;">
+            <span th:text="#{email.register.user.content.1.1}"></span><span style="font-weight: bold;"
+                                                                            th:text="${additionText}"></span><span
+                th:text="#{email.register.user.content.1.2}"></span><span
+                th:text="#{email.register.user.content.1.3}"></span>
+            <br/>
+            <br/>
+            <p th:text="#{email.register.user.content.2}"></p>
+            <p th:text="#{email.register.user.content.3}"></p>
+            <span th:text="#{email.register.user.content.4}"></span>
+            <a style="text-decoration: underline; font-weight:bold;" th:href="${url}"
+               th:text="#{email.register.user.content.5}"></a>
+            <br/>
+            <p th:text="#{email.register.user.content.6}"></p>
+            <span style="font-weight: bold;" th:text="' ' + ${url}"></span>
+            <br/>
+            <br/>
+            <p th:text="#{email.register.user.content.7}"></p>
+            <p th:text="'━━━━━━━━━━━━━━━━━━━━━━━'"></p>
+        </div>
+        <div style="text-align: left; color: #222;font-size: 13px; font-style: oblique;">
+            <span th:text="#{email.register.user.content.8}"></span>
+            <br/>
+            <span th:text="#{email.register.user.content.9.1}"></span>
+            <span style="font-weight: bold;" th:text="#{email.register.user.content.9.2}"></span>
+            <br/>
+            <span th:text="#{email.register.user.content.10}"></span>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,239 @@
+#SignUpRequest
+sign_up_request:
+  email:
+    not_blank:
+      code: VAL.SUR0101
+      message: Email must not be blank
+    email:
+      code: VAL.SUR0102
+      message: Email must be a well-formed email address
+  firstname:
+    not_blank:
+      code: VAL.SUR0201
+      message: Firstname must not be blank
+    size:
+      code: VAL.SUR0202
+      message: Firstname size must be between 1 and 100
+  lastname:
+    not_blank:
+      code: VAL.SUR0301
+      message: Lastname must not be blank
+    size:
+      code: VAL.SUR0302
+      message: Lastname size must be between 1 and 100
+  password:
+    not_blank:
+      code: VAL.SUR0401
+      message: Password must not be blank
+    pattern:
+      code: VAL.SUR0402
+      message: Password has at least 8 characters, containing at least 1 uppercase letter, 1 lowercase letter, 1 numeric character.
+  password_confirmation:
+    not_blank:
+      code: VAL.SUR0501
+      message: Password confirmation must not be blank
+    pattern:
+      code: VAL.SUR0502
+      message: Password confirmation has at least 8 characters, containing at least 1 uppercase letter, 1 lowercase letter, 1 numeric character.
+  role:
+    not_blank:
+      code: VAL.SUR0601
+      message: Role must not be blank
+    pattern:
+      code: VAL.SUR0602
+      message: Role must be ADMIN or USER
+add_builder_request:
+  email:
+    not_blank:
+      code: VAL.BSU0101
+      message: Email must not be blank
+    email:
+      code: VAL.BSU0102
+      message: Email must be a well-formed email address
+  name:
+    not_blank:
+      code: VAL.BSU0201
+      message: Name must not be blank
+    size:
+      code: VAL.BSU0202
+      message: Name size must be between 1 and 200
+owner_sign_up_request:
+  email:
+    not_blank:
+      code: VAL.OSU0101
+      message: Email must not be blank
+    email:
+      code: VAL.OSU0102
+      message: Email must be a well-formed email address
+  firstname:
+    not_blank:
+      code: VAL.OSU0201
+      message: Firstname must not be blank
+    size:
+      code: VAL.OSU0202
+      message: Firstname size must be between 1 and 100
+  lastname:
+    not_blank:
+      code: VAL.OSU0301
+      message: Lastname must not be blank
+    size:
+      code: VAL.OSU0302
+      message: Lastname size must be between 1 and 100
+  password:
+    not_blank:
+      code: VAL.OSU0401
+      message: Password must not be blank
+    pattern:
+      code: VAL.OSU0402
+      message: Password has at least 8 characters, containing at least 1 uppercase letter, 1 lowercase letter, 1 numeric character.
+  password_confirmation:
+    not_blank:
+      code: VAL.OSU0501
+      message: Password confirmation must not be blank
+  builder_id:
+    not_null:
+      code: VAL.OSU0601
+      message: Builder must not be null
+#Remove account
+remove_account_request:
+  token:
+    not_blank:
+      code: VAL.RAR0101
+      message: Verification code must not be blank
+    size:
+      code: VAL.RAR0102
+      message: Verification code must be correct 6 characters
+#Login request
+login_request:
+  email:
+    not_blank:
+      code: VAL.LOR0101
+      message: Email must not be blank
+    email:
+      code: VAL.LOR0102
+      message: Email must be a well-formed email address
+  password:
+    not_blank:
+      code: VAL.LOR0201
+      message: Password must not be blank
+    pattern:
+      code: VAL.LOR0202
+      message: Password has at least 8 characters, containing at least 1 uppercase letter, 1 lowercase letter, 1 numeric character.
+
+#RefreshTokenRequest
+refresh_token_request:
+  refresh_token:
+    not_blank:
+      code: VAL.RTR0101
+      message: Refresh token type must not be blank
+#ForgotPasswordRequest
+forgot_password_request:
+  email:
+    not_blank:
+      code: VAL.MFP0101
+      message: Email must not be blank
+    email:
+      code: VAL.MFP0102
+      message: Email must be a well-formed email address
+#ResetPasswordRequest
+reset_password_request:
+  email:
+    not_blank:
+      code: VAL.RPR0101
+      message: Email must not be blank
+    email:
+      code: VAL.RPR0102
+      message: Email must be a well-formed email address
+  password:
+    not_blank:
+      code: VAL.RPR0201
+      message: Password must not be blank
+    pattern:
+      code: VAL.RPR0202
+      message: Password has at least 8 characters, containing at least 1 uppercase letter, 1 lowercase letter, 1 numeric character.
+  password_confirmation:
+    not_blank:
+      code: VAL.RPR0301
+      message: Password confirmation must not be blank
+    pattern:
+      code: VAL.RPR0302
+      message: Password confirmation contains has at least 8 characters, containing at least 1 uppercase letter, 1 lowercase letter, 1 numeric character.
+  reset_password_token:
+    not_null:
+      code: VAL.RPR0401
+      message: Code must not be null
+#ChangePasswordRequest
+change_password_request:
+  old_password:
+    not_blank:
+      code: VAL.PAS0101
+      message: Old password must not be blank
+    pattern:
+      code: VAL.PAS0102
+      message: Old password has at least 8 characters, containing at least 1 uppercase letter, 1 lowercase letter, 1 numeric character.
+  new_password:
+    not_blank:
+      code: VAL.PAS0201
+      message: New password must not be blank
+    pattern:
+      code: VAL.PAS0202
+      message: New password has at least 8 characters, containing at least 1 uppercase letter, 1 lowercase letter, 1 numeric character.
+  confirm_new_password:
+    not_blank:
+      code: VAL.PAS0301
+      message: Confirm new password must not be blank
+    pattern:
+      code: VAL.PAS0302
+      message: Confirm new password has at least 8 characters, containing at least 1 uppercase letter, 1 lowercase letter, 1 numeric character.
+#AvatarRequest
+avatar_request:
+  avatar:
+    not_blank:
+      code: VAL.AVR0101
+      message: Avatar must not be blank
+    size:
+      code: VAL.AVR0102
+      message: Avatar size must be between 1 and 5000
+#BaseReasonRequest
+base_reason_request:
+  reason:
+    not_blank:
+      code: VAL.BRS0101
+      message: Reason must not be blank
+    max:
+      code: VAL.BRS0102
+      message: Reason size must be between 1 and 500
+#ConversationRequest
+conversation_request:
+  name:
+    not_blank:
+      code: VAL.CON0101
+      message: Name must not be blank
+    size:
+      code: VAL.CON0102
+      message: Name size must be between 1 and 100
+#ConversationFullRequest
+conversation_full_request:
+  name:
+    not_blank:
+      code: VAL.CON0101
+      message: Name must not be blank
+    size:
+      code: VAL.CON0102
+      message: Name size must be between 1 and 100
+  construction_id:
+    not_null:
+      code: VAL.CON0201
+      message: Construction must not be null
+#ChangeStatusRequest
+change_status_request:
+  status:
+    code: VAL.CSR0101
+    message: Status must not be null
+
+#AddUserRequest
+add_user_request:
+  userIds:
+    not_null:
+      code: VAL.ACR0101
+      message: User Ids not be null

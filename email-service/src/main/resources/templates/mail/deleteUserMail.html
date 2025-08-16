@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<!--suppress CssNoGenericFontName -->
+<html lang="en" th:lang="${#locale.language}"
+      xmlns:th="http://www.thymeleaf.org" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.thymeleaf.org">
+<link href='https://fonts.googleapis.com/css?family=Muli&display=swap' rel='stylesheet' type='text/css'>
+<head>
+    <title th:text="#{email.register.user.subject}"></title>
+    <meta charset="utf-8"/>
+</head>
+<body style="text-align: left; font-family: Arial, Helvetica, sans-serif;">
+<div style="">
+    <div style="">
+        <div style="text-align: left;color: #222;font-size: 13px;">
+            <span th:text="#{email.delete.user.content.1}"></span>
+            <br/>
+            <br/>
+            <p th:text="#{email.delete.user.content.2.1}"></p>
+            <p th:text="#{email.delete.user.content.3}"></p>
+            <span th:text="#{email.delete.user.content.5}"></span> <span style="font-weight:bold;"
+                                                                         th:text="${code}"></span>
+            <br/>
+            <br/>
+            <p th:text="#{email.delete.user.content.4}"></p>
+            <p th:text="#{email.delete.user.content.6}"></p>
+            <p th:text="'━━━━━━━━━━━━━━━━━━━━━━━'"></p>
+        </div>
+        <div style="text-align: left; color: #222;font-size: 13px; font-style: oblique;">
+            <span th:text="#{email.delete.user.content.7}"></span>
+            <br/>
+            <span style="d" th:text="#{email.delete.user.content.8.1}"></span>
+            <span style="font-weight: bold;" th:text="#{email.delete.user.content.8.2}"></span>
+            <br/>
+            <span th:text="#{email.delete.user.content.9}"></span>
+        </div>
+    </div>
+</div>
+</body>
+</html>

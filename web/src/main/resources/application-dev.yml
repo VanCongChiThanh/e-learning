@@ -1,0 +1,50 @@
+server:
+  port: 8105
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/e-learning
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    hikari:
+      max-lifetime: 60000
+  rabbitmq:
+    host: localhost
+    username: guest
+    password: guest
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${EMAIL_USERNAME}
+    password: ${EMAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+org:
+  jobrunr:
+    background-job-server:
+      enabled: false
+    dashboard:
+      enabled: false
+origin-patterns: "https://*.vercel.app"
+dev-patterns: "http://localhost:5173"
+web-url: "https://e-learning.vercel.app"
+e-learning-mail:
+  domain: e-learning.com
+app:
+  oauth2:
+    providers:
+      google:
+        clientId: ${GOOGLE_CLIENT_ID}
+        clientSecret: ${GOOGLE_CLIENT_SECRET}
+        redirectUri: http://localhost:5173/oauth2/callback/google
+      facebook:
+        clientId: ${FACEBOOK_CLIENT_ID}
+        clientSecret: ${FACEBOOK_CLIENT_SECRET}
+        redirectUri: http://localhost:8105/api/v1/oauth2/facebook/login
+cloudinary:
+  api-key: ${CLOUDINARY_API_KEY}
+  api-secret: ${CLOUDINARY_API_SECRET}
+  cloud-name: ${CLOUDINARY_CLOUD_NAME}

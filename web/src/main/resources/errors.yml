@@ -1,0 +1,255 @@
+#Common
+internal_server_error:
+  code: ERR.SER0101
+  message: Internal server error!
+page_not_found:
+  code: ERR.SER0102
+  message: Page was not found!
+forbidden_error:
+  code: ERR.AUTH0101
+  message: Access Denied You don’t have permission to access!
+unauthorized:
+  code: ERR.AUTH0102
+  message: You do not have permission to access this page!
+forbidden_company_login:
+  code: ERR.AUTH0201
+  message: You have registered a company account, you only log in at the recruitment service!
+forbidden_lease_login:
+  code: ERR.AUTH0202
+  message: You have registered a lessor account, you only log in at the real estate service!
+forbidden_translator_login:
+  code: ERR.AUTH0203
+  message: You have registered a supporter account, you only log in to recruitment,real estate and visa services!
+unauthorized_login_facebook_require_email:
+  code: ERR.AUTH0204
+  message: Please update the email address for your Facebook account and try again.
+
+#User info
+user_info_not_found:
+  code: ERR.USER0101
+  message: User info was not found!
+user_info_already_exists:
+  code: ERR.USER0201
+  message: User info already exist!
+
+#User
+user_not_found:
+  code: ERR.USE0101
+  message: User was not found!
+register_failed:
+  code: ERR.USE0102
+  message: Register_failed!
+change_password_failed:
+  code: ERR.USE0103
+  message: Change password failed!
+change_property_id_failed:
+  code: ERR.USE0104
+  message: Change property id failed!
+reset_password_failed:
+  code: ERR.USE0105
+  message: Reset password failed!
+incorrect_email_or_password:
+  code: ERR.USE0106
+  message: Incorrect email or password!
+login_oauth2_fail:
+  code: ERR.USE0107
+  message: Incorrect email or password!
+old_password_not_correct:
+  code: ERR.USE0108
+  message: Old password is not correct!
+email_does_not_exist:
+  code: ERR.USE0109
+  message: Email does not exist!
+reset_password_incorrect_code:
+  code: ERR.USE0110
+  message: Incorrect code reset password!
+email_already_in_use:
+  code: ERR.USE0111
+  message: Email already in use!
+password_fields_must_match:
+  code: ERR.USE0112
+  message: The password fields must match!
+user_is_enabled:
+  code: ERR.USE0114
+  message: User is enabled!
+incorrect_confirmation_token:
+  code: ERR.USE0115
+  message: Incorrect confirmation token!
+new_password_not_same_old_password:
+  code: ERR.USE0116
+  message: The new password must not be the same as the old password!
+account_not_exists:
+  code: ERR.USE0117
+  message: Account not exists!
+account_blocked:
+  code: ERR.USE0118
+  message: Your account has been locked, please contact admin!
+account_not_activated:
+  code: ERR.USE0119
+  message: Your account has not been activated, please confirm your email!
+token_remove_account_expired:
+  code: ERR.USE0201
+  message: Verification code has expired!
+token_remove_account_not_correct:
+  code: ERR.USE0202
+  message: Verification code is not correct!
+
+#upload file
+file_not_format:
+  code: ERR.ULF0101
+  message: The file is not properly format!
+maximum_upload_size_exceeded:
+  code: ERR.ULF0102
+  message: The field file exceeds its maximum permitted size of 10485760 bytes!
+file_is_deleted_failed:
+  code: ERR.ULF0103
+  message: Delete file failed!
+file_url_is_error:
+  code: ERR.ULF0103
+  message: File url is error!
+file_not_found:
+  code: ERR.ULF0103
+  message: File was not found!
+
+#Quartz-Scheduler
+error_scheduling_email:
+  code: ERR.QSE0101
+  message: Error scheduling email!
+
+#Message
+message_not_found:
+  code: ERR.MES0101
+  message: Message was not found!
+message_not_in_conversation:
+  code: ERR.MES0102
+  message: The message is not in the conversation!
+index_is_not_valid:
+  code: ERR.MES0103
+  message: index is not valid!
+cannot_edit_message:
+  code: ERR.MES0104
+  message: You cannot edit this message!
+cannot_delete_message:
+  code: ERR.MES0105
+  message: You cannot delete this message!
+cannot_delete_file:
+  code: ERR.MES0106
+  message: You cannot delete this file!
+
+#Authentication
+invalid_token:
+  code: ERR.TOK0101
+  message: Invalid token!
+expired_token:
+  code: ERR.TOK0102
+  message: Expired token!
+revoked_token:
+  code: ERR.TOK0103
+  message: Revoked token!
+invalid_refresh_token:
+  code: ERR.TOK0201
+  message: Invalid refresh token!
+expired_refresh_token:
+  code: ERR.TOK0202
+  message: Expired refresh token!
+revoked_refresh_token:
+  code: ERR.TOK0203
+  message: Revoked refresh token!
+
+#permission
+function_not_found:
+  code: ERR.PER0101
+  message: Function not found!
+permission_not_found:
+  code: ERR.PER0102
+  message: Permission not found!
+permission_is_require:
+  code: ERR.PER0103
+  message: Permission is require!
+privilege_not_found:
+  code: ERR.PER0104
+  message: Privilege not found!
+
+#Conversation
+conversation_not_found:
+  code: ERR.CON0101
+  message: Conversation not found!
+user_added_in_conversation:
+  code: ERR.CON0201
+  message: User added in conversation!
+user_not_in_conversation:
+  code: ERR.CON0301
+  message: User not in conversation!
+
+#Notification
+notification_not_found:
+  code: ERR.NOTI0101
+  message: Notification was not found!
+
+#DynamicLinkProperty
+dynamic_link_property_not_found:
+  code: ERR.DLP0101
+  message: Dynamic link property not found!
+
+#Customer
+customer_not_found:
+  code: ERR.C0101
+  message: Customer not found!
+customer_already_in_room:
+  code: ERR.C0201
+  message: Customer already in room!
+customer_not_in_room:
+  code: ERR.C0301
+  message: Customer not in room!
+
+#BoardingHouse
+boarding_house_not_found:
+  code: EER.BH0101
+  message: Boarding house not found!
+
+#RoomInfo
+room_info_not_found:
+  code: EER.RIF0101
+  message: Room info not found!
+room_already_full:
+  code: ERR.RAF0201
+  message: Room already full!
+room_capacity_not_enough:
+  code: ERR.RAF0202
+  message: Room capacity not enough!
+
+#Invoice
+invoice_already_exits:
+  code: EER.IAE0101
+  message: Invoice already exits!
+invoice_not_found:
+  code: ERR.INF0201
+  message: Invoice not found!
+customer_already_paid:
+  code: EER.CAP0101
+  message: Customer already paid!
+invoice_status_invalid:
+  code: EER.CAP0101
+  message: Invoice status invalid!
+
+#Qr_Code
+qr_code_not_found:
+  code: ERR.QR0101
+  message: Qr code not found
+qr_code_invalid:
+  code: ERR.QR0201
+  message: Qr code invalid
+
+#Call
+end_call_failed:
+  code: ERR.ED0101
+  message: End call failed
+decline_call_failed:
+  code: ERR.DE0201
+  message: Decline call failed
+session_manager_not_found:
+  code: ERR.SS0201
+  message: Session manager not found
+call_type_invalid:
+  code: ERR.TE0201
+  message: Call type invalid
