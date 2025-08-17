@@ -16,15 +16,15 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.UUID;
 
-@RequestMapping("/v1")
+@RequestMapping("/v1/users")
 @RestController
 @RequiredArgsConstructor
 public class UserInfoController {
     private final UserInfoService userInfoService;
-    @PatchMapping("/profile")
+    @PatchMapping("/me/profile")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    @ApiOperation("Update user profile")
-    public ResponseEntity<ResponseDataAPI> updateProfile(
+    @ApiOperation("Update current user profile")
+    public ResponseEntity<ResponseDataAPI> updateMyProfile(
             @RequestBody @Valid UserProfileRequest userProfileRequest,
             @CurrentUser UserPrincipal userPrincipal
             ) {
@@ -36,18 +36,18 @@ public class UserInfoController {
         );
         return ResponseEntity.ok(ResponseDataAPI.successWithoutMeta(UserProfileResponse.toResponse(userInfo)));
     }
-    @GetMapping("/profile")
+    @GetMapping("/me/profile")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @ApiOperation("Get current user profile")
-    public ResponseEntity<ResponseDataAPI> getCurrentUserProfile(
+    public ResponseEntity<ResponseDataAPI> getMyProfile(
             @CurrentUser UserPrincipal userPrincipal
     ) {
         UserInfo userInfo = userInfoService.getUserInfoByUserId(userPrincipal.getId());
         return ResponseEntity.ok(ResponseDataAPI.successWithoutMeta(UserProfileResponse.toResponse(userInfo)));
     }
-    @GetMapping("/users/{userId}/profile")
+    @GetMapping("/{userId}/profile")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    @ApiOperation("Get user profile")
+    @ApiOperation("Get user profile by ID")
     public ResponseEntity<ResponseDataAPI> getUserProfile(
             @PathVariable("userId") UUID userId
     ) {
