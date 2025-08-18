@@ -44,8 +44,8 @@ public class SwaggerConfig {
 
   private ApiInfo apiInfo() {
     return new ApiInfo(
-        "API Documentation - I-talk Project",
-        "Api for I-talk Project",
+        "API Documentation - E-Learning Project",
+        "Api for E-Learning Project",
         "V1",
         "NA terms of service url",
         "Contact",
