@@ -21,7 +21,6 @@
         <module>security-service</module>
         <module>user-service</module>
         <module>notification-service</module>
-        <module>commerce</module>
     </modules>
 
     <properties>
