@@ -2,6 +2,7 @@ package com.pbl.elearning.user.service.impl;
 
 import com.pbl.elearning.common.exception.NotFoundException;
 import com.pbl.elearning.user.domain.UserInfo;
+import com.pbl.elearning.user.domain.enums.Gender;
 import com.pbl.elearning.user.repository.UserInfoRepository;
 import com.pbl.elearning.user.service.UserInfoService;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +26,7 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     @Override
-    public UserInfo updateUserInfo(UUID userId, String firstname, String lastname, String avatar) {
+    public UserInfo updateUserInfo(UUID userId, String firstname, String lastname, String avatar, Gender gender) {
         UserInfo userInfo = userInfoRepository.findByUserId(userId)
                 .orElseThrow(() -> new NotFoundException("UserInfo not found for userId: " + userId));
         if (firstname != null && !firstname.isEmpty()) {
@@ -37,7 +38,9 @@ public class UserInfoServiceImpl implements UserInfoService {
         if (avatar != null && !avatar.isEmpty()) {
             userInfo.setAvatar(avatar);
         }
-
+        if(gender != null){
+            userInfo.setGender(gender);
+        }
         return userInfoRepository.save(userInfo);
     }
 

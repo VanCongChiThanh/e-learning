@@ -35,5 +35,4 @@ public class UserInfo extends AbstractEntity {
     private String avatar;
 
     private Gender gender;
-
 }

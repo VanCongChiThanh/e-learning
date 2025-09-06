@@ -25,7 +25,11 @@
             <artifactId>email-service</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
-
+        <dependency>
+            <groupId>com.pbl</groupId>
+            <artifactId>file-service</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
 
     </dependencies>
     <properties>

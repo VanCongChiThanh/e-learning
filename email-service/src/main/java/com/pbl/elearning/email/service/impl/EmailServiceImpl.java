@@ -6,6 +6,7 @@ import com.pbl.elearning.email.service.EmailService;
 import com.pbl.elearning.email.service.SendEmailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -44,5 +45,34 @@ public class EmailServiceImpl implements EmailService {
   @Override
   public void sendMailDeleteAccount(String email, String code, String language) {
     sendEmailService.sendDeleteAccount(email, code, language);
+  }
+
+  @Async("asyncExecutor")
+  @Override
+  public void sendMailConfirmInstructorApplication(String firstname, String lastname, String email, UUID applicationId, String language) {
+    String url = webURL + "/instructor/application/confirm?applicationId=" + applicationId;
+
+    sendEmailService.sendEmailFromTemplate(
+        email,
+        "mail/confirmInstructorApplication",
+        url,
+        "email.confirm.instructor.application.subject",
+        firstname.concat(" ").concat(lastname),
+        language);
+  }
+
+  @Async("asyncExecutor")
+  @Override
+  public void sendMailRejectInstructorApplication(String firstname, String lastname, String email, UUID applicationId, String reason, String language) {
+    String url = webURL + "/instructor/application/reject?applicationId=" + applicationId;
+
+    sendEmailService.sendEmailFromTemplate(
+        email,
+        "mail/rejectInstructorApplication",
+        url,
+        "email.reject.instructor.application.subject",
+        firstname.concat(" ").concat(lastname),
+        language,
+        reason);
   }
 }

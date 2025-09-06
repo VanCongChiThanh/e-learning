@@ -4,6 +4,7 @@ import com.pbl.elearning.common.payload.general.ResponseDataAPI;
 import com.pbl.elearning.security.annotation.CurrentUser;
 import com.pbl.elearning.security.domain.UserPrincipal;
 import com.pbl.elearning.user.domain.UserInfo;
+import com.pbl.elearning.user.domain.enums.Gender;
 import com.pbl.elearning.user.payload.request.profile.UserProfileRequest;
 import com.pbl.elearning.user.payload.response.UserProfileResponse;
 import com.pbl.elearning.user.service.UserInfoService;
@@ -22,7 +23,7 @@ import java.util.UUID;
 public class UserInfoController {
     private final UserInfoService userInfoService;
     @PatchMapping("/me/profile")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('LEARNER', 'ADMIN')")
     @ApiOperation("Update current user profile")
     public ResponseEntity<ResponseDataAPI> updateMyProfile(
             @RequestBody @Valid UserProfileRequest userProfileRequest,
@@ -32,12 +33,13 @@ public class UserInfoController {
                 userPrincipal.getId(),
                 userProfileRequest.getFirstName(),
                 userProfileRequest.getLastName(),
-                null
+                userProfileRequest.getAvatar(),
+                userProfileRequest.getGender()
         );
         return ResponseEntity.ok(ResponseDataAPI.successWithoutMeta(UserProfileResponse.toResponse(userInfo)));
     }
     @GetMapping("/me/profile")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('LEARNER', 'ADMIN')")
     @ApiOperation("Get current user profile")
     public ResponseEntity<ResponseDataAPI> getMyProfile(
             @CurrentUser UserPrincipal userPrincipal
@@ -46,7 +48,7 @@ public class UserInfoController {
         return ResponseEntity.ok(ResponseDataAPI.successWithoutMeta(UserProfileResponse.toResponse(userInfo)));
     }
     @GetMapping("/{userId}/profile")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('LEARNER', 'ADMIN')")
     @ApiOperation("Get user profile by ID")
     public ResponseEntity<ResponseDataAPI> getUserProfile(
             @PathVariable("userId") UUID userId

@@ -9,6 +9,7 @@
     </option>
     <option name="ignoredFiles">
       <set>
+        <option value="$PROJECT_DIR$/commerce/pom.xml" />
         <option value="$PROJECT_DIR$/../i-talk/common-service/pom.xml" />
       </set>
     </option>

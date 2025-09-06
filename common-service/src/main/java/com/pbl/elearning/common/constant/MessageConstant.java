@@ -55,23 +55,5 @@ public final class MessageConstant {
   public static final String FILE_NOT_FOUND = "file_not_found";
   public static final String FILE_URL_IS_ERROR = "file_url_is_error";
   public static final String FILE_IS_DELETED_FAILED = "file_is_deleted_failed";
-  //Challenge
-  public static final String CHALLENGE_NOT_FOUND = "challenge_not_found";
-  public static final String ALL_CHALLENGES_COMPLETED = "all_challenges_completed";
-  //submission
-    public static final String SUBMISSION_NOT_FOUND = "submission_not_found";
-    public static final String CHALLENGE_TODAY_ALREADY_COMPLETED = "challenge_today_already_completed";
-  //user follow
-  public static final String USER_FOLLOW_NOT_FOUND = "user_follow_not_found";
-  public static final String USER_FOLLOW_ALREADY_EXISTS = "user_follow_already_exists";
-  //post
-  public static final String POST_NOT_FOUND = "post_not_found";
-  public static final String SUBMISSION_ID_REQUIRED = "submission_id_required";
-  public static final String SUBMISSION_ALREADY_EXISTS = "submission_already_exists";
-  //community
-  public static final String COMMUNITY_NOT_FOUND = "community_not_found";
-  // community member
-  public static final String COMMUNITY_MEMBER_NOT_FOUND = "community_member_not_found";
-  public static final String COMMUNITY_MEMBER_ALREADY_EXISTS = "community_member_already_exists";
   private MessageConstant() {}
 }
