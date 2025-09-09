@@ -85,25 +85,9 @@ public class CourseServiceImpl implements CourseService {
                 .toList();
     }
     @Override
-    public CoursePageResponse coursePageResponse(int page,int size){
-        Pageable pageable = PageRequest.of(page - 1, size); // nếu muốn frontend bắt đầu từ 1
+    public Page<CourseResponse> coursePageResponse(Pageable pageable){
         Page<Course> coursePage = courseRepository.findAll(pageable);
-
-        List<CourseResponse> courseResponses = coursePage.getContent().stream()
-                .map(course -> CourseResponse.builder()
-                        .courseId(course.getCourseId())
-                        .title(course.getTitle())
-                        .description(course.getDescription())
-                        .price(course.getPrice())
-                        .level(course.getLevel())
-                        .category(course.getCategory())
-                        .instructorId(course.getInstructorId())
-                        .build())
-                .toList();
-
-        PageInfo pageInfo = PageInfo.createPageInfo(page, size, coursePage.getTotalElements());
-
-        return new CoursePageResponse(courseResponses, pageInfo);
+        return coursePage.map(CourseResponse::toCourseResponse);
     }
 
 
