@@ -44,3 +44,4 @@ app:
     tokenExpirationMsec: 7200000
     refreshTokenSecret: ${REFRESH_TOKEN_SECRET}
     refreshTokenExpirationMsec: 2592000000
+

@@ -20,7 +20,9 @@
         <module>file-service</module>
         <module>security-service</module>
         <module>user-service</module>
+        <module>course-service</module>
         <module>notification-service</module>
+
     </modules>
 
     <properties>

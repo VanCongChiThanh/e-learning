@@ -6,6 +6,7 @@ import com.pbl.elearning.common.constant.MessageConstant;
 import com.pbl.elearning.common.exception.*;
 import com.pbl.elearning.common.payload.general.ResponseDataAPI;
 import com.pbl.elearning.common.payload.response.ErrorResponse;
+import org.apache.catalina.filters.ExpiresFilter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import javax.persistence.EntityNotFoundException;
 import javax.servlet.http.HttpServletRequest;
 import java.rmi.ServerError;
 import java.util.List;
@@ -29,6 +31,8 @@ import java.util.Objects;
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
   private static final String SERVER_ERROR_CODE = "ERR.SERVER";
   private static final String ACCESS_DENIED_ERROR = "forbidden_error";
+  private static final String ENUM_INVALID = "enum_invalid";
+
 
   @ExceptionHandler(NotFoundException.class)
   public ResponseEntity<ResponseDataAPI> notFoundException(
@@ -105,6 +109,37 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     ResponseDataAPI responseDataAPI = ResponseDataAPI.error(error);
     return new ResponseEntity<>(responseDataAPI, HttpStatus.FORBIDDEN);
   }
+
+  @ExceptionHandler(IllegalArgumentException.class)
+  public ResponseEntity<ResponseDataAPI> handleIllegalArgumentException(IllegalArgumentException e, HttpServletRequest request){
+
+    ErrorResponse error = CommonFunction.getExceptionError(ENUM_INVALID);
+    ResponseDataAPI responseDataAPI = ResponseDataAPI.error(error);
+    return new ResponseEntity<>(responseDataAPI, HttpStatus.BAD_REQUEST);
+
+
+  }
+  @ExceptionHandler(EntityNotFoundException.class)
+  public ResponseEntity<ResponseDataAPI> handleEntityNotFoundException(EntityNotFoundException e, HttpServletRequest request) {
+      String message = e.getMessage();
+      String entityType = "entity";
+      if (message != null){
+          if (message.contains("not found with")) {
+              String[] parts = message.split(" not found with");
+              if (parts.length > 0) {
+                  entityType = parts[0].trim().toLowerCase();
+              }
+          }
+
+      }
+      String errorCode = entityType.toUpperCase() + ".NOT_FOUND";
+      ErrorResponse error = new ErrorResponse(errorCode, message);
+      ResponseDataAPI responseDataAPI = ResponseDataAPI.error(error);
+
+      return new ResponseEntity<>(responseDataAPI, HttpStatus.NOT_FOUND);
+
+  }
+
 
   //  @ExceptionHandler(Exception.class)
   public ResponseEntity<ResponseDataAPI> globalExceptionHandler(
