@@ -5,6 +5,8 @@ import com.pbl.elearning.course.payload.request.CourseRequest;
 import com.pbl.elearning.course.payload.response.CoursePageResponse;
 import com.pbl.elearning.course.payload.response.CourseResponse;
 import com.pbl.elearning.course.payload.response.TagResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 import org.w3c.dom.stylesheets.LinkStyle;
 
@@ -16,7 +18,7 @@ import java.util.UUID;
 public interface CourseService {
     CourseResponse createCourse(CourseRequest courseRequest, UUID instructorId);
     List<CourseResponse> getAllCourses(int page, int size);
-    CoursePageResponse coursePageResponse(int page, int size);
+    Page<CourseResponse> coursePageResponse(Pageable pageable);
     CourseResponse getCourseById(UUID courseId);
     String uploadCourseImage(UUID courseId, String urlfile);
     CourseResponse updateCourse(UUID courseId, CourseRequest courseRequest);

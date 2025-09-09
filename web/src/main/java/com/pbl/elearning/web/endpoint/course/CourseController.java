@@ -1,6 +1,8 @@
 package com.pbl.elearning.web.endpoint.course;
 
+import com.pbl.elearning.common.PagingUtils;
 import com.pbl.elearning.common.constant.CommonConstant;
+import com.pbl.elearning.common.payload.general.PageInfo;
 import com.pbl.elearning.common.payload.general.ResponseDataAPI;
 import com.pbl.elearning.course.payload.request.CourseRequest;
 import com.pbl.elearning.course.payload.response.CoursePageResponse;
@@ -10,6 +12,8 @@ import com.pbl.elearning.course.service.impl.CourseServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.apache.xmlbeans.impl.xb.xsdschema.Public;
 import org.mapstruct.MappingTarget;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -49,13 +53,18 @@ public class CourseController {
 
     @GetMapping("/page")
     public ResponseEntity<ResponseDataAPI> getCoursePage(
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "10") int size) {
-        CoursePageResponse coursePageResponse = courseService.coursePageResponse(page, size);
-        return ResponseEntity.ok(ResponseDataAPI.builder()
-                .status(CommonConstant.SUCCESS)
-                .data( coursePageResponse)
-                .build());
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "paging", defaultValue = "5") int paging,
+            @RequestParam(value = "sort", defaultValue = "created_at") String sort,
+            @RequestParam(value = "order", defaultValue = "desc") String order) {
+        Pageable pageable = PagingUtils.makePageRequest(sort, order, page, paging);
+        Page<CourseResponse> coursesPage = courseService.coursePageResponse(pageable);
+        PageInfo pageInfo = new PageInfo(
+                pageable.getPageNumber() + 1,
+                coursesPage.getTotalPages(),
+                coursesPage.getTotalElements()
+        );
+        return  ResponseEntity.ok(ResponseDataAPI.success(coursesPage.getContent(), pageInfo));
     }
 
     @GetMapping("/{courseId}")
