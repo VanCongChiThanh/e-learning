@@ -3,8 +3,8 @@ server:
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/e-learning
-    username: "postgres"
-    password: "123123"
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     hikari:
       max-lifetime: 60000
   rabbitmq:
