@@ -22,7 +22,7 @@
         <module>user-service</module>
         <module>course-service</module>
         <module>notification-service</module>
-
+        <module>commerce-service</module>
     </modules>
 
     <properties>
