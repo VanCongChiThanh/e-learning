@@ -1,5 +1,6 @@
 package com.pbl.elearning.course.service.impl;
 
+import com.github.slugify.Slugify;
 import com.pbl.elearning.common.payload.general.PageInfo;
 import com.pbl.elearning.course.domain.Course;
 import com.pbl.elearning.course.domain.Tag;
@@ -11,6 +12,9 @@ import com.pbl.elearning.course.payload.response.TagResponse;
 import com.pbl.elearning.course.repository.CourseRepository;
 import com.pbl.elearning.course.repository.TagRepository;
 import com.pbl.elearning.course.service.CourseService;
+import com.pbl.elearning.course.service.LectureService;
+import com.pbl.elearning.course.service.ReviewService;
+import com.pbl.elearning.course.service.TagService;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.proxy.EntityNotFoundDelegate;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,14 +43,21 @@ public class CourseServiceImpl implements CourseService {
 
     private final CourseRepository courseRepository;
     private final TagRepository tagRepository;
+    private final Slugify slugify = Slugify.builder().build();
+    private final TagService tagService;
+    private final ReviewService reviewService;
+    private final LectureService lectureService;
+
 
 
 
     @Override
     public CourseResponse createCourse(CourseRequest courseRequest, UUID instructorId){
+        String slug = slugify.slugify(courseRequest.getTitle());
 
         Course course = Course.builder()
                 .title(courseRequest.getTitle())
+                .slug(slug)
                 .description(courseRequest.getDescription())
                 .price(courseRequest.getPrice())
                 .level(courseRequest.getLevel())
@@ -67,6 +78,7 @@ public class CourseServiceImpl implements CourseService {
                 .build();
     }
 
+
     @Override
     public List<CourseResponse> getAllCourses(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
@@ -75,6 +87,7 @@ public class CourseServiceImpl implements CourseService {
         return coursePage.getContent().stream()
                 .map(course -> CourseResponse.builder()
                         .courseId(course.getCourseId())
+                        .slug(course.getSlug())
                         .title(course.getTitle())
                         .description(course.getDescription())
                         .price(course.getPrice())
@@ -157,6 +170,57 @@ public class CourseServiceImpl implements CourseService {
         return tags.stream()
                 .map(TagResponse::fromEntity)
                 .collect(java.util.stream.Collectors.toSet());
+    }
+
+    ///  use slug
+    @Override
+    public CourseResponse getCourseBySlug(String slug){
+        Course course = courseRepository.findBySlug(slug)
+                .orElseThrow(() -> new EntityNotFoundException("Course not found with slug: " + slug));
+        return CourseResponse.toCourseResponse(course);
+    }
+    @Override
+    public String uploadCourseImageBySlug(String slug, String urlfile) {
+        Course course = courseRepository.findBySlug(slug)
+                .orElseThrow(() -> new EntityNotFoundException("Course not found with slug: " + slug));
+        course.setImage(urlfile);
+        courseRepository.save(course);
+        return urlfile;
+    }
+
+    @Override
+    public CourseResponse updateCourseBySlug(String slug, CourseRequest courseRequest) {
+        Course course = courseRepository.findBySlug(slug)
+                .orElseThrow(() -> new EntityNotFoundException("Course not found with slug: " + slug));
+        course.setTitle(courseRequest.getTitle());
+        course.setDescription(courseRequest.getDescription());
+        course.setPrice(courseRequest.getPrice());
+        course.setLevel(courseRequest.getLevel());
+        course.setCategory(courseRequest.getCategory());
+        Course updatedCourse = courseRepository.save(course);
+        return CourseResponse.toCourseResponse(updatedCourse);
+    }
+    @Override
+    public CourseResponse getCourseDetailBySlug(String slug){
+        Course course = courseRepository.findBySlug(slug)
+                .orElseThrow(() -> new EntityNotFoundException("Course not found with slug: " + slug));
+        Set<TagResponse> tags = tagService.getTagsByCourseId(course.getCourseId());
+        Double avgRating = reviewService.getAverageRatingByCourseId(course.getCourseId());
+        Integer totalReviews = reviewService.getTotalReviewsByCourseId(course.getCourseId());
+        Integer totalLectures = lectureService.countLectureByCourseId(course.getCourseId());
+        return CourseResponse.toCourseDetailResponse(
+                course, tags, avgRating, totalReviews, totalLectures, 40
+        );
+
+
+
+    }
+
+    @Override
+    public void deleteCourseBySlug(String slug) {
+        Course course = courseRepository.findBySlug(slug)
+                .orElseThrow(() -> new EntityNotFoundException("Course not found with slug: " + slug));
+        courseRepository.delete(course);
     }
 
 

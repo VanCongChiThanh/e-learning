@@ -2,9 +2,7 @@ package com.pbl.elearning.course.domain;
 
 import com.pbl.elearning.common.domain.AbstractEntity;
 import com.pbl.elearning.course.domain.enums.LectureType;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.core.codec.AbstractEncoder;
 
 import javax.persistence.*;
@@ -17,6 +15,8 @@ import java.util.UUID;
 @Entity
 @Table(name = "lectures")
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Lecture extends AbstractEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

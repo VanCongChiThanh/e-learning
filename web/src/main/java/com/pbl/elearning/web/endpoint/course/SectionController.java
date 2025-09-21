@@ -39,6 +39,15 @@ public class SectionController {
                 .build());
     }
 
+    @GetMapping
+    public ResponseEntity<ResponseDataAPI> getAllSections(@PathVariable UUID courseId) {
+        var sections = sectionService.getAllSections(courseId);
+        return ResponseEntity.ok(ResponseDataAPI.builder()
+                .status(CommonConstant.SUCCESS)
+                .data(sections)
+                .build());
+    }
+
     @PutMapping("/{sectionId}")
     public ResponseEntity<ResponseDataAPI> updateSection(
             @PathVariable UUID sectionId,

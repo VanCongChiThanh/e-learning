@@ -71,4 +71,21 @@ public class ReviewServiceImpl implements ReviewService {
         reviewRepository.delete(review);
     }
 
+    @Override
+    public Double getAverageRatingByCourseId(UUID courseId){
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() ->
+                        new RuntimeException("Course not found with id: " + courseId));
+        Double avg = reviewRepository.findAverageRatingByCourseId(courseId);
+        return avg != null ? avg : 4.7;
+    }
+
+    @Override
+    public Integer getTotalReviewsByCourseId(UUID courseId){
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() ->
+                        new RuntimeException("Course not found with id: " + courseId));
+        return reviewRepository.countByCourse_CourseId(courseId);
+    }
+
 }
