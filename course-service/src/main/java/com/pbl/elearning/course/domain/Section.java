@@ -1,9 +1,7 @@
 package com.pbl.elearning.course.domain;
 
 import com.pbl.elearning.common.domain.AbstractEntity;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -15,6 +13,8 @@ import java.util.UUID;
 @Setter
 @Table(name = "sections")
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Section extends AbstractEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

@@ -30,7 +30,12 @@ public interface CourseService {
     CourseResponse removeTagFromCourse(UUID courseId, UUID tagIds);
     Set<TagResponse> getTagsByCourseId(UUID courseId);
 
-
+    // use slug
+    CourseResponse getCourseBySlug(String slug);
+    CourseResponse getCourseDetailBySlug(String slug);
+    String uploadCourseImageBySlug(String slug, String urlfile);
+    CourseResponse updateCourseBySlug(String slug, CourseRequest courseRequest);
+    void deleteCourseBySlug(String slug);
 
 
 

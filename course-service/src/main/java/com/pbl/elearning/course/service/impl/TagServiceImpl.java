@@ -37,6 +37,14 @@ public class TagServiceImpl implements TagService {
                 .map(TagResponse::fromEntity)
                 .collect(java.util.stream.Collectors.toSet());
     }
+
+    @Override
+    public Set<TagResponse> getTagsByCourseId(UUID courseId){
+        return tagRepository.findByCourses_CourseId(courseId).stream()
+                .map(TagResponse::fromEntity)
+                .collect(java.util.stream.Collectors.toSet());
+    }
+
     @Override
     public TagResponse getTagById(UUID tagId){
         Tag tag = tagRepository.findById(tagId)

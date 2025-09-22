@@ -10,6 +10,7 @@ import java.util.UUID;
 @Repository
 public interface CourseRepository extends JpaRepository<Course, UUID> {
     Optional<Course> findByCourseIdAndCourseStatus(UUID courseId, CourseStatus status);
+    Optional<Course> findBySlug(String slug);
 
     boolean existsByCourseIdAndInstructorId(UUID courseId, UUID instructorId);
 }
