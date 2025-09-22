@@ -1,5 +1,6 @@
 package com.pbl.elearning.enrollment.services.Impl;
 
+import com.pbl.elearning.enrollment.Enum.EnrollmentStatus;
 import com.pbl.elearning.enrollment.models.Enrollment;
 import com.pbl.elearning.enrollment.payload.request.EnrollmentRequest;
 import com.pbl.elearning.enrollment.payload.request.UpdateEnrollmentRequest;
@@ -28,25 +29,40 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         Enrollment enrollment = new Enrollment();
         enrollment.setUserId(request.getUserId());
         enrollment.setCourseId(request.getCourseId());
+        enrollment.setStatus(EnrollmentStatus.ACTIVE);
+        enrollment.setProgressPercentage(0.0);
         enrollment.setEnrollmentDate(OffsetDateTime.now());
+        enrollment.setCreatedAt(OffsetDateTime.now());
+        enrollment.setUpdatedAt(OffsetDateTime.now());
+        enrollment.setTotalWatchTimeMinutes(0);
         return enrollmentRepository.save(enrollment);
     }
 
-    @Override
+   @Override
     public Enrollment updateEnrollment(UUID id, UpdateEnrollmentRequest request) {
         Optional<Enrollment> optionalEnrollment = enrollmentRepository.findById(id);
         if (optionalEnrollment.isPresent()) {
             Enrollment enrollment = optionalEnrollment.get();
+
             enrollment.setProgressPercentage(request.getProgressPercentage());
-            enrollment.setStatus(request.getStatus());
-            enrollment.setCompletionDate(request.getCompletionDate());
+
+            if (request.getProgressPercentage() != null && request.getProgressPercentage() == 100) {
+                enrollment.setStatus(EnrollmentStatus.COMPLETED); 
+                enrollment.setCompletionDate(OffsetDateTime.now());
+            } else {
+                enrollment.setStatus(EnrollmentStatus.ACTIVE);
+                enrollment.setCompletionDate(null);
+            }
+
             enrollment.setTotalWatchTimeMinutes(request.getTotalWatchTimeMinutes());
             enrollment.setLastAccessedAt(request.getLastAccessedAt());
             enrollment.setUpdatedAt(OffsetDateTime.now());
+
             return enrollmentRepository.save(enrollment);
         }
         return null;
     }
+
 
     @Override
     public void deleteEnrollment(UUID id) {

@@ -89,6 +89,7 @@ public class EnrollmentController {
     // Lấy Enrollment theo userId
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<EnrollmentResponse>> getEnrollmentsByUserId(@PathVariable UUID userId) {
+        System.out.println("Fetching enrollments for userId: " + userId);
         List<EnrollmentResponse> responses = enrollmentService.getEnrollmentsByUserId(userId)
                 .stream()
                 .map(this::toResponse)
@@ -99,10 +100,12 @@ public class EnrollmentController {
     // Lấy Enrollment theo courseId
     @GetMapping("/course/{courseId}")
     public ResponseEntity<List<EnrollmentResponse>> getEnrollmentsByCourseId(@PathVariable UUID courseId) {
+        System.out.println("Fetching enrollments for courseId: " + courseId);
         List<EnrollmentResponse> responses = enrollmentService.getEnrollmentsByCourseId(courseId)
                 .stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
+        System.err.println("Found " + responses );
         return ResponseEntity.ok(responses);
     }
 }

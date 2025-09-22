@@ -4,7 +4,6 @@ import com.pbl.elearning.enrollment.models.Quiz;
 import com.pbl.elearning.enrollment.payload.request.QuizRequest;
 import com.pbl.elearning.enrollment.payload.response.QuizResponse;
 import com.pbl.elearning.enrollment.services.QuizService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

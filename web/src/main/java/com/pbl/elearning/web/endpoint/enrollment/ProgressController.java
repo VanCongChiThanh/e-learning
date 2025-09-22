@@ -1,6 +1,5 @@
 package com.pbl.elearning.web.endpoint.enrollment;
 
-import com.pbl.elearning.enrollment.models.Enrollment;
 import com.pbl.elearning.enrollment.models.Progress;
 import com.pbl.elearning.enrollment.payload.request.CreateProgressRequest;
 import com.pbl.elearning.enrollment.payload.request.UpdateProgressRequest;
