@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Instructor Application Approved</title>
+</head>
+<body>
+<p>Xin chào <strong th:text="${name}"></strong>,</p>
+
+<p>Chúc mừng! Đơn ứng tuyển trở thành giảng viên của bạn trên nền tảng chúng tôi đã được phê duyệt.</p>
+
+<p>Bạn có thể bắt đầu tạo khóa học của mình tại liên kết sau:</p>
+<p>
+    <a th:href="${url}" target="_blank" style="color:#1a73e8; text-decoration:none;">
+        Vào trang quản lý giảng viên
+    </a>
+</p>
+
+<p>Cảm ơn bạn đã tham gia cùng chúng tôi.</p>
+
+<br/>
+<p>Trân trọng,</p>
+<p>Đội ngũ E-Learning</p>
+</body>
+</html>

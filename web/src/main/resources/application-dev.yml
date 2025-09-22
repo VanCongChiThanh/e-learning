@@ -28,9 +28,9 @@ org:
       enabled: false
     dashboard:
       enabled: false
-origin-patterns: "https://*.vercel.app"
+origin-patterns: "*"
 dev-patterns: "http://localhost:3000"
-web-url: "https://e-learning.vercel.app"
+web-url: "http://localhost:3000"
 e-learning-mail:
   domain: e-learning.com
 app:
@@ -44,7 +44,9 @@ app:
         clientId: ${FACEBOOK_CLIENT_ID}
         clientSecret: ${FACEBOOK_CLIENT_SECRET}
         redirectUri: http://localhost:8105/api/v1/oauth2/facebook/login
-cloudinary:
-  api-key: ${CLOUDINARY_API_KEY}
-  api-secret: ${CLOUDINARY_API_SECRET}
-  cloud-name: ${CLOUDINARY_CLOUD_NAME}
+aws:
+  accessKey: ${AWS_ACCESS_KEY}
+  secretKey: ${AWS_SECRET_KEY}
+  region: us-east-1
+  s3:
+    bucket: e-learning-data

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Instructor Application Rejected</title>
+</head>
+<body>
+<p>Xin chào <strong th:text="${name}"></strong>,</p>
+
+<p>Rất tiếc, đơn ứng tuyển trở thành giảng viên của bạn chưa được chấp nhận.</p>
+
+<p>Lý do: <em th:text="${reason}"></em></p>
+
+<p>Bạn có thể xem lại thông tin hồ sơ hoặc cải thiện thêm kinh nghiệm trước khi ứng tuyển lại.</p>
+
+<p>Để biết thêm chi tiết, vui lòng truy cập vào liên kết:</p>
+<p>
+    <a th:href="${url}" target="_blank" style="color:#d93025; text-decoration:none;">
+        Xem chi tiết đơn ứng tuyển
+    </a>
+</p>
+
+<p>Cảm ơn bạn đã quan tâm và mong sẽ sớm được hợp tác cùng bạn trong tương lai.</p>
+
+<br/>
+<p>Trân trọng,</p>
+<p>Đội ngũ BestPrice Academy</p>
+</body>
+</html>

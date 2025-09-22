@@ -1,7 +1,11 @@
 package com.pbl.elearning.file.service;
 
+import com.amazonaws.HttpMethod;
+import com.pbl.elearning.file.payload.response.PresignedURLResponse;
+
 import java.io.File;
 
 public interface FileHandlerService {
-  String uploadFile(File file,String fileName, String folder);
+  PresignedURLResponse generatePresignedUrl(String fileName, HttpMethod httpMethod);
+
 }

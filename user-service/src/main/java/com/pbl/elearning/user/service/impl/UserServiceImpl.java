@@ -134,7 +134,7 @@ public class UserServiceImpl implements UserService {
     Optional<User> existingUser = userRepository.findByEmail(email.toLowerCase());
     if (existingUser.isPresent()) {
       User user = existingUser.get();
-      userInfoService.updateUserInfo(user.getId(), firstname, lastname, avatar);
+      userInfoService.updateUserInfo(user.getId(), firstname, lastname, avatar,null);
       return user;
     }
     User user = this.toUserEntity(email, null);

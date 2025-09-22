@@ -20,6 +20,9 @@
         <module>file-service</module>
         <module>security-service</module>
         <module>user-service</module>
+        <module>course-service</module>
+        <module>notification-service</module>
+        <module>commerce-service</module>
         <module>enrollment-service</module> 
     </modules>
 
@@ -161,6 +164,10 @@
         </dependency>
     </dependencies>
     <repositories>
+        <repository>
+            <id>central</id>
+            <url>https://repo.maven.apache.org/maven2</url>
+        </repository>
         <repository>
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
