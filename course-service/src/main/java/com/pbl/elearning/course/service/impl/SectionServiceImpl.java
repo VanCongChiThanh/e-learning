@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -43,6 +44,14 @@ public class SectionServiceImpl implements SectionService {
                 .orElseThrow(() ->
                         new EntityNotFoundException("Section not found with id: " + sectionId));
         return SectionResponse.fromEntityWithoutLectures(section);
+    }
+
+    @Override
+    public List<SectionResponse> getAllSections(UUID courseId){
+        List<Section> sections = sectionRepository.findByCourse_CourseId(courseId);
+        return sections.stream()
+                .map(SectionResponse::fromEntityWithoutLectures)
+                .toList();
     }
     @Override
     public SectionResponse updateSection(UUID sectionId, SectionRequest sectionRequest) {

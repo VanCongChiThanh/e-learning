@@ -78,7 +78,10 @@ public class CourseController {
                 .build());
 
     }
-    @PostMapping("/{courseId}/image")
+
+
+
+    @PatchMapping("/{courseId}/image")
     public ResponseEntity<ResponseDataAPI> uploadCourseImage(
             @PathVariable("courseId") UUID courseId,
             @RequestParam("imageUrl") String imageUrl) {
@@ -133,6 +136,59 @@ public class CourseController {
         return ResponseEntity.ok(ResponseDataAPI.builder()
                 .status(CommonConstant.SUCCESS)
                 .data(courseService.getTagsByCourseId(courseId))
+                .build());
+    }
+
+    /// use slug
+    @GetMapping("/slug/{slug}")
+    public ResponseEntity<ResponseDataAPI> getCourseBySlug(
+            @PathVariable("slug") String slug) {
+        CourseResponse courseResponse = courseService.getCourseBySlug(slug);
+        return ResponseEntity.ok(ResponseDataAPI.builder()
+                .status(CommonConstant.SUCCESS)
+                .data(courseResponse)
+                .build());
+    }
+    /// get detail by slug
+    @GetMapping("/slug/{slug}/detail")
+    public ResponseEntity<ResponseDataAPI> getCourseDetailBySlug(
+            @PathVariable("slug") String slug) {
+        CourseResponse courseResponse = courseService.getCourseDetailBySlug(slug);
+        return ResponseEntity.ok(ResponseDataAPI.builder()
+                .status(CommonConstant.SUCCESS)
+                .data(courseResponse)
+                .build());
+    };
+    // Upload image by slug
+    @PatchMapping("/slug/{slug}/image")
+    public ResponseEntity<ResponseDataAPI> uploadCourseImageBySlug(
+            @PathVariable("slug") String slug,
+            @RequestParam("imageUrl") String imageUrl) {
+        String savedImageUrl = courseService.uploadCourseImageBySlug(slug, imageUrl);
+        return ResponseEntity.ok(ResponseDataAPI.builder()
+                .status(CommonConstant.SUCCESS)
+                .data(savedImageUrl)
+                .build());
+    }
+
+    // Update course by slug
+    @PutMapping("/slug/{slug}")
+    public ResponseEntity<ResponseDataAPI> updateCourseBySlug(
+            @PathVariable("slug") String slug,
+            @Valid @RequestBody CourseRequest courseRequest) {
+        return ResponseEntity.ok(ResponseDataAPI.builder()
+                .status(CommonConstant.SUCCESS)
+                .data(courseService.updateCourseBySlug(slug, courseRequest))
+                .build());
+    }
+
+    // Delete course by slug
+    @DeleteMapping("/slug/{slug}")
+    public ResponseEntity<ResponseDataAPI> deleteCourseBySlug(@PathVariable("slug") String slug) {
+        courseService.deleteCourseBySlug(slug);
+        return ResponseEntity.ok(ResponseDataAPI.builder()
+                .status(CommonConstant.SUCCESS)
+                .data("Course deleted successfully")
                 .build());
     }
 

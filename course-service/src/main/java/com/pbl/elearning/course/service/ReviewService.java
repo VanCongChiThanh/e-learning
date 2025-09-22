@@ -12,4 +12,7 @@ public interface ReviewService {
     Set<ReviewResponse> getReviewsByCourseId(UUID courseId);
     ReviewResponse updateReview(UUID reviewId, ReviewRequest reviewRequest);
     void deleteReview(UUID reviewId);
+
+    Double getAverageRatingByCourseId(UUID courseId);
+    Integer getTotalReviewsByCourseId(UUID courseId);
 }
