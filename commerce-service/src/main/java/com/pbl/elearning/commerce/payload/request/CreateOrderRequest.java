@@ -26,25 +26,8 @@ public class CreateOrderRequest {
         @NotNull(message = "Course ID is required")
         private UUID courseId;
 
-        @NotBlank(message = "Course name is required")
-        @Size(max = 255, message = "Course name cannot exceed 255 characters")
-        private String courseName;
-
         @NotNull(message = "Course price is required")
         @DecimalMin(value = "0.0", inclusive = false, message = "Course price must be greater than 0")
         private Double coursePrice;
-
-        @Min(value = 1, message = "Quantity must be at least 1")
-        @Max(value = 10, message = "Quantity cannot exceed 10")
-        private Integer quantity = 1;
-
-        @Size(max = 1000, message = "Course description cannot exceed 1000 characters")
-        private String courseDescription;
-
-        @Size(max = 500, message = "Course thumbnail URL cannot exceed 500 characters")
-        private String courseThumbnail;
-
-        @Size(max = 255, message = "Instructor name cannot exceed 255 characters")
-        private String instructorName;
     }
 }

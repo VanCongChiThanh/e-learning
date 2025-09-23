@@ -218,7 +218,7 @@ public class PaymentService {
     private CheckoutResponseData createPayOSPaymentLink(Payment payment, Order order) throws Exception {
         // Create item data for PayOS
         ItemData itemData = ItemData.builder()
-                .name("Order " + order.getOrderNumber())
+                .name(order.getOrderNumber())
                 .quantity(1)
                 .price(payment.getAmount().intValue())
                 .build();
