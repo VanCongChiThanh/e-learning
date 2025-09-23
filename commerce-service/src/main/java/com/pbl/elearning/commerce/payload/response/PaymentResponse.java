@@ -7,18 +7,19 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.util.UUID;
 
 @Getter
 @Setter
 public class PaymentResponse {
 
-    private Long id;
+    private UUID id;
     private String orderCode;
     private BigDecimal amount;
     private String description;
     private PaymentMethod paymentMethod;
     private PaymentStatus status;
-    private Long userId;
+    private UUID userId;
 
     // PayOS specific response fields
     private String payosPaymentLinkId;
@@ -44,7 +45,7 @@ public class PaymentResponse {
     @Getter
     @Setter
     public static class OrderSummaryResponse {
-        private Long id;
+        private UUID id;
         private String orderNumber;
         private BigDecimal totalAmount;
         private BigDecimal finalAmount;
