@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -34,6 +35,17 @@ public class NoteServiceImpl implements NoteService {
         Note savedNote = noteRepository.save(note);
         return NoteResponse.fromEntity(savedNote);
     }
+    @Override
+    public List<NoteResponse> getAllNotesByLectureId(UUID lectureId){
+        Lecture lecture= lectureRepository.findById(lectureId)
+                .orElseThrow(() ->
+                        new RuntimeException("Lecture not found with id: " + lectureId));
+        List<Note> note = noteRepository.findByLecture_LectureId(lectureId);
+        return note.stream()
+                .map(NoteResponse::fromEntity)
+                .toList();
+    }
+
     @Override
     public NoteResponse getNoteById(UUID noteId){
         Note note = noteRepository.findById(noteId)

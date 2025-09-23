@@ -2,9 +2,9 @@ server:
   port: 8105
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/e-learning
-    username: "postgres"
-    password: "123123"
+    url: jdbc:postgresql://localhost:5432/pbl6
+    username: postgres
+    password: root
     hikari:
       max-lifetime: 60000
   rabbitmq:
@@ -39,7 +39,7 @@ app:
       google:
         clientId: ${GOOGLE_CLIENT_ID}
         clientSecret: ${GOOGLE_CLIENT_SECRET}
-        redirectUri: http://localhost:5173/oauth2/callback/google
+        redirectUri: http://localhost:3000/oauth2/callback/google
       facebook:
         clientId: ${FACEBOOK_CLIENT_ID}
         clientSecret: ${FACEBOOK_CLIENT_SECRET}

@@ -26,6 +26,7 @@ public class LectureResponse {
                 .sectionId(lecture.getSection() != null ? lecture.getSection().getSectionId() : null)
                 .title(lecture.getTitle())
                 .position(lecture.getPosition())
+                .videoUrl(lecture.getSourceUrl())
                 .duration(lecture.getDuration())
                 .createdAt(lecture.getCreatedAt())
                 .updatedAt(lecture.getUpdatedAt()).build();

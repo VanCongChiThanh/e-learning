@@ -24,6 +24,9 @@ public class Course extends AbstractEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID courseId;
 
+    @Column(unique = true, length = 255)
+    private String slug;
+
     @Column(nullable = false)
     private String title;
 

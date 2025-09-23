@@ -9,10 +9,12 @@ import java.util.UUID;
 @Builder
 public class TagResponse {
     private String name;
+    private UUID tagId;
 
     public static TagResponse fromEntity(Tag tag) {
         return TagResponse.builder()
                 .name(tag.getName())
+                .tagId(tag.getTagId())
                 .build();
     }
 }

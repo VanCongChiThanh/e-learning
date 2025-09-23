@@ -10,5 +10,6 @@ public enum Category {
     HEALTH_AND_FITNESS,
     LANGUAGE_LEARNING,
     MUSIC_AND_ARTS,
-    OTHER
+    OTHER,
+    DEVELOPMENT
 }

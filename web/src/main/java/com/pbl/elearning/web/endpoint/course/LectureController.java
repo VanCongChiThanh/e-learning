@@ -2,9 +2,12 @@ package com.pbl.elearning.web.endpoint.course;
 
 import com.pbl.elearning.common.constant.CommonConstant;
 import com.pbl.elearning.common.payload.general.ResponseDataAPI;
+import com.pbl.elearning.course.domain.Lecture;
 import com.pbl.elearning.course.payload.request.LectureRequest;
 import com.pbl.elearning.course.payload.response.LectureResponse;
 import com.pbl.elearning.course.service.LectureService;
+import com.pbl.elearning.security.annotation.CurrentUser;
+import com.pbl.elearning.security.domain.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,6 +29,14 @@ public class LectureController {
         return ResponseEntity.ok(ResponseDataAPI.builder()
                 .status(CommonConstant.SUCCESS)
                 .data(lectureResponse)
+                .build());
+    }
+    @GetMapping
+    public ResponseEntity<ResponseDataAPI> getAllLectures(@PathVariable UUID sectionId) {
+        var lectures = lectureService.getAllLecturesBySectionId(sectionId);
+        return ResponseEntity.ok(ResponseDataAPI.builder()
+                .status(CommonConstant.SUCCESS)
+                .data(lectures)
                 .build());
     }
 
@@ -56,4 +67,20 @@ public class LectureController {
                 .data("Lecture deleted successfully")
                 .build());
     }
+
+    /// update video
+    @PatchMapping("/{lectureId}/video")
+    public ResponseEntity<ResponseDataAPI> updateLectureVideo(
+            @PathVariable UUID lectureId,
+            @RequestParam String videoUrl
+    ){
+        LectureResponse updatedLectureVideo = lectureService.updateLectureVideo(lectureId, videoUrl);
+        return ResponseEntity.ok(ResponseDataAPI.builder()
+                .status(CommonConstant.SUCCESS)
+                .data(updatedLectureVideo)
+                .build());
+
+
+    }
+
 }

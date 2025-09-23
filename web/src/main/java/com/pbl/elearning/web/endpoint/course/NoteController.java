@@ -29,6 +29,14 @@ public class NoteController {
                 .data(noteResponse)
                 .build());
     }
+    @GetMapping
+    public ResponseEntity<ResponseDataAPI> getAllNotes(@PathVariable UUID lectureId) {
+        var notes = noteService.getAllNotesByLectureId(lectureId);
+        return ResponseEntity.ok(ResponseDataAPI.builder()
+                .status(CommonConstant.SUCCESS)
+                .data(notes)
+                .build());
+    }
 
     @GetMapping("/{noteId}")
     public ResponseEntity<ResponseDataAPI> getNoteById(@PathVariable UUID noteId) {
