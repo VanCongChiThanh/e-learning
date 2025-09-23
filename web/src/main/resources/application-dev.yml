@@ -2,9 +2,9 @@ server:
   port: 8105
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/pbl6
-    username: postgres
-    password: root
+    url: jdbc:postgresql://localhost:5432/e-learning
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     hikari:
       max-lifetime: 60000
   rabbitmq:
