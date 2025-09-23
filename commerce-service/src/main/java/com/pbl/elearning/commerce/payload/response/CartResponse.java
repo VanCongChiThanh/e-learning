@@ -6,19 +6,18 @@ import lombok.Setter;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
 public class CartResponse {
 
-    private Long id;
-    private Long userId;
+    private UUID id;
+    private UUID userId;
     private Integer totalItems;
     private BigDecimal totalAmount;
-    private BigDecimal discountAmount;
-    private BigDecimal finalAmount;
-    private String couponCode;
-    private Integer discountPercentage;
+    private BigDecimal discountAmount; // always zero with no discounts
+    private BigDecimal finalAmount; // equals totalAmount
     private Timestamp createdAt;
     private Timestamp updatedAt;
 
@@ -33,24 +32,10 @@ public class CartResponse {
     @Getter
     @Setter
     public static class CartItemResponse {
-        private Long id;
-        private Long courseId;
-        private String courseName;
-        private BigDecimal coursePrice;
-        private Integer quantity;
+        private UUID id;
+        private UUID courseId;
         private BigDecimal totalPrice;
-        private String courseDescription;
-        private String courseThumbnail;
-        private String instructorName;
-        private Long instructorId;
-        private Integer courseDurationMinutes;
-        private String courseLevel;
-        private String courseCategory;
-        private BigDecimal originalPrice;
-        private BigDecimal discountAmount;
-        private Integer discountPercentage;
-        private BigDecimal savings;
-        private Boolean hasDiscount;
+        private BigDecimal discountAmount; // always zero
         private Timestamp addedAt;
     }
 }

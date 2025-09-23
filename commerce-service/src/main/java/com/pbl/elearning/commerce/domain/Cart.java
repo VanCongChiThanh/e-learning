@@ -10,6 +10,7 @@ import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "carts")
@@ -20,29 +21,17 @@ import java.util.List;
 public class Cart extends AbstractEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue
+    private UUID id;
 
     @Column(name = "user_id", nullable = false, unique = true)
-    private Long userId;
+    private UUID userId;
 
     @Column(name = "total_items", nullable = false)
     private Integer totalItems = 0;
 
     @Column(name = "total_amount", nullable = false, precision = 15, scale = 2)
     private BigDecimal totalAmount = BigDecimal.ZERO;
-
-    @Column(name = "discount_amount", precision = 15, scale = 2)
-    private BigDecimal discountAmount = BigDecimal.ZERO;
-
-    @Column(name = "final_amount", nullable = false, precision = 15, scale = 2)
-    private BigDecimal finalAmount = BigDecimal.ZERO;
-
-    @Column(name = "coupon_code")
-    private String couponCode;
-
-    @Column(name = "discount_percentage")
-    private Integer discountPercentage;
 
     // One-to-Many relationship with CartItem
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
@@ -61,7 +50,7 @@ public class Cart extends AbstractEntity {
         recalculateAmounts();
     }
 
-    public void removeItemByCourseId(Long courseId) {
+    public void removeItemByCourseId(UUID courseId) {
         items.removeIf(item -> item.getCourseId().equals(courseId));
         recalculateAmounts();
     }
@@ -72,44 +61,27 @@ public class Cart extends AbstractEntity {
     }
 
     public void recalculateAmounts() {
-        this.totalItems = items.stream()
-                .mapToInt(CartItem::getQuantity)
-                .sum();
+        this.totalItems = items.size();
 
         this.totalAmount = items.stream()
-                .map(CartItem::getTotalPrice)
+                .map(CartItem::getAddedPrice)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        this.finalAmount = this.totalAmount.subtract(this.discountAmount);
     }
 
     public boolean isEmpty() {
         return items.isEmpty();
     }
 
-    public boolean containsCourse(Long courseId) {
+    public boolean containsCourse(UUID courseId) {
         return items.stream()
                 .anyMatch(item -> item.getCourseId().equals(courseId));
     }
 
-    public CartItem getItemByCourseId(Long courseId) {
+    public CartItem getItemByCourseId(UUID courseId) {
         return items.stream()
                 .filter(item -> item.getCourseId().equals(courseId))
                 .findFirst()
                 .orElse(null);
     }
 
-    public void applyCoupon(String couponCode, Integer discountPercentage, BigDecimal discountAmount) {
-        this.couponCode = couponCode;
-        this.discountPercentage = discountPercentage;
-        this.discountAmount = discountAmount != null ? discountAmount : BigDecimal.ZERO;
-        this.finalAmount = this.totalAmount.subtract(this.discountAmount);
-    }
-
-    public void removeCoupon() {
-        this.couponCode = null;
-        this.discountPercentage = null;
-        this.discountAmount = BigDecimal.ZERO;
-        this.finalAmount = this.totalAmount;
-    }
 }

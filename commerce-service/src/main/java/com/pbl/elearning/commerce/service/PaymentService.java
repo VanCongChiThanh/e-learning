@@ -1,4 +1,5 @@
 package com.pbl.elearning.commerce.service;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pbl.elearning.commerce.config.PayOSConfig;
 import com.pbl.elearning.commerce.domain.Order;
@@ -27,6 +28,7 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -50,7 +52,7 @@ public class PaymentService {
     }
 
     @Transactional
-    public PaymentResponse createPayment(CreatePaymentRequest request, Long userId) {
+    public PaymentResponse createPayment(CreatePaymentRequest request, UUID userId) {
         // 1. Validate and get order
         Order order = orderRepository.findById(request.getOrderId())
                 .orElseThrow(() -> new RuntimeException("Order not found"));
@@ -92,7 +94,7 @@ public class PaymentService {
     }
 
     @Transactional
-    public PaymentResponse getPaymentByOrderCode(String orderCode, Long userId) {
+    public PaymentResponse getPaymentByOrderCode(String orderCode, UUID userId) {
         Payment payment = paymentRepository.findByOrderCode(orderCode)
                 .orElseThrow(() -> new RuntimeException("Payment not found"));
 
@@ -104,7 +106,7 @@ public class PaymentService {
     }
 
     @Transactional
-    public Page<PaymentResponse> getUserPayments(Long userId, Pageable pageable) {
+    public Page<PaymentResponse> getUserPayments(UUID userId, Pageable pageable) {
         Page<Payment> payments = paymentRepository.findByUserId(userId, pageable);
         return payments.map(this::mapToPaymentResponse);
     }
@@ -155,7 +157,7 @@ public class PaymentService {
     }
 
     @Transactional
-    public PaymentResponse cancelPayment(String orderCode, Long userId) {
+    public PaymentResponse cancelPayment(String orderCode, UUID userId) {
         Payment payment = paymentRepository.findByOrderCode(orderCode)
                 .orElseThrow(() -> new RuntimeException("Payment not found"));
 
@@ -193,15 +195,15 @@ public class PaymentService {
         }
     }
 
-    private Payment createPaymentEntity(Order order, CreatePaymentRequest request, Long userId) {
+    private Payment createPaymentEntity(Order order, CreatePaymentRequest request, UUID userId) {
         Payment payment = new Payment();
         payment.setOrderCode(generateOrderCode());
-        payment.setAmount(order.getFinalAmount());
+        payment.setAmount(order.getTotalAmount());
         payment.setDescription(request.getDescription() != null ? request.getDescription()
                 : "Payment for order " + order.getOrderNumber());
         payment.setPaymentMethod(PaymentMethod.PAYOS);
         payment.setStatus(PaymentStatus.PENDING);
-        payment.setUserId(userId);
+        payment.setUserId(order.getUserId());
         payment.setOrder(order);
 
         // Set expiration time
@@ -300,7 +302,7 @@ public class PaymentService {
         response.setDescription(payment.getDescription());
         response.setPaymentMethod(payment.getPaymentMethod());
         response.setStatus(payment.getStatus());
-        response.setUserId(payment.getUserId());
+        response.setUserId(payment.getOrder().getUserId());
         response.setPayosPaymentLinkId(payment.getPayosPaymentLinkId());
         response.setPayosTransactionId(payment.getPayosTransactionId());
         response.setCheckoutUrl(payment.getCheckoutUrl());
@@ -320,7 +322,7 @@ public class PaymentService {
             orderSummary.setId(payment.getOrder().getId());
             orderSummary.setOrderNumber(payment.getOrder().getOrderNumber());
             orderSummary.setTotalAmount(payment.getOrder().getTotalAmount());
-            orderSummary.setFinalAmount(payment.getOrder().getFinalAmount());
+            orderSummary.setFinalAmount(payment.getOrder().getTotalAmount());
             orderSummary.setTotalItems(payment.getOrder().getTotalItems());
             orderSummary.setStatus(payment.getOrder().getStatus().name());
             response.setOrder(orderSummary);

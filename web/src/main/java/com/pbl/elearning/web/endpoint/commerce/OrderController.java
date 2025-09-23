@@ -5,6 +5,8 @@ import com.pbl.elearning.commerce.payload.request.CreateOrderRequest;
 import com.pbl.elearning.commerce.payload.response.OrderResponse;
 import com.pbl.elearning.commerce.service.OrderService;
 import com.pbl.elearning.common.payload.general.ResponseDataAPI;
+import com.pbl.elearning.security.domain.UserPrincipal;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/orders")
@@ -35,7 +38,7 @@ public class OrderController {
             @Valid @RequestBody CreateOrderRequest request,
             Authentication authentication) {
 
-        Long userId = getUserIdFromAuthentication(authentication);
+        UUID userId = getUserIdFromAuthentication(authentication);
         OrderResponse orderResponse = orderService.createOrder(request, userId);
 
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -48,7 +51,7 @@ public class OrderController {
             @Valid @RequestBody CreateOrderFromCartRequest request,
             Authentication authentication) {
 
-        Long userId = getUserIdFromAuthentication(authentication);
+        UUID userId = getUserIdFromAuthentication(authentication);
         OrderResponse orderResponse = orderService.createOrderFromCart(request, userId);
 
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -58,10 +61,10 @@ public class OrderController {
     @GetMapping("/{orderId}")
     @ApiOperation(value = "Get order by ID", notes = "Get order details by order ID")
     public ResponseEntity<ResponseDataAPI> getOrderById(
-            @PathVariable Long orderId,
+            @PathVariable UUID orderId,
             Authentication authentication) {
 
-        Long userId = getUserIdFromAuthentication(authentication);
+        UUID userId = getUserIdFromAuthentication(authentication);
         OrderResponse orderResponse = orderService.getOrderById(orderId, userId);
 
         return ResponseEntity.ok(
@@ -74,7 +77,7 @@ public class OrderController {
             @PathVariable String orderNumber,
             Authentication authentication) {
 
-        Long userId = getUserIdFromAuthentication(authentication);
+        UUID userId = getUserIdFromAuthentication(authentication);
         OrderResponse orderResponse = orderService.getOrderByNumber(orderNumber, userId);
 
         return ResponseEntity.ok(
@@ -88,7 +91,7 @@ public class OrderController {
             @RequestParam(defaultValue = "10") int size,
             Authentication authentication) {
 
-        Long userId = getUserIdFromAuthentication(authentication);
+        UUID userId = getUserIdFromAuthentication(authentication);
         Pageable pageable = PageRequest.of(page, size);
         Page<OrderResponse> orders = orderService.getUserOrders(userId, pageable);
 
@@ -104,7 +107,7 @@ public class OrderController {
             @RequestParam(defaultValue = "10") int size,
             Authentication authentication) {
 
-        Long userId = getUserIdFromAuthentication(authentication);
+        UUID userId = getUserIdFromAuthentication(authentication);
         Pageable pageable = PageRequest.of(page, size);
 
         try {
@@ -124,8 +127,8 @@ public class OrderController {
     public ResponseEntity<ResponseDataAPI> getPurchasedCourseIds(
             Authentication authentication) {
 
-        Long userId = getUserIdFromAuthentication(authentication);
-        List<Long> courseIds = orderService.getPurchasedCourseIds(userId);
+        UUID userId = getUserIdFromAuthentication(authentication);
+        List<UUID> courseIds = orderService.getPurchasedCourseIds(userId);
 
         return ResponseEntity.ok(
                 ResponseDataAPI.success(courseIds, "Purchased courses retrieved successfully"));
@@ -134,10 +137,10 @@ public class OrderController {
     @GetMapping("/course/{courseId}/purchased")
     @ApiOperation(value = "Check if course is purchased", notes = "Check if the user has purchased a specific course")
     public ResponseEntity<ResponseDataAPI> hasUserPurchasedCourse(
-            @PathVariable Long courseId,
+            @PathVariable UUID courseId,
             Authentication authentication) {
 
-        Long userId = getUserIdFromAuthentication(authentication);
+        UUID userId = getUserIdFromAuthentication(authentication);
         boolean hasPurchased = orderService.hasUserPurchasedCourse(userId, courseId);
 
         return ResponseEntity.ok(
@@ -147,10 +150,10 @@ public class OrderController {
     @DeleteMapping("/{orderId}")
     @ApiOperation(value = "Cancel order", notes = "Cancel a pending order")
     public ResponseEntity<ResponseDataAPI> cancelOrder(
-            @PathVariable Long orderId,
+            @PathVariable UUID orderId,
             Authentication authentication) {
 
-        Long userId = getUserIdFromAuthentication(authentication);
+        UUID userId = getUserIdFromAuthentication(authentication);
         OrderResponse orderResponse = orderService.cancelOrder(orderId, userId);
 
         return ResponseEntity.ok(
@@ -171,18 +174,11 @@ public class OrderController {
                 .body(ResponseDataAPI.error("An unexpected error occurred"));
     }
 
-    private Long getUserIdFromAuthentication(Authentication authentication) {
-        // TODO: Extract user ID from authentication object
-        // This implementation depends on your authentication mechanism
-        // For now, returning a placeholder - implement based on your security setup
+    private UUID getUserIdFromAuthentication(Authentication authentication) {
 
         if (authentication != null && authentication.getPrincipal() != null) {
-            // Example implementation - adjust based on your User details implementation
-            // UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-            // return userPrincipal.getId();
-
-            // Placeholder implementation
-            return 1L; // Replace with actual user ID extraction
+            UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+            return userPrincipal.getId();
         }
 
         throw new RuntimeException("User not authenticated");

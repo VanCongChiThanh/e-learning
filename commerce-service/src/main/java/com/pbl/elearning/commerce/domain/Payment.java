@@ -11,6 +11,7 @@ import lombok.Setter;
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.util.UUID;
 
 @Entity
 @Table(name = "payments")
@@ -21,8 +22,8 @@ import java.sql.Timestamp;
 public class Payment extends AbstractEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue
+    private UUID id;
 
     @Column(name = "order_code", unique = true, nullable = false)
     private String orderCode; // Mã đơn hàng PayOS
@@ -42,7 +43,7 @@ public class Payment extends AbstractEntity {
     private PaymentStatus status = PaymentStatus.PENDING;
 
     @Column(name = "user_id", nullable = false)
-    private Long userId;
+    private UUID userId;
 
     // PayOS specific fields
     @Column(name = "payos_payment_link_id")

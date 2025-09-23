@@ -5,6 +5,7 @@ import lombok.Setter;
 
 import javax.validation.Valid;
 import javax.validation.constraints.*;
+import java.util.UUID;
 import java.util.List;
 
 @Getter
@@ -15,9 +16,6 @@ public class CreateOrderRequest {
     @Valid
     private List<OrderItemRequest> items;
 
-    @Size(max = 100, message = "Coupon code cannot exceed 100 characters")
-    private String couponCode;
-
     @Size(max = 500, message = "Notes cannot exceed 500 characters")
     private String notes;
 
@@ -26,8 +24,7 @@ public class CreateOrderRequest {
     public static class OrderItemRequest {
 
         @NotNull(message = "Course ID is required")
-        @Positive(message = "Course ID must be positive")
-        private Long courseId;
+        private UUID courseId;
 
         @NotBlank(message = "Course name is required")
         @Size(max = 255, message = "Course name cannot exceed 255 characters")

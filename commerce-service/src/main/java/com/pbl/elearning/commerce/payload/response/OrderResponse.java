@@ -7,21 +7,20 @@ import lombok.Setter;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
 public class OrderResponse {
 
-    private Long id;
+    private UUID id;
     private String orderNumber;
-    private Long userId;
+    private java.util.UUID userId;
     private BigDecimal totalAmount;
     private BigDecimal discountAmount;
     private BigDecimal finalAmount;
     private OrderStatus status;
     private String notes;
-    private String couponCode;
-    private Integer discountPercentage;
 
     private Timestamp createdAt;
     private Timestamp updatedAt;
@@ -33,22 +32,16 @@ public class OrderResponse {
     @Getter
     @Setter
     public static class OrderItemResponse {
-        private Long id;
-        private Long courseId;
-        private String courseName;
-        private BigDecimal coursePrice;
-        private Integer quantity;
-        private BigDecimal totalPrice;
+        private UUID id;
+        private UUID courseId;
+        private BigDecimal unitPrice;
         private BigDecimal discountAmount;
-        private String courseDescription;
-        private String courseThumbnail;
-        private String instructorName;
     }
 
     @Getter
     @Setter
     public static class PaymentSummaryResponse {
-        private Long id;
+        private java.util.UUID id;
         private String orderCode;
         private String paymentMethod;
         private String status;

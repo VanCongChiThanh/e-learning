@@ -4,18 +4,18 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 @Getter
 @Setter
 public class CartSummaryResponse {
 
-    private Long cartId;
-    private Long userId;
+    private UUID cartId;
+    private UUID userId;
     private Integer totalItems;
     private BigDecimal totalAmount;
     private BigDecimal discountAmount;
     private BigDecimal finalAmount;
-    private String couponCode;
     private Boolean isEmpty;
     private Boolean hasCoupon;
 

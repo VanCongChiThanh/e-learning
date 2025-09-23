@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "orders")
@@ -22,23 +23,17 @@ import java.util.List;
 public class Order extends AbstractEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue
+    private UUID id;
 
     @Column(name = "order_number", unique = true, nullable = false)
     private String orderNumber;
 
     @Column(name = "user_id", nullable = false)
-    private Long userId;
+    private UUID userId;
 
     @Column(name = "total_amount", nullable = false, precision = 15, scale = 2)
     private BigDecimal totalAmount;
-
-    @Column(name = "discount_amount", precision = 15, scale = 2)
-    private BigDecimal discountAmount = BigDecimal.ZERO;
-
-    @Column(name = "final_amount", nullable = false, precision = 15, scale = 2)
-    private BigDecimal finalAmount;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
@@ -58,13 +53,6 @@ public class Order extends AbstractEntity {
     @OneToOne(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Payment payment;
 
-    // Discount information
-    @Column(name = "coupon_code")
-    private String couponCode;
-
-    @Column(name = "discount_percentage")
-    private Integer discountPercentage;
-
     // Helper methods
     public void addItem(OrderItem item) {
         items.add(item);
@@ -78,10 +66,8 @@ public class Order extends AbstractEntity {
 
     public void calculateTotalAmount() {
         this.totalAmount = items.stream()
-                .map(OrderItem::getTotalPrice)
+                .map(OrderItem::getUnitPrice)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        this.finalAmount = this.totalAmount.subtract(this.discountAmount);
     }
 
     public boolean isPaid() {
@@ -93,8 +79,6 @@ public class Order extends AbstractEntity {
     }
 
     public int getTotalItems() {
-        return items.stream()
-                .mapToInt(OrderItem::getQuantity)
-                .sum();
+        return items.size();
     }
 }
