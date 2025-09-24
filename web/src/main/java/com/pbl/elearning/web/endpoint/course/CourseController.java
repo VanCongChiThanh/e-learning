@@ -1,0 +1,195 @@
+package com.pbl.elearning.web.endpoint.course;
+
+import com.pbl.elearning.common.PagingUtils;
+import com.pbl.elearning.common.constant.CommonConstant;
+import com.pbl.elearning.common.payload.general.PageInfo;
+import com.pbl.elearning.common.payload.general.ResponseDataAPI;
+import com.pbl.elearning.course.payload.request.CourseRequest;
+import com.pbl.elearning.course.payload.response.CoursePageResponse;
+import com.pbl.elearning.course.payload.response.CourseResponse;
+import com.pbl.elearning.course.service.CourseService;
+import com.pbl.elearning.course.service.impl.CourseServiceImpl;
+import lombok.RequiredArgsConstructor;
+import org.apache.xmlbeans.impl.xb.xsdschema.Public;
+import org.mapstruct.MappingTarget;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.persistence.EntityNotFoundException;
+import javax.validation.Valid;
+import java.io.IOException;
+import java.util.Set;
+import java.util.UUID;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/v1/courses")
+public class CourseController {
+    private final CourseService courseService;
+    @PostMapping
+    public ResponseEntity<ResponseDataAPI> createCourse(
+            @Valid
+            @RequestBody CourseRequest courseRequest,
+            @RequestHeader("X-User-ID") UUID instructorId) {
+        return ResponseEntity.ok(ResponseDataAPI.builder()
+                        .status(CommonConstant.SUCCESS)
+                        .data(courseService.createCourse(courseRequest,instructorId))
+                .build());
+
+    }
+    @GetMapping
+    public ResponseEntity<ResponseDataAPI> getAllCourses(
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size) {
+        return ResponseEntity.ok(ResponseDataAPI.builder()
+                .status(CommonConstant.SUCCESS)
+                .data(courseService.getAllCourses(page, size))
+                .build());
+    }
+
+    @GetMapping("/page")
+    public ResponseEntity<ResponseDataAPI> getCoursePage(
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "paging", defaultValue = "5") int paging,
+            @RequestParam(value = "sort", defaultValue = "created_at") String sort,
+            @RequestParam(value = "order", defaultValue = "desc") String order) {
+        Pageable pageable = PagingUtils.makePageRequest(sort, order, page, paging);
+        Page<CourseResponse> coursesPage = courseService.coursePageResponse(pageable);
+        PageInfo pageInfo = new PageInfo(
+                pageable.getPageNumber() + 1,
+                coursesPage.getTotalPages(),
+                coursesPage.getTotalElements()
+        );
+        return  ResponseEntity.ok(ResponseDataAPI.success(coursesPage.getContent(), pageInfo));
+    }
+
+    @GetMapping("/{courseId}")
+    public ResponseEntity<ResponseDataAPI> getCourseById(
+            @PathVariable("courseId") UUID courseId) {
+        CourseResponse courseResponse = courseService.getCourseById(courseId);
+
+        return ResponseEntity.ok(ResponseDataAPI.builder()
+                        .status(CommonConstant.SUCCESS)
+                        .data(courseResponse)
+                .build());
+
+    }
+
+
+
+    @PatchMapping("/{courseId}/image")
+    public ResponseEntity<ResponseDataAPI> uploadCourseImage(
+            @PathVariable("courseId") UUID courseId,
+            @RequestParam("imageUrl") String imageUrl) {
+
+        // Chỉ lưu URL vào database
+        String savedImageUrl = courseService.uploadCourseImage(courseId, imageUrl);
+
+        return ResponseEntity.ok(ResponseDataAPI.builder()
+                .status(CommonConstant.SUCCESS)
+                .data(savedImageUrl)
+                .build());
+    }
+
+    @PutMapping("/{courseId}")
+    public ResponseEntity<ResponseDataAPI> updateCourse(
+            @PathVariable UUID courseId,
+            @Valid @RequestBody CourseRequest courseRequest) {
+        return ResponseEntity.ok(ResponseDataAPI.builder()
+                .status(CommonConstant.SUCCESS)
+                .data(courseService.updateCourse(courseId, courseRequest))
+                .build());
+    }
+    @DeleteMapping("/{courseId}")
+    public ResponseEntity<ResponseDataAPI> deleteCourse(@PathVariable UUID courseId) {
+        courseService.deleteCourse(courseId);
+        return ResponseEntity.ok(ResponseDataAPI.builder()
+                .status(CommonConstant.SUCCESS)
+                .data("Course deleted successfully")
+                .build());
+    }
+    // --- ADD TAGS TO COURSE ---
+    @PutMapping("/{courseId}/tags")
+    public ResponseEntity<ResponseDataAPI> addTagsToCourse(
+            @PathVariable UUID courseId,
+            @RequestBody Set<UUID> tagIds) {
+        return ResponseEntity.ok(ResponseDataAPI.builder()
+                .status(CommonConstant.SUCCESS)
+                .data(courseService.addTagsToCourse(courseId, tagIds))
+                .build());
+    }
+    @DeleteMapping("/{courseId}/tags/{tagId}")
+    public ResponseEntity<ResponseDataAPI> removeTagFromCourse(
+            @PathVariable UUID courseId,
+            @PathVariable UUID tagId) {
+        return ResponseEntity.ok(ResponseDataAPI.builder()
+                .status(CommonConstant.SUCCESS)
+                .data(courseService.removeTagFromCourse(courseId, tagId))
+                .build());
+    }
+    @GetMapping("/{courseId}/tags")
+    public ResponseEntity<ResponseDataAPI> getTagsByCourseId(@PathVariable UUID courseId) {
+        return ResponseEntity.ok(ResponseDataAPI.builder()
+                .status(CommonConstant.SUCCESS)
+                .data(courseService.getTagsByCourseId(courseId))
+                .build());
+    }
+
+    /// use slug
+    @GetMapping("/slug/{slug}")
+    public ResponseEntity<ResponseDataAPI> getCourseBySlug(
+            @PathVariable("slug") String slug) {
+        CourseResponse courseResponse = courseService.getCourseBySlug(slug);
+        return ResponseEntity.ok(ResponseDataAPI.builder()
+                .status(CommonConstant.SUCCESS)
+                .data(courseResponse)
+                .build());
+    }
+    /// get detail by slug
+    @GetMapping("/slug/{slug}/detail")
+    public ResponseEntity<ResponseDataAPI> getCourseDetailBySlug(
+            @PathVariable("slug") String slug) {
+        CourseResponse courseResponse = courseService.getCourseDetailBySlug(slug);
+        return ResponseEntity.ok(ResponseDataAPI.builder()
+                .status(CommonConstant.SUCCESS)
+                .data(courseResponse)
+                .build());
+    };
+    // Upload image by slug
+    @PatchMapping("/slug/{slug}/image")
+    public ResponseEntity<ResponseDataAPI> uploadCourseImageBySlug(
+            @PathVariable("slug") String slug,
+            @RequestParam("imageUrl") String imageUrl) {
+        String savedImageUrl = courseService.uploadCourseImageBySlug(slug, imageUrl);
+        return ResponseEntity.ok(ResponseDataAPI.builder()
+                .status(CommonConstant.SUCCESS)
+                .data(savedImageUrl)
+                .build());
+    }
+
+    // Update course by slug
+    @PutMapping("/slug/{slug}")
+    public ResponseEntity<ResponseDataAPI> updateCourseBySlug(
+            @PathVariable("slug") String slug,
+            @Valid @RequestBody CourseRequest courseRequest) {
+        return ResponseEntity.ok(ResponseDataAPI.builder()
+                .status(CommonConstant.SUCCESS)
+                .data(courseService.updateCourseBySlug(slug, courseRequest))
+                .build());
+    }
+
+    // Delete course by slug
+    @DeleteMapping("/slug/{slug}")
+    public ResponseEntity<ResponseDataAPI> deleteCourseBySlug(@PathVariable("slug") String slug) {
+        courseService.deleteCourseBySlug(slug);
+        return ResponseEntity.ok(ResponseDataAPI.builder()
+                .status(CommonConstant.SUCCESS)
+                .data("Course deleted successfully")
+                .build());
+    }
+
+}

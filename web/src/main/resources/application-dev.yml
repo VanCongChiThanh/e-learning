@@ -39,7 +39,7 @@ app:
       google:
         clientId: ${GOOGLE_CLIENT_ID}
         clientSecret: ${GOOGLE_CLIENT_SECRET}
-        redirectUri: http://localhost:5173/oauth2/callback/google
+        redirectUri: http://localhost:3000/oauth2/callback/google
       facebook:
         clientId: ${FACEBOOK_CLIENT_ID}
         clientSecret: ${FACEBOOK_CLIENT_SECRET}

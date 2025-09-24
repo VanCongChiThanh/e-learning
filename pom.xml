@@ -20,8 +20,10 @@
         <module>file-service</module>
         <module>security-service</module>
         <module>user-service</module>
+        <module>course-service</module>
         <module>notification-service</module>
-        <module>commerce</module>
+        <module>commerce-service</module>
+        <module>enrollment-service</module> 
     </modules>
 
     <properties>
