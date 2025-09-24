@@ -53,7 +53,7 @@ jobs:
             docker pull ${{ secrets.DOCKER_USERNAME }}/e-learning:latest
             docker stop e-learning || true
             docker rm e-learning || true
-            docker run -d --name e-learning -p 8105:8105 \
+            docker run -d --name e-learning -p 80:8105 \
               -e DB_USERNAME=${{ secrets.DB_USERNAME }} \
               -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
               -e EMAIL_USERNAME=${{ secrets.EMAIL_USERNAME }} \

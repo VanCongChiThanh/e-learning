@@ -36,5 +36,5 @@ RUN mvn -B package -DskipTests
 FROM eclipse-temurin:17-jdk
 WORKDIR /app
 COPY --from=build /app/web/target/web-0.0.1-SNAPSHOT.jar ./web.jar
-EXPOSE 8080
+EXPOSE 8105
 ENTRYPOINT ["java","-jar","web.jar"]
