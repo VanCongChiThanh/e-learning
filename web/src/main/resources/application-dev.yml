@@ -2,7 +2,7 @@ server:
   port: 8105
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/e-learning
+    url: ${DB_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     hikari:
@@ -50,3 +50,14 @@ aws:
   region: us-east-1
   s3:
     bucket: e-learning-data
+
+payos:
+  client-id: ${PAYOS_CLIENT_ID}
+  api-key: ${PAYOS_API_KEY}
+  checksum-key: ${PAYOS_CHECKSUM_KEY}
+  partner-code: ${PAYOS_PARTNER_CODE}
+  sandbox: ${PAYOS_SANDBOX:true}
+  default-expiration-minutes: ${PAYOS_DEFAULT_EXPIRATION:15}
+  return-url: ${PAYOS_RETURN_URL:http://localhost:8105/api/payments/return/payos}
+  cancel-url: ${PAYOS_CANCEL_URL:http://localhost:8105/api/payments/cancel/payos}
+  webhook-url: ${PAYOS_WEBHOOK_URL:http://localhost:8105/api/payments/webhook/payos}
