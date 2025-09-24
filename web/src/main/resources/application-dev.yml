@@ -52,10 +52,10 @@ aws:
     bucket: e-learning-data
 
 payos:
-  client-id: ${PAYOS_CLIENT_ID}
-  api-key: ${PAYOS_API_KEY}
-  checksum-key: ${PAYOS_CHECKSUM_KEY}
-  partner-code: ${PAYOS_PARTNER_CODE}
+  client-id: ${PAYOS_CLIENT_ID:your-payos-client-id}
+  api-key: ${PAYOS_API_KEY:your-payos-api-key}
+  checksum-key: ${PAYOS_CHECKSUM_KEY:your-payos-checksum-key}
+  partner-code: ${PAYOS_PARTNER_CODE:your-partner-code}
   sandbox: ${PAYOS_SANDBOX:true}
   default-expiration-minutes: ${PAYOS_DEFAULT_EXPIRATION:15}
   return-url: ${PAYOS_RETURN_URL:http://localhost:8105/api/payments/return/payos}
