@@ -94,7 +94,7 @@ public class PaymentController {
             HttpServletRequest request) {
 
         try {
-            log.info("Received PayOS webhook: {}", webhookRequest.getData().getOrderCode());
+            //log.info("Received PayOS webhook: {}", webhookRequest.getData().getOrderCode());
 
             boolean success = paymentService.handlePayOSWebhook(webhookRequest);
 
