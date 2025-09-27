@@ -35,7 +35,6 @@ public class LectureServiceImpl implements LectureService {
                 .title(lectureRequest.getTitle())
                 .position(lectureRequest.getPosition())
                 .section(section)
-                .type(lectureRequest.getType())
                 .build();
         Lecture savedLecture = lectureRepository.save(lecture);
         return LectureResponse.fromEntity(savedLecture);
