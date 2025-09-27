@@ -2,7 +2,7 @@ server:
   port: 8105
 spring:
   datasource:
-    url: ${DB_URL:jdbc:postgresql://e-learning.c652ccayapup.us-east-1.rds.amazonaws.com:5432/elearning}
+    url: ${DB_URL:jdbc:postgresql://ep-lucky-mouse-adzmclij-pooler.c-2.us-east-1.aws.neon.tech:5432/elearning}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     hikari:
