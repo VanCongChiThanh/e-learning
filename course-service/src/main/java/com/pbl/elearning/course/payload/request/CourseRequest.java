@@ -36,9 +36,7 @@ public class CourseRequest {
     private String image;
 
 
-    private Set<Tag> tags;
 
-    private List<SectionRequest> sections;
 
 
 }

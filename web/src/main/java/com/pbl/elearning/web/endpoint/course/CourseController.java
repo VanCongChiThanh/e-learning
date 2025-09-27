@@ -9,13 +9,17 @@ import com.pbl.elearning.course.payload.response.CoursePageResponse;
 import com.pbl.elearning.course.payload.response.CourseResponse;
 import com.pbl.elearning.course.service.CourseService;
 import com.pbl.elearning.course.service.impl.CourseServiceImpl;
+import com.pbl.elearning.security.domain.UserPrincipal;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.xmlbeans.impl.xb.xsdschema.Public;
 import org.mapstruct.MappingTarget;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -28,13 +32,16 @@ import java.util.UUID;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/v1/courses")
+@Slf4j
 public class CourseController {
     private final CourseService courseService;
     @PostMapping
+    @PreAuthorize("hasAnyRole('INSTRUCTOR', 'ADMIN')")
     public ResponseEntity<ResponseDataAPI> createCourse(
             @Valid
             @RequestBody CourseRequest courseRequest,
-            @RequestHeader("X-User-ID") UUID instructorId) {
+            Authentication authentication) {
+        UUID instructorId = getUserIdFromAuthentication(authentication);
         return ResponseEntity.ok(ResponseDataAPI.builder()
                         .status(CommonConstant.SUCCESS)
                         .data(courseService.createCourse(courseRequest,instructorId))
@@ -82,6 +89,7 @@ public class CourseController {
 
 
     @PatchMapping("/{courseId}/image")
+    @PreAuthorize("hasAnyRole('INSTRUCTOR', 'ADMIN')")
     public ResponseEntity<ResponseDataAPI> uploadCourseImage(
             @PathVariable("courseId") UUID courseId,
             @RequestParam("imageUrl") String imageUrl) {
@@ -96,6 +104,7 @@ public class CourseController {
     }
 
     @PutMapping("/{courseId}")
+    @PreAuthorize("hasAnyRole('INSTRUCTOR', 'ADMIN')")
     public ResponseEntity<ResponseDataAPI> updateCourse(
             @PathVariable UUID courseId,
             @Valid @RequestBody CourseRequest courseRequest) {
@@ -105,6 +114,7 @@ public class CourseController {
                 .build());
     }
     @DeleteMapping("/{courseId}")
+    @PreAuthorize("hasAnyRole('INSTRUCTOR', 'ADMIN')")
     public ResponseEntity<ResponseDataAPI> deleteCourse(@PathVariable UUID courseId) {
         courseService.deleteCourse(courseId);
         return ResponseEntity.ok(ResponseDataAPI.builder()
@@ -114,6 +124,7 @@ public class CourseController {
     }
     // --- ADD TAGS TO COURSE ---
     @PutMapping("/{courseId}/tags")
+    @PreAuthorize("hasAnyRole('INSTRUCTOR', 'ADMIN')")
     public ResponseEntity<ResponseDataAPI> addTagsToCourse(
             @PathVariable UUID courseId,
             @RequestBody Set<UUID> tagIds) {
@@ -123,6 +134,7 @@ public class CourseController {
                 .build());
     }
     @DeleteMapping("/{courseId}/tags/{tagId}")
+    @PreAuthorize("hasAnyRole('INSTRUCTOR', 'ADMIN')")
     public ResponseEntity<ResponseDataAPI> removeTagFromCourse(
             @PathVariable UUID courseId,
             @PathVariable UUID tagId) {
@@ -161,6 +173,7 @@ public class CourseController {
     };
     // Upload image by slug
     @PatchMapping("/slug/{slug}/image")
+    @PreAuthorize("hasAnyRole('INSTRUCTOR', 'ADMIN')")
     public ResponseEntity<ResponseDataAPI> uploadCourseImageBySlug(
             @PathVariable("slug") String slug,
             @RequestParam("imageUrl") String imageUrl) {
@@ -173,6 +186,7 @@ public class CourseController {
 
     // Update course by slug
     @PutMapping("/slug/{slug}")
+    @PreAuthorize("hasAnyRole('INSTRUCTOR', 'ADMIN')")
     public ResponseEntity<ResponseDataAPI> updateCourseBySlug(
             @PathVariable("slug") String slug,
             @Valid @RequestBody CourseRequest courseRequest) {
@@ -184,12 +198,23 @@ public class CourseController {
 
     // Delete course by slug
     @DeleteMapping("/slug/{slug}")
+    @PreAuthorize("hasAnyRole('INSTRUCTOR', 'ADMIN')")
     public ResponseEntity<ResponseDataAPI> deleteCourseBySlug(@PathVariable("slug") String slug) {
         courseService.deleteCourseBySlug(slug);
         return ResponseEntity.ok(ResponseDataAPI.builder()
                 .status(CommonConstant.SUCCESS)
                 .data("Course deleted successfully")
                 .build());
+    }
+    private UUID getUserIdFromAuthentication(Authentication authentication) {
+
+        if (authentication != null && authentication.getPrincipal() != null) {
+            // Example implementation - adjust based on your User details implementation
+            UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+            return userPrincipal.getId();
+        }
+
+        throw new RuntimeException("User not authenticated");
     }
 
 }
