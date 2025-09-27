@@ -15,7 +15,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/enrollments")
+@RequestMapping("/v1/enrollments")
 public class EnrollmentController {
 
     private final EnrollmentService enrollmentService;

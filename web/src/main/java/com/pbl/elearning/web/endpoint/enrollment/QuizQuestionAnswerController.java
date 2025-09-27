@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/quiz-questions")
+@RequestMapping("/v1/quiz-questions")
 @RequiredArgsConstructor
 public class QuizQuestionAnswerController {
 
