@@ -34,8 +34,8 @@ public class SectionServiceImpl implements SectionService {
                 .position(sectionRequest.getPosition())
                 .course(course)
                 .build();
-
-        return  SectionResponse.fromEntityWithoutLectures(section);
+        Section savedSection = sectionRepository.save(section);
+        return  SectionResponse.fromEntityWithoutLectures(savedSection);
 
     }
     @Override
