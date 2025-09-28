@@ -23,7 +23,7 @@
         <module>course-service</module>
         <module>notification-service</module>
         <module>commerce-service</module>
-        <module>enrollment-service</module> 
+        <module>enrollment-service</module>
     </modules>
 
     <properties>
