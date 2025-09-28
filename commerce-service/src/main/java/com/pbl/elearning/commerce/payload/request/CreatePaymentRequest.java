@@ -11,8 +11,7 @@ import javax.validation.constraints.*;
 public class CreatePaymentRequest {
 
     @NotNull(message = "Order ID is required")
-    @Positive(message = "Order ID must be positive")
-    private Long orderId;
+    private java.util.UUID orderId;
 
     @NotNull(message = "Payment method is required")
     private PaymentMethod paymentMethod = PaymentMethod.PAYOS;

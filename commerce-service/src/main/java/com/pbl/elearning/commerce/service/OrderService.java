@@ -20,6 +20,7 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,7 +33,7 @@ public class OrderService {
     private final CartRepository cartRepository;
 
     @Transactional
-    public OrderResponse createOrder(CreateOrderRequest request, Long userId) {
+    public OrderResponse createOrder(CreateOrderRequest request, UUID userId) {
         // 1. Validate request
         validateOrderRequest(request, userId);
 
@@ -42,7 +43,7 @@ public class OrderService {
         order.setUserId(userId);
         order.setStatus(OrderStatus.PENDING);
         order.setNotes(request.getNotes());
-        order.setCouponCode(request.getCouponCode());
+        // Coupon removed
 
         // 3. Create order items
         List<OrderItem> orderItems = request.getItems().stream()
@@ -54,10 +55,7 @@ public class OrderService {
         // 4. Calculate amounts
         order.calculateTotalAmount();
 
-        // Apply discount if coupon code is provided
-        if (request.getCouponCode() != null && !request.getCouponCode().trim().isEmpty()) {
-            applyDiscount(order, request.getCouponCode());
-        }
+        // No discount application; final amount equals total
 
         // 5. Save order
         Order savedOrder = orderRepository.save(order);
@@ -67,7 +65,7 @@ public class OrderService {
     }
 
     @Transactional
-    public OrderResponse createOrderFromCart(CreateOrderFromCartRequest request, Long userId) {
+    public OrderResponse createOrderFromCart(CreateOrderFromCartRequest request, UUID userId) {
         // 1. Get user's cart
         Cart cart = cartRepository.findByUserIdWithItems(userId)
                 .orElseThrow(() -> new RuntimeException("Cart not found"));
@@ -80,7 +78,7 @@ public class OrderService {
         // purchased them)
         for (CartItem cartItem : cart.getItems()) {
             if (hasUserPurchasedCourse(userId, cartItem.getCourseId())) {
-                throw new RuntimeException("You have already purchased course: " + cartItem.getCourseName());
+                throw new RuntimeException("You have already purchased course: " + cartItem.getCourseId());
             }
         }
 
@@ -90,8 +88,7 @@ public class OrderService {
         order.setUserId(userId);
         order.setStatus(OrderStatus.PENDING);
         order.setNotes(request.getNotes());
-        order.setCouponCode(cart.getCouponCode());
-        order.setDiscountPercentage(cart.getDiscountPercentage());
+        // Coupon/discount removed
 
         // 4. Convert cart items to order items
         List<OrderItem> orderItems = cart.getItems().stream()
@@ -102,8 +99,7 @@ public class OrderService {
 
         // 5. Set amounts from cart
         order.setTotalAmount(cart.getTotalAmount());
-        order.setDiscountAmount(cart.getDiscountAmount());
-        order.setFinalAmount(cart.getFinalAmount());
+        // No discount; use total amount
 
         // 6. Save order
         Order savedOrder = orderRepository.save(order);
@@ -120,7 +116,7 @@ public class OrderService {
     }
 
     @Transactional(readOnly = true)
-    public OrderResponse getOrderById(Long orderId, Long userId) {
+    public OrderResponse getOrderById(UUID orderId, UUID userId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
 
@@ -132,7 +128,7 @@ public class OrderService {
     }
 
     @Transactional(readOnly = true)
-    public OrderResponse getOrderByNumber(String orderNumber, Long userId) {
+    public OrderResponse getOrderByNumber(String orderNumber, UUID userId) {
         Order order = orderRepository.findByOrderNumber(orderNumber)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
 
@@ -144,24 +140,24 @@ public class OrderService {
     }
 
     @Transactional(readOnly = true)
-    public Page<OrderResponse> getUserOrders(Long userId, Pageable pageable) {
+    public Page<OrderResponse> getUserOrders(UUID userId, Pageable pageable) {
         Page<Order> orders = orderRepository.findByUserIdOrderByCreatedAtDesc(userId, pageable);
         return orders.map(this::mapToOrderResponse);
     }
 
     @Transactional(readOnly = true)
-    public Page<OrderResponse> getUserOrdersByStatus(Long userId, OrderStatus status, Pageable pageable) {
+    public Page<OrderResponse> getUserOrdersByStatus(UUID userId, OrderStatus status, Pageable pageable) {
         Page<Order> orders = orderRepository.findByUserIdAndStatus(userId, status, pageable);
         return orders.map(this::mapToOrderResponse);
     }
 
     @Transactional(readOnly = true)
-    public List<Long> getPurchasedCourseIds(Long userId) {
+    public List<UUID> getPurchasedCourseIds(UUID userId) {
         return orderItemRepository.findPurchasedCourseIdsByUserId(userId);
     }
 
     @Transactional(readOnly = true)
-    public boolean hasUserPurchasedCourse(Long userId, Long courseId) {
+    public boolean hasUserPurchasedCourse(UUID userId, UUID courseId) {
         List<OrderStatus> paidStatuses = List.of(OrderStatus.PAID, OrderStatus.DELIVERED);
         return orderRepository.findByUserIdAndCourseIdAndStatusIn(userId, courseId, paidStatuses)
                 .isPresent();
@@ -193,7 +189,7 @@ public class OrderService {
     }
 
     @Transactional
-    public OrderResponse cancelOrder(Long orderId, Long userId) {
+    public OrderResponse cancelOrder(UUID orderId, UUID userId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
 
@@ -212,7 +208,7 @@ public class OrderService {
         return mapToOrderResponse(order);
     }
 
-    private void validateOrderRequest(CreateOrderRequest request, Long userId) {
+    private void validateOrderRequest(CreateOrderRequest request, UUID userId) {
         // Validate user exists (this should be done by the calling service)
 
         // Validate course availability and prices
@@ -234,16 +230,8 @@ public class OrderService {
     private OrderItem createOrderItem(CreateOrderRequest.OrderItemRequest itemRequest, Order order) {
         OrderItem orderItem = new OrderItem();
         orderItem.setCourseId(itemRequest.getCourseId());
-        orderItem.setCourseName(itemRequest.getCourseName());
-        orderItem.setCoursePrice(BigDecimal.valueOf(itemRequest.getCoursePrice()));
-        orderItem.setQuantity(itemRequest.getQuantity());
-        orderItem.setCourseDescription(itemRequest.getCourseDescription());
-        orderItem.setCourseThumbnail(itemRequest.getCourseThumbnail());
-        orderItem.setInstructorName(itemRequest.getInstructorName());
+        orderItem.setUnitPrice(BigDecimal.valueOf(itemRequest.getCoursePrice()));
         orderItem.setOrder(order);
-
-        // Calculate total price
-        orderItem.calculateTotalPrice();
 
         return orderItem;
     }
@@ -251,37 +239,10 @@ public class OrderService {
     private OrderItem convertCartItemToOrderItem(CartItem cartItem, Order order) {
         OrderItem orderItem = new OrderItem();
         orderItem.setCourseId(cartItem.getCourseId());
-        orderItem.setCourseName(cartItem.getCourseName());
-        orderItem.setCoursePrice(cartItem.getCoursePrice());
-        orderItem.setQuantity(cartItem.getQuantity());
-        orderItem.setTotalPrice(cartItem.getTotalPrice());
-        orderItem.setDiscountAmount(cartItem.getDiscountAmount());
-        orderItem.setCourseDescription(cartItem.getCourseDescription());
-        orderItem.setCourseThumbnail(cartItem.getCourseThumbnail());
-        orderItem.setInstructorName(cartItem.getInstructorName());
+        orderItem.setUnitPrice(cartItem.getAddedPrice());
         orderItem.setOrder(order);
 
         return orderItem;
-    }
-
-    private void applyDiscount(Order order, String couponCode) {
-        // TODO: Implement coupon validation and discount calculation
-        // For now, applying a simple 10% discount for demo purposes
-        if ("DISCOUNT10".equals(couponCode)) {
-            BigDecimal discount = order.getTotalAmount().multiply(BigDecimal.valueOf(0.1));
-            order.setDiscountAmount(discount);
-            order.setDiscountPercentage(10);
-            order.setFinalAmount(order.getTotalAmount().subtract(discount));
-        } else if ("DISCOUNT20".equals(couponCode)) {
-            BigDecimal discount = order.getTotalAmount().multiply(BigDecimal.valueOf(0.2));
-            order.setDiscountAmount(discount);
-            order.setDiscountPercentage(20);
-            order.setFinalAmount(order.getTotalAmount().subtract(discount));
-        } else {
-            // Invalid coupon code
-            log.warn("Invalid coupon code used: {}", couponCode);
-            order.setFinalAmount(order.getTotalAmount());
-        }
     }
 
     private String generateOrderNumber() {
@@ -298,12 +259,11 @@ public class OrderService {
         response.setOrderNumber(order.getOrderNumber());
         response.setUserId(order.getUserId());
         response.setTotalAmount(order.getTotalAmount());
-        response.setDiscountAmount(order.getDiscountAmount());
-        response.setFinalAmount(order.getFinalAmount());
+        response.setDiscountAmount(BigDecimal.ZERO);
+        response.setFinalAmount(order.getTotalAmount());
         response.setStatus(order.getStatus());
         response.setNotes(order.getNotes());
-        response.setCouponCode(order.getCouponCode());
-        response.setDiscountPercentage(order.getDiscountPercentage());
+        // Coupon/discount removed
         response.setCreatedAt(order.getCreatedAt());
         response.setUpdatedAt(order.getUpdatedAt());
         response.setDeliveredAt(order.getDeliveredAt());
@@ -334,14 +294,7 @@ public class OrderService {
         OrderResponse.OrderItemResponse response = new OrderResponse.OrderItemResponse();
         response.setId(orderItem.getId());
         response.setCourseId(orderItem.getCourseId());
-        response.setCourseName(orderItem.getCourseName());
-        response.setCoursePrice(orderItem.getCoursePrice());
-        response.setQuantity(orderItem.getQuantity());
-        response.setTotalPrice(orderItem.getTotalPrice());
-        response.setDiscountAmount(orderItem.getDiscountAmount());
-        response.setCourseDescription(orderItem.getCourseDescription());
-        response.setCourseThumbnail(orderItem.getCourseThumbnail());
-        response.setInstructorName(orderItem.getInstructorName());
+        response.setDiscountAmount(BigDecimal.ZERO);
         return response;
     }
 }

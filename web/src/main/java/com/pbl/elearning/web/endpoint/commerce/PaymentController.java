@@ -5,6 +5,8 @@ import com.pbl.elearning.commerce.payload.response.PaymentResponse;
 import com.pbl.elearning.commerce.payload.webhook.PayOSWebhookRequest;
 import com.pbl.elearning.commerce.service.PaymentService;
 import com.pbl.elearning.common.payload.general.ResponseDataAPI;
+import com.pbl.elearning.security.domain.UserPrincipal;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +18,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -35,7 +39,7 @@ public class PaymentController {
             @Valid @RequestBody CreatePaymentRequest request,
             Authentication authentication) {
 
-        Long userId = getUserIdFromAuthentication(authentication);
+        UUID userId = getUserIdFromAuthentication(authentication);
         PaymentResponse paymentResponse = paymentService.createPayment(request, userId);
 
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -48,7 +52,7 @@ public class PaymentController {
             @PathVariable String orderCode,
             Authentication authentication) {
 
-        Long userId = getUserIdFromAuthentication(authentication);
+        UUID userId = getUserIdFromAuthentication(authentication);
         PaymentResponse paymentResponse = paymentService.getPaymentByOrderCode(orderCode, userId);
 
         return ResponseEntity.ok(
@@ -62,7 +66,7 @@ public class PaymentController {
             @RequestParam(defaultValue = "10") int size,
             Authentication authentication) {
 
-        Long userId = getUserIdFromAuthentication(authentication);
+        UUID userId = getUserIdFromAuthentication(authentication);
         Pageable pageable = PageRequest.of(page, size);
         Page<PaymentResponse> payments = paymentService.getUserPayments(userId, pageable);
 
@@ -76,7 +80,7 @@ public class PaymentController {
             @PathVariable String orderCode,
             Authentication authentication) {
 
-        Long userId = getUserIdFromAuthentication(authentication);
+        UUID userId = getUserIdFromAuthentication(authentication);
         PaymentResponse paymentResponse = paymentService.cancelPayment(orderCode, userId);
 
         return ResponseEntity.ok(
@@ -90,7 +94,7 @@ public class PaymentController {
             HttpServletRequest request) {
 
         try {
-            log.info("Received PayOS webhook: {}", webhookRequest.getData().getOrderCode());
+            //log.info("Received PayOS webhook: {}", webhookRequest.getData().getOrderCode());
 
             boolean success = paymentService.handlePayOSWebhook(webhookRequest);
 
@@ -172,18 +176,11 @@ public class PaymentController {
                 .body(ResponseDataAPI.error("An unexpected error occurred"));
     }
 
-    private Long getUserIdFromAuthentication(Authentication authentication) {
-        // TODO: Extract user ID from authentication object
-        // This implementation depends on your authentication mechanism
-        // For now, returning a placeholder - implement based on your security setup
+    private UUID getUserIdFromAuthentication(Authentication authentication) {
 
         if (authentication != null && authentication.getPrincipal() != null) {
-            // Example implementation - adjust based on your User details implementation
-            // UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-            // return userPrincipal.getId();
-
-            // Placeholder implementation
-            return 1L; // Replace with actual user ID extraction
+            UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+            return userPrincipal.getId();
         }
 
         throw new RuntimeException("User not authenticated");
