@@ -128,4 +128,5 @@ public interface UserService {
   void removeAccount(UUID userId, String token);
 
   User registerUser(UUID userId,String firstname, String lastname, String email, String password, Role role);
+  void updateRoleUser(UUID userId, Role role);
 }

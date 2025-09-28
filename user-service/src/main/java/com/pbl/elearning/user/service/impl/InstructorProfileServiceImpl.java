@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -56,6 +57,11 @@ public class InstructorProfileServiceImpl implements InstructorProfileService {
 
     @Override
     public InstructorProfile createProfile(UUID userId) {
+        InstructorProfile instructorProfile= this.findByUserId(userId);
+        Optional<InstructorProfile> existingProfile = instructorProfileRepository.findByUserId(userId);
+        if (existingProfile.isPresent()) {
+            return existingProfile.get();
+        }
         InstructorProfile profile = new InstructorProfile();
         profile.setUserId(userId);
         return instructorProfileRepository.save(profile);
