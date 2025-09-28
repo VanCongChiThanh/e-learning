@@ -63,4 +63,9 @@ public class ProgressServiceImpl implements ProgressService {
     public List<Progress> getProgressByEnrollmentId(UUID enrollmentId) {
         return progressRepository.findByEnrollmentId(enrollmentId);
     }
+
+    @Override
+    public List<Progress> getProgressByLectureId(UUID lectureId) {
+        return progressRepository.findByLectureId(lectureId);
+    }
 }

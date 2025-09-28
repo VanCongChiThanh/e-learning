@@ -22,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 import java.io.IOException;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -79,7 +80,14 @@ public class CourseController {
 
     }
 
-
+    @GetMapping("/instructor/{instructorId}")
+    public ResponseEntity<ResponseDataAPI> getCourseByInstructorId(@PathVariable("instructorId") UUID instructorId) {
+        List<CourseResponse> courseResponse = courseService.getCoursesByInstructorId(instructorId);
+        return ResponseEntity.ok(ResponseDataAPI.builder()
+                .status(CommonConstant.SUCCESS)
+                .data(courseResponse)
+                .build());
+    }
 
     @PatchMapping("/{courseId}/image")
     public ResponseEntity<ResponseDataAPI> uploadCourseImage(

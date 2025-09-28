@@ -20,6 +20,9 @@ public interface CourseService {
     List<CourseResponse> getAllCourses(int page, int size);
     Page<CourseResponse> coursePageResponse(Pageable pageable);
     CourseResponse getCourseById(UUID courseId);
+
+    List<CourseResponse> getCoursesByInstructorId(UUID instructorId);
+
     String uploadCourseImage(UUID courseId, String urlfile);
     CourseResponse updateCourse(UUID courseId, CourseRequest courseRequest);
     void deleteCourse(UUID courseId);

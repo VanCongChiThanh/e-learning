@@ -21,4 +21,5 @@ public interface ProgressService {
 
     // Lấy tất cả tiến trình theo enrollment
     List<Progress> getProgressByEnrollmentId(UUID enrollmentId);
+    List<Progress> getProgressByLectureId(UUID lectureId);
 }

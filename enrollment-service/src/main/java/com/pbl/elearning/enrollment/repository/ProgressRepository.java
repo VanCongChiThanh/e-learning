@@ -9,4 +9,5 @@ import java.util.UUID;
 
 public interface ProgressRepository extends JpaRepository<Progress, UUID> {
     List<Progress> findByEnrollmentId(UUID enrollmentId);
+    List<Progress> findByLectureId(UUID lectureId);
 }

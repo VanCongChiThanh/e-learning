@@ -1,12 +1,9 @@
 package com.pbl.elearning.course.service.impl;
 
 import com.github.slugify.Slugify;
-import com.pbl.elearning.common.payload.general.PageInfo;
 import com.pbl.elearning.course.domain.Course;
 import com.pbl.elearning.course.domain.Tag;
-import com.pbl.elearning.course.domain.enums.CourseLevel;
 import com.pbl.elearning.course.payload.request.CourseRequest;
-import com.pbl.elearning.course.payload.response.CoursePageResponse;
 import com.pbl.elearning.course.payload.response.CourseResponse;
 import com.pbl.elearning.course.payload.response.TagResponse;
 import com.pbl.elearning.course.repository.CourseRepository;
@@ -16,21 +13,13 @@ import com.pbl.elearning.course.service.LectureService;
 import com.pbl.elearning.course.service.ReviewService;
 import com.pbl.elearning.course.service.TagService;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.proxy.EntityNotFoundDelegate;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityNotFoundException;
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -110,6 +99,20 @@ public class CourseServiceImpl implements CourseService {
             new EntityNotFoundException("Course not found with id: " + courseId));
         return CourseResponse.toCourseResponse(course);
     }
+
+
+    @Override
+    public List<CourseResponse> getCoursesByInstructorId(UUID instructorId) {
+        List<Course> courses = courseRepository.findByInstructorId(instructorId);
+        if (courses.isEmpty()) {
+            throw new EntityNotFoundException("No courses found for instructorId: " + instructorId);
+        }
+        return courses.stream()
+                .map(CourseResponse::toCourseResponse)
+                .toList();
+    }
+
+
     @Override
     public  String uploadCourseImage(UUID courseId, String urlfile){
         Course course= courseRepository.findById(courseId).orElseThrow(() ->
