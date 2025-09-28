@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -53,6 +54,19 @@ public class InstructorProfileServiceImpl implements InstructorProfileService {
         UserInfoResponse userInfo = UserInfoResponse.toResponse(this.userInfoService.getUserInfoByUserId(userId));
         return InstructorProfileResponse.toResponse(profile, userInfo);
     }
+
+    @Override
+    public InstructorProfile createProfile(UUID userId) {
+        InstructorProfile instructorProfile= this.findByUserId(userId);
+        Optional<InstructorProfile> existingProfile = instructorProfileRepository.findByUserId(userId);
+        if (existingProfile.isPresent()) {
+            return existingProfile.get();
+        }
+        InstructorProfile profile = new InstructorProfile();
+        profile.setUserId(userId);
+        return instructorProfileRepository.save(profile);
+    }
+
     private InstructorProfile findByUserId(UUID userId) {
         return instructorProfileRepository.findByUserId(userId)
                 .orElseThrow(() -> new IllegalArgumentException("Instructor profile not found for user: " + userId));
