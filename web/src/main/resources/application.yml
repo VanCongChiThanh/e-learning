@@ -14,7 +14,7 @@ spring:
   thymeleaf:
     mode: HTML
   profiles:
-    active: dev
+    active: prod
   datasource:
     hikari:
       auto-commit: false
@@ -44,19 +44,3 @@ app:
     tokenExpirationMsec: 7200000
     refreshTokenSecret: ${REFRESH_TOKEN_SECRET}
     refreshTokenExpirationMsec: 2592000000
-
-# PayOS Configuration
-payos:
-  client-id: ${PAYOS_CLIENT_ID:your-payos-client-id}
-  api-key: ${PAYOS_API_KEY:your-payos-api-key}
-  checksum-key: ${PAYOS_CHECKSUM_KEY:your-payos-checksum-key}
-  partner-code: ${PAYOS_PARTNER_CODE:your-partner-code} 
-  sandbox: ${PAYOS_SANDBOX:true}
-  default-expiration-minutes: ${PAYOS_DEFAULT_EXPIRATION:15}
-  return-url: ${PAYOS_RETURN_URL:http://localhost:8080/api/payments/return/payos}
-  cancel-url: ${PAYOS_CANCEL_URL:http://localhost:8080/api/payments/cancel/payos}
-  webhook-url: ${PAYOS_WEBHOOK_URL:http://localhost:8080/api/payments/webhook/payos}
-
-AWS_ACCESS_KEY: your-aws-access-key
-AWS_SECRET_KEY: your-aws-secret-key
-AWS_REGION: ap-southeast-1

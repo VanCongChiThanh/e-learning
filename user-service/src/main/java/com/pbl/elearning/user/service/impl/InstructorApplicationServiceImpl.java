@@ -3,15 +3,20 @@ package com.pbl.elearning.user.service.impl;
 
 import com.pbl.elearning.email.service.EmailService;
 import com.pbl.elearning.user.domain.InstructorApplication;
+import com.pbl.elearning.user.domain.InstructorProfile;
 import com.pbl.elearning.user.domain.UserInfo;
 import com.pbl.elearning.user.domain.enums.ApplicationStatus;
 import com.pbl.elearning.user.payload.request.instructor.ApplyInstructorRequest;
 import com.pbl.elearning.user.payload.request.instructor.ReviewApplicationRequest;
+import com.pbl.elearning.user.payload.response.UserInfoResponse;
 import com.pbl.elearning.user.payload.response.instructor.ApplyInstructorResponse;
+import com.pbl.elearning.user.payload.response.instructor.InstructorCandidateResponse;
 import com.pbl.elearning.user.repository.InstructorApplicationRepository;
 import com.pbl.elearning.user.service.InstructorApplicationService;
 import com.pbl.elearning.user.service.UserInfoService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,8 +28,30 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class InstructorApplicationServiceImpl implements InstructorApplicationService {
     private final InstructorApplicationRepository instructorApplicationRepository;
+    private final InstructorProfileServiceImpl instructorProfileService;
     private final EmailService emailService;
     private final UserInfoService userInfoService;
+
+    @Override
+    public Page<InstructorCandidateResponse> getAllApplications(Pageable pageable) {
+        Page<Object[]> results = instructorApplicationRepository.findAllWithUserInfo(pageable);
+
+        return results.map(record -> {
+            InstructorApplication app = (InstructorApplication) record[0];
+            UserInfo ui = (UserInfo) record[1];
+
+            UserInfoResponse userInfo = UserInfoResponse.toResponse(ui);
+
+            return InstructorCandidateResponse.toResponse(
+                    userInfo,
+                    app.getCvUrl(),
+                    app.getPortfolioLink(),
+                    app.getMotivation(),
+                    app.getStatus().name()
+            );
+        });
+    }
+
 
     @Override
     public ApplyInstructorResponse applyForInstructor(ApplyInstructorRequest request, UUID userId) {
@@ -66,6 +93,7 @@ public class InstructorApplicationServiceImpl implements InstructorApplicationSe
                         "vi"
                 );
                 application.setStatus(status);
+                instructorProfileService.createProfile(application.getUserId());
                 break;
             case REJECTED:
                 emailService.sendMailRejectInstructorApplication(
