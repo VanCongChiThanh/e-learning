@@ -12,7 +12,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/quizzes")
+@RequestMapping("/v1/quizzes")
 public class QuizController {
 
     private final QuizService quizService;

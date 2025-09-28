@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/assignment-submissions")
+@RequestMapping("/v1/assignment-submissions")
 @RequiredArgsConstructor
 public class AssignmentSubmissionController {
 

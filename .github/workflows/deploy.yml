@@ -1,0 +1,78 @@
+name: CI/CD Docker to EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout code
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      # 2. Set up JDK
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 17
+
+      # 3. Build Maven project (all modules)
+      - name: Build Maven project
+        run: mvn clean package -DskipTests
+
+      # 4. Build Docker image
+      - name: Build Docker image
+        run: docker build -t e-learning:latest .
+
+      # 5. Login Docker Hub
+      - name: Login Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # 6. Tag & Push Docker image
+      - name: Push Docker image
+        run: |
+          docker tag e-learning:latest ${{ secrets.DOCKER_USERNAME }}/e-learning:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/e-learning:latest
+
+      # 7. Deploy on EC2
+      - name: Deploy on EC2
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            docker pull ${{ secrets.DOCKER_USERNAME }}/e-learning:latest
+            docker stop e-learning || true
+            docker rm e-learning || true
+            docker run -d --name e-learning -p 80:8105 \
+              -e DB_USERNAME=${{ secrets.DB_USERNAME }} \
+              -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+              -e EMAIL_USERNAME=${{ secrets.EMAIL_USERNAME }} \
+              -e EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }} \
+              -e GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }} \
+              -e GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }} \
+              -e FACEBOOK_CLIENT_ID=${{ secrets.FACEBOOK_CLIENT_ID }} \
+              -e FACEBOOK_CLIENT_SECRET=${{ secrets.FACEBOOK_CLIENT_SECRET }} \
+              -e AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }} \
+              -e AWS_SECRET_KEY=${{ secrets.AWS_SECRET_KEY }} \
+              -e TOKEN_SECRET=${{ secrets.TOKEN_SECRET }} \
+              -e REFRESH_TOKEN_SECRET=${{ secrets.REFRESH_TOKEN_SECRET }} \
+              -e PAYOS_CLIENT_ID=${{ secrets.PAYOS_CLIENT_ID }} \
+              -e PAYOS_API_KEY=${{ secrets.PAYOS_API_KEY }} \
+              -e PAYOS_CHECKSUM_KEY=${{ secrets.PAYOS_CHECKSUM_KEY }} \
+              -e PAYOS_PARTNER_CODE=${{ secrets.PAYOS_PARTNER_CODE }} \
+              -e PAYOS_SANDBOX=${{ secrets.PAYOS_SANDBOX }} \
+              -e PAYOS_DEFAULT_EXPIRATION=${{ secrets.PAYOS_DEFAULT_EXPIRATION }} \
+              -e PAYOS_RETURN_URL=${{ secrets.PAYOS_RETURN_URL }} \
+              -e PAYOS_CANCEL_URL=${{ secrets.PAYOS_CANCEL_URL }} \
+              -e PAYOS_WEBHOOK_URL=${{ secrets.PAYOS_WEBHOOK_URL }} \
+              ${{ secrets.DOCKER_USERNAME }}/e-learning:latest

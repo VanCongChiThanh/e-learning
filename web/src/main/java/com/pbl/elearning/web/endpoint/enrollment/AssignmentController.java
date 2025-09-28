@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/assignments")
+@RequestMapping("/v1/assignments")
 @RequiredArgsConstructor
 public class AssignmentController {
 

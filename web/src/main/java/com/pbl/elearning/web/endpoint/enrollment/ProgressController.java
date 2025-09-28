@@ -14,7 +14,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/progress")
+@RequestMapping("/v1/progress")
 public class ProgressController {
     private final ProgressService progressService;
 

@@ -9,4 +9,5 @@ import java.util.UUID;
 public interface InstructorProfileService {
     InstructorProfileResponse updateProfile(InstructorProfileRequest instructorProfile, UUID userId);
     InstructorProfileResponse getProfile(UUID userId);
+    InstructorProfile createProfile(UUID userId);
 }
