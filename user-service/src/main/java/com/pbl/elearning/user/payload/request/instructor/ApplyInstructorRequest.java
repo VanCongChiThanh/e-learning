@@ -1,5 +1,6 @@
 package com.pbl.elearning.user.payload.request.instructor;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Getter;
@@ -12,4 +13,5 @@ public class ApplyInstructorRequest {
     private String cvUrl;
     private String portfolioLink;
     private String motivation;
+    private JsonNode extraInfo;
 }

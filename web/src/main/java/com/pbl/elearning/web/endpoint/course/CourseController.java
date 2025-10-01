@@ -1,27 +1,19 @@
 package com.pbl.elearning.web.endpoint.course;
 
-import com.pbl.elearning.common.PagingUtils;
+import com.pbl.elearning.common.util.PagingUtils;
 import com.pbl.elearning.common.constant.CommonConstant;
 import com.pbl.elearning.common.payload.general.PageInfo;
 import com.pbl.elearning.common.payload.general.ResponseDataAPI;
 import com.pbl.elearning.course.payload.request.CourseRequest;
-import com.pbl.elearning.course.payload.response.CoursePageResponse;
 import com.pbl.elearning.course.payload.response.CourseResponse;
 import com.pbl.elearning.course.service.CourseService;
-import com.pbl.elearning.course.service.impl.CourseServiceImpl;
 import lombok.RequiredArgsConstructor;
-import org.apache.xmlbeans.impl.xb.xsdschema.Public;
-import org.mapstruct.MappingTarget;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
-import java.io.IOException;
 import java.util.Set;
 import java.util.UUID;
 

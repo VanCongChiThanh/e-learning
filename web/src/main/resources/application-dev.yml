@@ -30,7 +30,7 @@ org:
       enabled: false
 origin-patterns: "*"
 dev-patterns: "http://localhost:3000"
-web-url: "http://localhost:3000"
+web-url: "https://coursevo.vercel.app"
 e-learning-mail:
   domain: e-learning.com
 app:
@@ -43,7 +43,7 @@ app:
       facebook:
         clientId: ${FACEBOOK_CLIENT_ID}
         clientSecret: ${FACEBOOK_CLIENT_SECRET}
-        redirectUri: http://localhost:8105/api/v1/oauth2/facebook/login
+        redirectUri: http://localhost:8105/oauth2/callback/facebook
 aws:
   accessKey: ${AWS_ACCESS_KEY}
   secretKey: ${AWS_SECRET_KEY}
