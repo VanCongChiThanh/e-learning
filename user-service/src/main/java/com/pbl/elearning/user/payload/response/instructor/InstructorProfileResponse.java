@@ -15,6 +15,7 @@ import lombok.*;
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class InstructorProfileResponse {
+    private String bio;
     private String headline;
     private String biography;
     private String linkedin;
@@ -26,6 +27,7 @@ public class InstructorProfileResponse {
 
     public static InstructorProfileResponse toResponse(InstructorProfile profile, UserInfoResponse userInfo) {
         return InstructorProfileResponse.builder()
+                .bio(profile.getBio())
                 .headline(profile.getHeadline())
                 .biography(profile.getBiography())
                 .linkedin(profile.getLinkedin())

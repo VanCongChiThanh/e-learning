@@ -22,6 +22,7 @@ public class InstructorProfile {
     @Column(name = "user_id", nullable = false, unique = true)
     private UUID userId;
 
+    private String bio;
     private String headline;
     private String biography;
     private String linkedin;

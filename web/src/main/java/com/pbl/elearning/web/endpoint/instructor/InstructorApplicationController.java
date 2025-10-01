@@ -1,6 +1,6 @@
 package com.pbl.elearning.web.endpoint.instructor;
 
-import com.pbl.elearning.common.PagingUtils;
+import com.pbl.elearning.common.util.PagingUtils;
 import com.pbl.elearning.common.payload.general.PageInfo;
 import com.pbl.elearning.common.payload.general.ResponseDataAPI;
 import com.pbl.elearning.security.annotation.CurrentUser;
