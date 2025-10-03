@@ -1,6 +1,8 @@
 package com.pbl.elearning.notification.repository;
 
 import com.pbl.elearning.notification.domain.Notification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -9,9 +11,8 @@ import java.util.UUID;
 
 @Repository
 public interface NotificationRepository extends JpaRepository<Notification, UUID> {
-    List<Notification> findByUserIdAndIsReadFalse(UUID userId);
 
-    List<Notification> findByUserIdAndIsReadFalseOrderByCreatedAtDesc(UUID userId);
+    Page<Notification> findByUserIdAndIsReadFalse(UUID userId,Pageable pageable);
 
-    List<Notification> findByUserIdOrderByCreatedAtDesc(UUID userId);
+    Page<Notification> findByUserIdOrderByCreatedAtDesc(UUID userId, Pageable pageable);
 }

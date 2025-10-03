@@ -9,6 +9,8 @@ import com.pbl.elearning.notification.payload.response.NotificationResponse;
 import com.pbl.elearning.notification.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -100,13 +102,13 @@ public class NotificationService {
     }
 
     // Lấy notification chưa đọc
-    public List<NotificationResponse> getAllNotifications(UUID userId,boolean onlyUnread){
+    public Page<NotificationResponse> getAllNotifications(UUID userId, boolean onlyUnread, Pageable pageable){
         if(!onlyUnread){
-            List<Notification> notifications = notificationRepository.findByUserIdOrderByCreatedAtDesc(userId);
-            return notifications.stream().map(NotificationResponse::toResponse).collect(Collectors.toList());
+            Page<Notification> notifications = notificationRepository.findByUserIdOrderByCreatedAtDesc(userId,pageable);
+            return notifications.map(NotificationResponse::toResponse);
         }
-        List<Notification> notifications = notificationRepository.findByUserIdAndIsReadFalseOrderByCreatedAtDesc(userId);
-        return notifications.stream().map(NotificationResponse::toResponse).collect(Collectors.toList());
+        Page<Notification> notifications = notificationRepository.findByUserIdAndIsReadFalse(userId,pageable);
+        return notifications.map(NotificationResponse::toResponse);
     }
     //Đánh dấu đã đọc
     public UUID markAsRead(UUID notificationId){

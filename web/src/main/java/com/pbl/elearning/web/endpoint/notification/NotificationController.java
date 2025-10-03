@@ -1,14 +1,19 @@
 package com.pbl.elearning.web.endpoint.notification;
 
+import com.pbl.elearning.common.payload.general.PageInfo;
 import com.pbl.elearning.common.payload.general.ResponseDataAPI;
+import com.pbl.elearning.common.util.PagingUtils;
 import com.pbl.elearning.notification.domain.enums.NotificationType;
 import com.pbl.elearning.notification.payload.request.RegisterDeviceRequest;
+import com.pbl.elearning.notification.payload.response.NotificationResponse;
 import com.pbl.elearning.notification.service.DeviceTokenService;
 import com.pbl.elearning.notification.service.NotificationService;
 import com.pbl.elearning.security.annotation.CurrentUser;
 import com.pbl.elearning.security.domain.UserPrincipal;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,10 +28,21 @@ public class NotificationController {
     @GetMapping("/all")
     @ApiOperation("get all notifications")
     public ResponseEntity<ResponseDataAPI> getNotifications(
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "paging", defaultValue = "6") int paging,
             @RequestParam boolean isRead,
             @CurrentUser UserPrincipal userPrincipal
     ){
-        return ResponseEntity.ok(ResponseDataAPI.successWithoutMeta(notificationService.getAllNotifications(userPrincipal.getId(),isRead)));
+        Pageable pageable = PagingUtils.makePageRequest("createdAt", "desc", page, paging);
+        Page<NotificationResponse> notifications=notificationService.getAllNotifications(userPrincipal.getId(),isRead, pageable);
+        PageInfo pageInfo = new PageInfo(
+                pageable.getPageNumber() + 1,
+                notifications.getTotalPages(),
+                notifications.getTotalElements()
+        );
+        return ResponseEntity.ok(ResponseDataAPI
+                .success(notifications.getContent(),
+                        pageInfo));
     }
     @PostMapping("/device-token")
     @ApiOperation("Save device token for push notifications")
