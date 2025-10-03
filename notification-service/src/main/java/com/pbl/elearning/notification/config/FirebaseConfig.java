@@ -4,6 +4,7 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.messaging.FirebaseMessaging;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -13,10 +14,12 @@ import java.io.InputStream;
 
 @Configuration
 public class FirebaseConfig {
+    @Value("${firebase.service-account-path}")
+    private String serviceAccountPath;
 
     @Bean
     public FirebaseMessaging firebaseMessaging() throws IOException {
-        InputStream serviceAccount = new FileInputStream("firebase-service-account.json");
+        InputStream serviceAccount = new FileInputStream(serviceAccountPath);
 
         FirebaseOptions options = FirebaseOptions.builder()
                 .setCredentials(GoogleCredentials.fromStream(serviceAccount))
