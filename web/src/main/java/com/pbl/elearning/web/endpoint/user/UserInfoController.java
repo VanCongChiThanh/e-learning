@@ -23,7 +23,6 @@ import java.util.UUID;
 public class UserInfoController {
     private final UserInfoService userInfoService;
     @PatchMapping("/me/profile")
-    @PreAuthorize("hasAnyRole('LEARNER', 'ADMIN')")
     @ApiOperation("Update current user profile")
     public ResponseEntity<ResponseDataAPI> updateMyProfile(
             @RequestBody @Valid UserProfileRequest userProfileRequest,
@@ -39,7 +38,6 @@ public class UserInfoController {
         return ResponseEntity.ok(ResponseDataAPI.successWithoutMeta(UserProfileResponse.toResponse(userInfo)));
     }
     @GetMapping("/me/profile")
-    @PreAuthorize("hasAnyRole('LEARNER', 'ADMIN')")
     @ApiOperation("Get current user profile")
     public ResponseEntity<ResponseDataAPI> getMyProfile(
             @CurrentUser UserPrincipal userPrincipal

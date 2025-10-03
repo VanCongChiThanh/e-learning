@@ -22,8 +22,7 @@ public final class CommonConstant {
   public static final String ADMIN_NOTIFICATION_QUEUE = "admin.notifications.queue";
 
   public static final String BASE_PACKAGE_ENDPOINT = "com.pbl.elearning.web";
-
-  public static final String REMINDER_TYPE="NO_REPEAT|DAILY|WEEKLY|MONTHLY|YEARLY";
+  ;
 
   private CommonConstant() {}
 }
