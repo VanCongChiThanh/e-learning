@@ -54,6 +54,7 @@ jobs:
             docker stop e-learning || true
             docker rm e-learning || true
             docker run -d --name e-learning -p 80:8105 \
+              -v /home/ubuntu/firebase-service-account.json:/app/firebase-service-account.json \
               -e DB_USERNAME="${{ secrets.DB_USERNAME }}" \
               -e DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
               -e DB_URL="${{ secrets.DB_URL }}" \
