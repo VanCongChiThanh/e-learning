@@ -54,26 +54,26 @@ jobs:
             docker stop e-learning || true
             docker rm e-learning || true
             docker run -d --name e-learning -p 80:8105 \
-              -e DB_USERNAME=${{ secrets.DB_USERNAME }} \
-              -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
-              -e DB_URL=${{ secrets.DB_URL }} \
-              -e EMAIL_USERNAME=${{ secrets.EMAIL_USERNAME }} \
-              -e EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }} \
-              -e GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }} \
-              -e GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }} \
-              -e FACEBOOK_CLIENT_ID=${{ secrets.FACEBOOK_CLIENT_ID }} \
-              -e FACEBOOK_CLIENT_SECRET=${{ secrets.FACEBOOK_CLIENT_SECRET }} \
-              -e AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }} \
-              -e AWS_SECRET_KEY=${{ secrets.AWS_SECRET_KEY }} \
-              -e TOKEN_SECRET=${{ secrets.TOKEN_SECRET }} \
-              -e REFRESH_TOKEN_SECRET=${{ secrets.REFRESH_TOKEN_SECRET }} \
-              -e PAYOS_CLIENT_ID=${{ secrets.PAYOS_CLIENT_ID }} \
-              -e PAYOS_API_KEY=${{ secrets.PAYOS_API_KEY }} \
-              -e PAYOS_CHECKSUM_KEY=${{ secrets.PAYOS_CHECKSUM_KEY }} \
-              -e PAYOS_PARTNER_CODE=${{ secrets.PAYOS_PARTNER_CODE }} \
-              -e PAYOS_SANDBOX=${{ secrets.PAYOS_SANDBOX }} \
-              -e PAYOS_DEFAULT_EXPIRATION=${{ secrets.PAYOS_DEFAULT_EXPIRATION }} \
-              -e PAYOS_RETURN_URL=${{ secrets.PAYOS_RETURN_URL }} \
-              -e PAYOS_CANCEL_URL=${{ secrets.PAYOS_CANCEL_URL }} \
-              -e PAYOS_WEBHOOK_URL=${{ secrets.PAYOS_WEBHOOK_URL }} \
+              -e DB_USERNAME="${{ secrets.DB_USERNAME }}" \
+              -e DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
+              -e DB_URL="${{ secrets.DB_URL }}" \
+              -e EMAIL_USERNAME="${{ secrets.EMAIL_USERNAME }}" \
+              -e EMAIL_PASSWORD="${{ secrets.EMAIL_PASSWORD }}" \
+              -e GOOGLE_CLIENT_ID="${{ secrets.GOOGLE_CLIENT_ID }}" \
+              -e GOOGLE_CLIENT_SECRET="${{ secrets.GOOGLE_CLIENT_SECRET }}" \
+              -e FACEBOOK_CLIENT_ID="${{ secrets.FACEBOOK_CLIENT_ID }}" \
+              -e FACEBOOK_CLIENT_SECRET="${{ secrets.FACEBOOK_CLIENT_SECRET }}" \
+              -e AWS_ACCESS_KEY="${{ secrets.AWS_ACCESS_KEY }}" \
+              -e AWS_SECRET_KEY="${{ secrets.AWS_SECRET_KEY }}" \
+              -e TOKEN_SECRET="${{ secrets.TOKEN_SECRET }}" \
+              -e REFRESH_TOKEN_SECRET="${{ secrets.REFRESH_TOKEN_SECRET }}" \
+              -e PAYOS_CLIENT_ID="${{ secrets.PAYOS_CLIENT_ID }}" \
+              -e PAYOS_API_KEY="${{ secrets.PAYOS_API_KEY }}" \
+              -e PAYOS_CHECKSUM_KEY="${{ secrets.PAYOS_CHECKSUM_KEY }}" \
+              -e PAYOS_PARTNER_CODE="${{ secrets.PAYOS_PARTNER_CODE }}" \
+              -e PAYOS_SANDBOX="${{ secrets.PAYOS_SANDBOX }}" \
+              -e PAYOS_DEFAULT_EXPIRATION="${{ secrets.PAYOS_DEFAULT_EXPIRATION }}" \
+              -e PAYOS_RETURN_URL="${{ secrets.PAYOS_RETURN_URL }}" \
+              -e PAYOS_CANCEL_URL="${{ secrets.PAYOS_CANCEL_URL }}" \
+              -e PAYOS_WEBHOOK_URL="${{ secrets.PAYOS_WEBHOOK_URL }}" \
               ${{ secrets.DOCKER_USERNAME }}/e-learning:latest
