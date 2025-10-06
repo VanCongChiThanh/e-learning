@@ -7,10 +7,8 @@ import com.pbl.elearning.notification.domain.enums.NotificationType;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.Type;
 
-import javax.persistence.*;
-import java.util.Map;
+
 import java.util.UUID;
 
 @Getter
@@ -33,6 +31,8 @@ public class NotificationResponse {
 
     private Boolean isRead;
     public static NotificationResponse toResponse(Notification notification) {
+        if (notification == null) return null;
+
         return NotificationResponse.builder()
                 .id(notification.getId())
                 .userId(notification.getUserId())
@@ -40,7 +40,9 @@ public class NotificationResponse {
                 .title(notification.getTitle())
                 .message(notification.getMessage())
                 .metadata(notification.getMetadata() != null ? notification.getMetadata().toString() : null)
-                .isRead(notification.getIsRead())
+                .isRead(Boolean.TRUE.equals(notification.getIsRead()))
                 .build();
     }
+
+
 }

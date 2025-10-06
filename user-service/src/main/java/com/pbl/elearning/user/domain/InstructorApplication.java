@@ -3,11 +3,13 @@ package com.pbl.elearning.user.domain;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.pbl.elearning.common.domain.AbstractEntity;
 import com.pbl.elearning.user.domain.enums.ApplicationStatus;
+import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
 
 import javax.persistence.*;
 import java.util.UUID;
@@ -18,6 +20,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "instructor_applications")
+@TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
 public class InstructorApplication extends AbstractEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

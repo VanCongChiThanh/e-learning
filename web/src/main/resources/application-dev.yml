@@ -62,4 +62,4 @@ payos:
   cancel-url: ${PAYOS_CANCEL_URL:http://localhost:8105/api/payments/cancel/payos}
   webhook-url: ${PAYOS_WEBHOOK_URL:http://localhost:8105/api/payments/webhook/payos}
 firebase:
-  service-account-path: D:\Downloads\firebase-service-account.json
+  service-account-path: D:\key\firebase-service-account.json

@@ -25,25 +25,31 @@ import java.util.UUID;
 public class NotificationController {
     private final NotificationService notificationService;
     private final DeviceTokenService deviceTokenService;
+
     @GetMapping("/all")
     @ApiOperation("get all notifications")
     public ResponseEntity<ResponseDataAPI> getNotifications(
+            @RequestParam(value="only_unread", defaultValue = "false") boolean onlyUnread,
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "paging", defaultValue = "6") int paging,
-            @RequestParam boolean isRead,
-            @CurrentUser UserPrincipal userPrincipal
-    ){
-        Pageable pageable = PagingUtils.makePageRequest("createdAt", "desc", page, paging);
-        Page<NotificationResponse> notifications=notificationService.getAllNotifications(userPrincipal.getId(),isRead, pageable);
+            @RequestParam(value = "sort", defaultValue = "created_at") String sort,
+            @RequestParam(value = "order", defaultValue = "desc") String order,
+            @CurrentUser UserPrincipal userPrincipal) {
+        Pageable pageable = PagingUtils.makePageRequest(sort, order, page, paging);
+        Page<NotificationResponse> notifications = notificationService.getAllNotifications(
+                userPrincipal.getId(),
+                onlyUnread,
+                pageable
+        );
         PageInfo pageInfo = new PageInfo(
                 pageable.getPageNumber() + 1,
                 notifications.getTotalPages(),
                 notifications.getTotalElements()
         );
         return ResponseEntity.ok(ResponseDataAPI
-                .success(notifications.getContent(),
-                        pageInfo));
+                .success(notifications.getContent(), pageInfo));
     }
+
     @PostMapping("/device-token")
     @ApiOperation("Save device token for push notifications")
     public ResponseEntity<ResponseDataAPI> saveDeviceToken(
@@ -74,5 +80,13 @@ public class NotificationController {
                 java.util.Map.of("key", "value")
         );
         return ResponseEntity.ok(ResponseDataAPI.successWithoutMeta("Test notification sent"));
+    }
+    @GetMapping("/unread-count")
+    @ApiOperation("Get count of unread notifications")
+    public ResponseEntity<ResponseDataAPI> getUnreadCount(
+            @CurrentUser UserPrincipal userPrincipal
+    ){
+        long count = notificationService.countUnreadNotifications(userPrincipal.getId());
+        return ResponseEntity.ok(ResponseDataAPI.successWithoutMeta(count));
     }
 }

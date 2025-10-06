@@ -16,7 +16,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -101,13 +100,14 @@ public class NotificationService {
         }
     }
 
-    // Lấy notification chưa đọc
     public Page<NotificationResponse> getAllNotifications(UUID userId, boolean onlyUnread, Pageable pageable){
         if(!onlyUnread){
-            Page<Notification> notifications = notificationRepository.findByUserIdOrderByCreatedAtDesc(userId,pageable);
+            // Lấy TẤT CẢ thông báo
+            Page<Notification> notifications = notificationRepository.findByUserId(userId, pageable);
             return notifications.map(NotificationResponse::toResponse);
         }
-        Page<Notification> notifications = notificationRepository.findByUserIdAndIsReadFalse(userId,pageable);
+        // Lấy chỉ thông báo CHƯA ĐỌC
+        Page<Notification> notifications = notificationRepository.findByUserIdAndIsReadFalse(userId, pageable);
         return notifications.map(NotificationResponse::toResponse);
     }
     //Đánh dấu đã đọc
@@ -117,6 +117,9 @@ public class NotificationService {
             notificationRepository.save(n);
         });
         return notificationId;
+    }
+    public long countUnreadNotifications(UUID userId){
+        return notificationRepository.countByUserIdAndIsReadFalse(userId);
     }
 
 }
