@@ -1,4 +1,4 @@
-package com.pbl.elearning.common;
+package com.pbl.elearning.common.util;
 
 import org.apache.commons.text.CaseUtils;
 import org.springframework.data.domain.PageRequest;

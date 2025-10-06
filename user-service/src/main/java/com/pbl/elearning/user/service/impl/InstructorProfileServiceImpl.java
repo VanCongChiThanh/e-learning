@@ -1,5 +1,6 @@
 package com.pbl.elearning.user.service.impl;
 
+import com.pbl.elearning.common.util.BeanUtilsHelper;
 import com.pbl.elearning.user.domain.InstructorProfile;
 import com.pbl.elearning.user.payload.request.instructor.InstructorProfileRequest;
 import com.pbl.elearning.user.payload.response.UserInfoResponse;
@@ -22,30 +23,11 @@ public class InstructorProfileServiceImpl implements InstructorProfileService {
     private final UserInfoService userInfoService;
 
     @Override
-    public InstructorProfileResponse updateProfile(InstructorProfileRequest instructorProfile, UUID userId) {
+    public InstructorProfileResponse updateProfile(InstructorProfileRequest instructorProfileRequest, UUID userId) {
         InstructorProfile profile = this.findByUserId(userId);
-        if(instructorProfile.getHeadline() != null){
-            profile.setHeadline(instructorProfile.getHeadline());
-        }
-        if (instructorProfile.getBiography() != null) {
-            profile.setBiography(instructorProfile.getBiography());
-        }
-        if(instructorProfile.getFacebook() != null) {
-            profile.setFacebook(instructorProfile.getFacebook());
-        }
-        if(instructorProfile.getLinkedin() != null) {
-            profile.setLinkedin(instructorProfile.getLinkedin());
-        }
-        if(instructorProfile.getYoutube() != null) {
-            profile.setFacebook(instructorProfile.getFacebook());
-        }
-        if(instructorProfile.getYoutube() != null) {
-            profile.setYoutube(instructorProfile.getYoutube());
-        }
-        if(instructorProfile.getLinkedin() != null) {
-            profile.setLinkedin(instructorProfile.getLinkedin());
-        }
-        return InstructorProfileResponse.toResponse(instructorProfileRepository.save(profile),null);
+        BeanUtilsHelper.copyNonNullProperties(instructorProfileRequest, profile);
+        InstructorProfile savedProfile = instructorProfileRepository.save(profile);
+        return InstructorProfileResponse.toResponse(savedProfile, null);
     }
 
     @Override
@@ -57,7 +39,6 @@ public class InstructorProfileServiceImpl implements InstructorProfileService {
 
     @Override
     public InstructorProfile createProfile(UUID userId) {
-        InstructorProfile instructorProfile= this.findByUserId(userId);
         Optional<InstructorProfile> existingProfile = instructorProfileRepository.findByUserId(userId);
         if (existingProfile.isPresent()) {
             return existingProfile.get();

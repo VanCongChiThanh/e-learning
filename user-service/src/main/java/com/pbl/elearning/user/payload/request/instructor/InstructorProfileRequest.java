@@ -9,6 +9,7 @@ import lombok.Setter;
 @Setter
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class InstructorProfileRequest {
+    private String bio;
     private String headline;
     private String biography;
     private String linkedin;
