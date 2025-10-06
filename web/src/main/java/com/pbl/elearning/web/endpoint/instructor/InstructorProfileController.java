@@ -8,6 +8,7 @@ import com.pbl.elearning.user.service.InstructorProfileService;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -26,6 +27,7 @@ public class InstructorProfileController {
                 instructorProfileService.getProfile(userId)));
     }
     @PatchMapping("/profile/me/update")
+    @PreAuthorize("hasRole('INSTRUCTOR')")
     @ApiOperation(value = "Update current instructor profile")
     ResponseEntity<ResponseDataAPI> updateInstructorProfile(
             @RequestBody InstructorProfileRequest instructorProfile,
@@ -35,6 +37,7 @@ public class InstructorProfileController {
                 instructorProfileService.updateProfile(instructorProfile, userPrincipal.getId())));
     }
     @GetMapping("/profile/me")
+    @PreAuthorize("hasRole('INSTRUCTOR')")
     ResponseEntity<ResponseDataAPI> getMyInstructorProfile(
             @CurrentUser UserPrincipal userPrincipal
     ) {
