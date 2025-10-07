@@ -17,6 +17,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Instant;
+import java.util.Date;
 import java.util.UUID;
 
 @RequestMapping("/v1/notifications")
@@ -59,7 +61,7 @@ public class NotificationController {
         return ResponseEntity.ok(ResponseDataAPI
                 .successWithoutMeta(deviceTokenService.registerDevice(userPrincipal.getId(), request.getDeviceToken(), request.getPlatform())));
     }
-    @PostMapping("/read/{notificationId}")
+    @PatchMapping("/{notificationId}/read")
     @ApiOperation("Mark notification as read")
     public ResponseEntity<ResponseDataAPI> markAsRead(
             @PathVariable UUID notificationId
@@ -76,7 +78,7 @@ public class NotificationController {
         notificationService.sendNotificationToUsers(
                 java.util.List.of(userPrincipal.getId()),
                 NotificationType.SYSTEM_ALERT,
-                "Test Notification",
+                "Test Notification:" + Date.from(Instant.now()),
                 "This is a test notification",
                 java.util.Map.of("key", "value")
         );
@@ -89,5 +91,13 @@ public class NotificationController {
     ){
         long count = notificationService.countUnreadNotifications(userPrincipal.getId());
         return ResponseEntity.ok(ResponseDataAPI.successWithoutMeta(count));
+    }
+    @DeleteMapping("/{notificationId}")
+    @ApiOperation("Delete a notification")
+    public ResponseEntity<ResponseDataAPI> deleteNotification(
+            @PathVariable UUID notificationId
+    ){
+        notificationService.deleteNotification(notificationId);
+        return ResponseEntity.ok(ResponseDataAPI.successWithoutMeta("Notification with ID " + notificationId + " deleted successfully"));
     }
 }
