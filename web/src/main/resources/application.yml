@@ -14,7 +14,7 @@ spring:
   thymeleaf:
     mode: HTML
   profiles:
-    active: dev
+    active: prod
   datasource:
     hikari:
       auto-commit: false
