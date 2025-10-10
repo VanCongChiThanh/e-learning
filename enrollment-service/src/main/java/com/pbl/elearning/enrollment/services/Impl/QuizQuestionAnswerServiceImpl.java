@@ -23,13 +23,10 @@ public class QuizQuestionAnswerServiceImpl implements QuizQuestionAnswerService 
     private QuizQuestionAnswerResponse mapToResponse(QuizQuestionAnswer entity) {
         return QuizQuestionAnswerResponse.builder()
                 .id(entity.getId())
-                .quizId(entity.getQuiz().getId())
+                .quizId(entity.getQuiz() != null ? entity.getQuiz().getId() : null)
                 .questionText(entity.getQuestionText())
-                .optionA(entity.getOptionA())
-                .optionB(entity.getOptionB())
-                .optionC(entity.getOptionC())
-                .optionD(entity.getOptionD())
-                .correctAnswer(entity.getCorrectAnswer())
+                .options(entity.getOptions())
+                .correctAnswerIndex(entity.getCorrectAnswerIndex())
                 .points(entity.getPoints())
                 .sortOrder(entity.getSortOrder())
                 .createdAt(entity.getCreatedAt())
@@ -38,16 +35,15 @@ public class QuizQuestionAnswerServiceImpl implements QuizQuestionAnswerService 
 
     @Override
     public QuizQuestionAnswerResponse createQuizQuestionAnswer(UUID quizId, QuizQuestionAnswerRequest request) {
-        Quiz quiz = Quiz.builder().id(quizId).build();
+        // Use quizId from request if provided, otherwise use parameter
+        UUID actualQuizId = request.getQuizId() != null ? request.getQuizId() : quizId;
+        Quiz quiz = Quiz.builder().id(actualQuizId).build();
 
         QuizQuestionAnswer entity = QuizQuestionAnswer.builder()
                 .quiz(quiz)
                 .questionText(request.getQuestionText())
-                .optionA(request.getOptionA())
-                .optionB(request.getOptionB())
-                .optionC(request.getOptionC())
-                .optionD(request.getOptionD())
-                .correctAnswer(request.getCorrectAnswer())
+                .options(request.getOptions())
+                .correctAnswerIndex(request.getCorrectAnswerIndex())
                 .points(request.getPoints())
                 .sortOrder(request.getSortOrder())
                 .createdAt(OffsetDateTime.now())
@@ -59,7 +55,7 @@ public class QuizQuestionAnswerServiceImpl implements QuizQuestionAnswerService 
 
     @Override
     public List<QuizQuestionAnswerResponse> getAllByQuizId(UUID quizId) {
-        return repository.findByQuizId(quizId)
+        return repository.findByQuiz_Id(quizId)
                 .stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
@@ -78,11 +74,8 @@ public class QuizQuestionAnswerServiceImpl implements QuizQuestionAnswerService 
                 .orElseThrow(() -> new RuntimeException("QuizQuestionAnswer not found with id: " + id));
 
         entity.setQuestionText(request.getQuestionText());
-        entity.setOptionA(request.getOptionA());
-        entity.setOptionB(request.getOptionB());
-        entity.setOptionC(request.getOptionC());
-        entity.setOptionD(request.getOptionD());
-        entity.setCorrectAnswer(request.getCorrectAnswer());
+        entity.setOptions(request.getOptions());
+        entity.setCorrectAnswerIndex(request.getCorrectAnswerIndex());
         entity.setPoints(request.getPoints());
         entity.setSortOrder(request.getSortOrder());
 

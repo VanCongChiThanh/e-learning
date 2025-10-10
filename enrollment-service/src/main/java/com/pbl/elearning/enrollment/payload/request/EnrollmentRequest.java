@@ -12,5 +12,5 @@ import java.util.UUID;
 public class EnrollmentRequest {
     private UUID userId;
     private UUID courseId;
-    private OffsetDateTime enrollmentDate;  // Có thể để null, backend tự set default
+    private OffsetDateTime enrollmentDate;  
 }

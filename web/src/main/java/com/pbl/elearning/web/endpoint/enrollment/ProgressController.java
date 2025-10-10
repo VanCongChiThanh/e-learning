@@ -27,7 +27,7 @@ public class ProgressController {
         return ProgressResponse.builder()
                 .id(progress.getId())
                 .enrollmentId(progress.getEnrollment().getId())
-                .lectureId(progress.getLectureId())
+                .lectureId(progress.getLecture() != null ? progress.getLecture().getLectureId() : null)
                 .isCompleted(progress.getIsCompleted())
                 .watchTimeMinutes(progress.getWatchTimeMinutes())
                 .completionDate(progress.getCompletionDate())
@@ -79,7 +79,20 @@ public class ProgressController {
                 .toList();
         System.out.println(responses);
 
-
+        return ResponseEntity.ok(responses);
+    }
+    
+    
+    // Enhanced standard endpoints that use service layer response mapping
+    @GetMapping("/{id}/response")
+    public ResponseEntity<ProgressResponse> getProgressResponseById(@PathVariable UUID id) {
+        ProgressResponse response = progressService.getProgressResponseById(id);
+        return response != null ? ResponseEntity.ok(response) : ResponseEntity.notFound().build();
+    }
+    
+    @GetMapping("/enrollment/{id}/responses")
+    public ResponseEntity<List<ProgressResponse>> getProgressResponsesByEnrollmentId(@PathVariable UUID id) {
+        List<ProgressResponse> responses = progressService.getProgressResponsesByEnrollmentId(id);
         return ResponseEntity.ok(responses);
     }
 }

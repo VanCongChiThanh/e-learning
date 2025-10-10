@@ -6,6 +6,7 @@ import com.pbl.elearning.enrollment.payload.request.AssignmentRequest;
 import com.pbl.elearning.enrollment.payload.response.AssignmentResponse;
 import com.pbl.elearning.enrollment.repository.AssignmentRepository;
 import com.pbl.elearning.enrollment.services.AssignmentService;
+import com.pbl.elearning.course.domain.Course;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +24,7 @@ public class AssignmentServiceImpl implements AssignmentService {
     private AssignmentResponse mapToResponse(Assignment assignment) {
         return AssignmentResponse.builder()
                 .id(assignment.getId())
-                .courseId(assignment.getCourseId())
+                .courseId(assignment.getCourse() != null ? assignment.getCourse().getCourseId() : null)
                 .title(assignment.getTitle())
                 .description(assignment.getDescription())
                 .dueDate(assignment.getDueDate())
@@ -31,12 +32,17 @@ public class AssignmentServiceImpl implements AssignmentService {
                 .createdAt(assignment.getCreatedAt())
                 .build();
     }
-
     @Override
     public AssignmentResponse createAssignment(AssignmentRequest request) {
         System.out.println("request " + request);
-        Assignment assignment = Assignment.builder()
+        
+        // Create a Course reference with just the ID
+        Course course = Course.builder()
                 .courseId(request.getCourseId())
+                .build();
+        
+        Assignment assignment = Assignment.builder()
+                .course(course)
                 .title(request.getTitle())
                 .description(request.getDescription())
                 .dueDate(request.getDueDate())
@@ -58,7 +64,7 @@ public class AssignmentServiceImpl implements AssignmentService {
 
     @Override
     public List<AssignmentResponse> getAssignmentsByCourseId(UUID courseId) {
-        return repository.findByCourseId(courseId)
+        return repository.findByCourse_CourseId(courseId)
                 .stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());

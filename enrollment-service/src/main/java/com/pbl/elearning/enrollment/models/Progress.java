@@ -1,5 +1,6 @@
 package com.pbl.elearning.enrollment.models;
 
+import com.pbl.elearning.course.domain.Lecture;
 import lombok.*;
 
 import javax.persistence.*;
@@ -8,7 +9,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "progress", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"id", "lecture_id"})
+        @UniqueConstraint(columnNames = {"enrollmentId", "lectureId"})
 })
 @Data
 @Builder
@@ -20,11 +21,12 @@ public class Progress {
     private UUID id;
 
     @ManyToOne
-    @JoinColumn(name = "enrollment_id", nullable = false)
+    @JoinColumn(name = "enrollmentId", nullable = false)
     private Enrollment enrollment;
 
-    @Column(name = "lecture_id", nullable = false)
-    private UUID lectureId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "lectureId", nullable = false)
+    private Lecture lecture;
 
     private Boolean isCompleted;
     private Integer watchTimeMinutes;

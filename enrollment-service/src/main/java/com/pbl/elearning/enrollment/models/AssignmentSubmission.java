@@ -3,25 +3,29 @@ package com.pbl.elearning.enrollment.models;
 import javax.persistence.*;
 
 import com.pbl.elearning.enrollment.Enum.SubmissionStatus;
+import com.pbl.elearning.security.domain.User;
 import lombok.*;
 import java.time.OffsetDateTime;
 import java.util.UUID;
+
 @Entity
-@Table(name = "assignment_submissions")
+@Table(name = "assignmentSubmissions")
 @Data @Builder @NoArgsConstructor @AllArgsConstructor
 public class AssignmentSubmission {
     @Id
     @GeneratedValue
     private UUID id;
 
-    @ManyToOne
-    @JoinColumn(name = "assignment_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "assignmentId", nullable = false)
     private Assignment assignment;
 
-    private UUID userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "userId", nullable = false)
+    private User user;
 
-    @ManyToOne
-    @JoinColumn(name = "enrollment_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "enrollmentId", nullable = false)
     private Enrollment enrollment;
 
     private String submissionText;
@@ -34,5 +38,8 @@ public class AssignmentSubmission {
 
     private OffsetDateTime submittedAt;
     private OffsetDateTime gradedAt;
-    private UUID gradedBy;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "gradedBy")
+    private User gradedBy;
 }

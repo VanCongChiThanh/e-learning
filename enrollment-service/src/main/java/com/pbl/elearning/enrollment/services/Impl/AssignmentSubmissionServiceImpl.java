@@ -5,6 +5,7 @@ import com.pbl.elearning.enrollment.payload.request.AssignmentSubmissionRequest;
 import com.pbl.elearning.enrollment.payload.response.AssignmentSubmissionResponse;
 import com.pbl.elearning.enrollment.repository.*;
 import com.pbl.elearning.enrollment.services.AssignmentSubmissionService;
+import com.pbl.elearning.security.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +26,7 @@ public class AssignmentSubmissionServiceImpl implements AssignmentSubmissionServ
         return AssignmentSubmissionResponse.builder()
                 .id(submission.getId())
                 .assignmentId(submission.getAssignment().getId())
-                .userId(submission.getUserId())
+                .userId(submission.getUser() != null ? submission.getUser().getId() : null)
                 .enrollmentId(submission.getEnrollment().getId())
                 .submissionText(submission.getSubmissionText())
                 .fileId(submission.getFileId())
@@ -34,7 +35,7 @@ public class AssignmentSubmissionServiceImpl implements AssignmentSubmissionServ
                 .status(submission.getStatus())
                 .submittedAt(submission.getSubmittedAt())
                 .gradedAt(submission.getGradedAt())
-                .gradedBy(submission.getGradedBy())
+                .gradedBy(submission.getGradedBy() != null ? submission.getGradedBy().getId() : null)
                 .build();
     }
 
@@ -45,9 +46,13 @@ public class AssignmentSubmissionServiceImpl implements AssignmentSubmissionServ
         Enrollment enrollment = enrollmentRepository.findById(request.getEnrollmentId())
                 .orElseThrow(() -> new RuntimeException("Enrollment not found"));
 
+        // Create a User reference with just the ID
+        User user = new User();
+        user.setId(request.getUserId());
+
         AssignmentSubmission submission = AssignmentSubmission.builder()
                 .assignment(assignment)
-                .userId(request.getUserId())
+                .user(user)
                 .enrollment(enrollment)
                 .submissionText(request.getSubmissionText())
                 .fileId(request.getFileId())
@@ -68,7 +73,7 @@ public class AssignmentSubmissionServiceImpl implements AssignmentSubmissionServ
 
     @Override
     public List<AssignmentSubmissionResponse> getSubmissionsByAssignment(UUID assignmentId) {
-        return repository.findByAssignmentId(assignmentId)
+        return repository.findByAssignment_Id(assignmentId)
                 .stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
@@ -76,7 +81,7 @@ public class AssignmentSubmissionServiceImpl implements AssignmentSubmissionServ
 
     @Override
     public List<AssignmentSubmissionResponse> getSubmissionsByUser(UUID userId) {
-        return repository.findByUserId(userId)
+        return repository.findByUser_Id(userId)
                 .stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
@@ -87,9 +92,13 @@ public class AssignmentSubmissionServiceImpl implements AssignmentSubmissionServ
         AssignmentSubmission submission = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Submission not found"));
 
+        // Create a User reference for gradedBy
+        User gradedByUser = new User();
+        gradedByUser.setId(gradedBy);
+
         submission.setScore(score);
         submission.setFeedback(feedback);
-        submission.setGradedBy(gradedBy);
+        submission.setGradedBy(gradedByUser);
         submission.setGradedAt(OffsetDateTime.now());
         submission.setStatus(com.pbl.elearning.enrollment.Enum.SubmissionStatus.GRADED);
 

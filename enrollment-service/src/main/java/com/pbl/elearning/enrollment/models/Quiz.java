@@ -1,6 +1,7 @@
 package com.pbl.elearning.enrollment.models;
 
 import javax.persistence.*;
+import com.pbl.elearning.course.domain.Lecture;
 import lombok.*;
 import java.time.OffsetDateTime;
 import java.util.*;
@@ -13,7 +14,9 @@ public class Quiz {
     @GeneratedValue
     private UUID id;
 
-    private UUID lectureId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "lectureId", nullable = false)
+    private Lecture lecture;
 
     private String title;
     private String description;

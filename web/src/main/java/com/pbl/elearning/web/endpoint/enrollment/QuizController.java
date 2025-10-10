@@ -25,7 +25,7 @@ public class QuizController {
     private QuizResponse toResponse(Quiz quiz) {
         return QuizResponse.builder()
                 .id(quiz.getId())
-                .lectureId(quiz.getLectureId())
+                .lectureId(quiz.getLecture() != null ? quiz.getLecture().getLectureId() : null)
                 .title(quiz.getTitle())
                 .description(quiz.getDescription())
                 .timeLimitMinutes(quiz.getTimeLimitMinutes())
