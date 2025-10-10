@@ -19,6 +19,7 @@ public class Quiz {
     private String description;
     private Integer timeLimitMinutes;
     private Integer passingScore;
+    private Integer numberQuestions;
     private Integer maxAttempts;
     private Boolean isActive;
     private OffsetDateTime createdAt;

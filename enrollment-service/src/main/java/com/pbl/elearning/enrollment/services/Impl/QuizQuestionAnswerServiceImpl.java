@@ -9,6 +9,7 @@ import com.pbl.elearning.enrollment.services.QuizQuestionAnswerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -24,9 +25,11 @@ public class QuizQuestionAnswerServiceImpl implements QuizQuestionAnswerService 
                 .id(entity.getId())
                 .quizId(entity.getQuiz().getId())
                 .questionText(entity.getQuestionText())
-                .questionType(entity.getQuestionType())
-                .answerText(entity.getAnswerText())
-                .isCorrect(entity.getIsCorrect())
+                .optionA(entity.getOptionA())
+                .optionB(entity.getOptionB())
+                .optionC(entity.getOptionC())
+                .optionD(entity.getOptionD())
+                .correctAnswer(entity.getCorrectAnswer())
                 .points(entity.getPoints())
                 .sortOrder(entity.getSortOrder())
                 .createdAt(entity.getCreatedAt())
@@ -34,17 +37,22 @@ public class QuizQuestionAnswerServiceImpl implements QuizQuestionAnswerService 
     }
 
     @Override
-    public QuizQuestionAnswerResponse createQuizQuestionAnswer(UUID id, QuizQuestionAnswerRequest request) {
-        Quiz quiz = Quiz.builder().id(id).build();
+    public QuizQuestionAnswerResponse createQuizQuestionAnswer(UUID quizId, QuizQuestionAnswerRequest request) {
+        Quiz quiz = Quiz.builder().id(quizId).build();
+
         QuizQuestionAnswer entity = QuizQuestionAnswer.builder()
                 .quiz(quiz)
                 .questionText(request.getQuestionText())
-                .questionType(request.getQuestionType())
-                .answerText(request.getAnswerText())
-                .isCorrect(request.getIsCorrect())
+                .optionA(request.getOptionA())
+                .optionB(request.getOptionB())
+                .optionC(request.getOptionC())
+                .optionD(request.getOptionD())
+                .correctAnswer(request.getCorrectAnswer())
                 .points(request.getPoints())
                 .sortOrder(request.getSortOrder())
+                .createdAt(OffsetDateTime.now())
                 .build();
+
         QuizQuestionAnswer saved = repository.save(entity);
         return mapToResponse(saved);
     }
@@ -70,9 +78,11 @@ public class QuizQuestionAnswerServiceImpl implements QuizQuestionAnswerService 
                 .orElseThrow(() -> new RuntimeException("QuizQuestionAnswer not found with id: " + id));
 
         entity.setQuestionText(request.getQuestionText());
-        entity.setQuestionType(request.getQuestionType());
-        entity.setAnswerText(request.getAnswerText());
-        entity.setIsCorrect(request.getIsCorrect());
+        entity.setOptionA(request.getOptionA());
+        entity.setOptionB(request.getOptionB());
+        entity.setOptionC(request.getOptionC());
+        entity.setOptionD(request.getOptionD());
+        entity.setCorrectAnswer(request.getCorrectAnswer());
         entity.setPoints(request.getPoints());
         entity.setSortOrder(request.getSortOrder());
 

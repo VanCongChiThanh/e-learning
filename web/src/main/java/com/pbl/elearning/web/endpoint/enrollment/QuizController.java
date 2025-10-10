@@ -32,6 +32,7 @@ public class QuizController {
                 .passingScore(quiz.getPassingScore())
                 .maxAttempts(quiz.getMaxAttempts())
                 .isActive(quiz.getIsActive())
+                .numberQuestions(quiz.getNumberQuestions())
                 .createdAt(quiz.getCreatedAt())
                 .build();
     }

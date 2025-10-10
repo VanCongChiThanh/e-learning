@@ -28,6 +28,7 @@ public class QuizServiceImpl implements QuizService {
         quiz.setPassingScore(request.getPassingScore());
         quiz.setMaxAttempts(request.getMaxAttempts());
         quiz.setIsActive(true);
+        quiz.setNumberQuestions(request.getNumberQuestions());
         quiz.setCreatedAt(OffsetDateTime.now());
         return quizRepository.save(quiz);
     }
@@ -35,7 +36,6 @@ public class QuizServiceImpl implements QuizService {
     @Override
     public Quiz getQuizById(UUID id) {
         Quiz quiz = quizRepository.findById(id).orElse(null);
-        System.out.println(quiz + "123");
         if (quiz != null) {
             return quiz;
         }
@@ -58,6 +58,7 @@ public class QuizServiceImpl implements QuizService {
             quiz.setTimeLimitMinutes(request.getTimeLimitMinutes());
             quiz.setPassingScore(request.getPassingScore());
             quiz.setMaxAttempts(request.getMaxAttempts());
+            quiz.setNumberQuestions(request.getNumberQuestions());
             return quizRepository.save(quiz);
         }
         return null;

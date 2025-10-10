@@ -27,7 +27,6 @@ public class AssignmentServiceImpl implements AssignmentService {
                 .title(assignment.getTitle())
                 .description(assignment.getDescription())
                 .dueDate(assignment.getDueDate())
-                .maxScore(assignment.getMaxScore())
                 .status(assignment.getStatus())
                 .createdAt(assignment.getCreatedAt())
                 .build();
@@ -35,17 +34,18 @@ public class AssignmentServiceImpl implements AssignmentService {
 
     @Override
     public AssignmentResponse createAssignment(AssignmentRequest request) {
+        System.out.println("request " + request);
         Assignment assignment = Assignment.builder()
                 .courseId(request.getCourseId())
                 .title(request.getTitle())
                 .description(request.getDescription())
                 .dueDate(request.getDueDate())
-                .maxScore(request.getMaxScore())
-                .status(AssignmentStatus.INACTIVE) // default status
+                .status(AssignmentStatus.ACTIVE) // default status
                 .createdAt(OffsetDateTime.now())
                 .build();
 
         Assignment saved = repository.save(assignment);
+        System.out.println("Dax luu" + saved);
         return mapToResponse(saved);
     }
 
@@ -72,7 +72,6 @@ public class AssignmentServiceImpl implements AssignmentService {
         assignment.setTitle(request.getTitle());
         assignment.setDescription(request.getDescription());
         assignment.setDueDate(request.getDueDate());
-        assignment.setMaxScore(request.getMaxScore());
 
         Assignment updated = repository.save(assignment);
         return mapToResponse(updated);

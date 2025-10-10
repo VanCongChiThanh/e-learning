@@ -77,6 +77,9 @@ public class ProgressController {
         List<ProgressResponse> responses = progress.stream()
                 .map(this::toResponse)
                 .toList();
+        System.out.println(responses);
+
+
         return ResponseEntity.ok(responses);
     }
 }

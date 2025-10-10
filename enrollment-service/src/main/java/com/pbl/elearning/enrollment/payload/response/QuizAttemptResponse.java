@@ -14,8 +14,7 @@ public class QuizAttemptResponse {
     private UUID userId;
     private UUID enrollmentId;
     private UUID questionId;
-    private UUID selectedAnswerId;
-    private String answerText;
+    private String selectedOption;
     private Boolean isCorrect;
     private Integer pointsEarned;
     private Integer attemptNumber;

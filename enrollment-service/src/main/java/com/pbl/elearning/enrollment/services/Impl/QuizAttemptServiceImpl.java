@@ -29,8 +29,7 @@ public class QuizAttemptServiceImpl implements QuizAttemptService {
                 .userId(attempt.getUserId())
                 .enrollmentId(attempt.getEnrollment().getId())
                 .questionId(attempt.getQuestion().getId())
-                .selectedAnswerId(attempt.getSelectedAnswerId())
-                .answerText(attempt.getAnswerText())
+                .selectedOption(attempt.getSelectedOption())
                 .isCorrect(attempt.getIsCorrect())
                 .pointsEarned(attempt.getPointsEarned())
                 .attemptNumber(attempt.getAttemptNumber())
@@ -49,18 +48,24 @@ public class QuizAttemptServiceImpl implements QuizAttemptService {
         QuizQuestionAnswer question = questionRepository.findById(request.getQuestionId())
                 .orElseThrow(() -> new RuntimeException("Question not found"));
 
+        // So sánh câu trả lời
+        boolean isCorrect = question.getCorrectAnswer() != null &&
+                question.getCorrectAnswer().equalsIgnoreCase(request.getSelectedOption());
+
+        int pointsEarned = isCorrect ? question.getPoints() : 0;
+
         QuizAttempt attempt = QuizAttempt.builder()
                 .quiz(quiz)
                 .userId(request.getUserId())
                 .enrollment(enrollment)
                 .question(question)
-                .selectedAnswerId(request.getSelectedAnswerId())
-                .answerText(request.getAnswerText())
-                .isCorrect(request.getIsCorrect())
-                .pointsEarned(request.getPointsEarned())
+                .selectedOption(request.getSelectedOption())
+                .isCorrect(isCorrect)
+                .pointsEarned(pointsEarned)
                 .attemptNumber(request.getAttemptNumber())
                 .timeTakenMinutes(request.getTimeTakenMinutes())
                 .startedAt(OffsetDateTime.now())
+                .completedAt(OffsetDateTime.now())
                 .build();
 
         QuizAttempt saved = repository.save(attempt);

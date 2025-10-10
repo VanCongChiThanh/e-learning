@@ -1,6 +1,5 @@
 package com.pbl.elearning.enrollment.payload.request;
 
-import com.pbl.elearning.enrollment.Enum.QuestionType;
 import lombok.*;
 
 @Data
@@ -9,9 +8,16 @@ import lombok.*;
 @AllArgsConstructor
 public class QuizQuestionAnswerRequest {
     private String questionText;
-    private QuestionType questionType;
-    private String answerText;
-    private Boolean isCorrect;
+
+    // Các lựa chọn A–D
+    private String optionA;
+    private String optionB;
+    private String optionC;
+    private String optionD;
+
+    // Đáp án đúng: 'A', 'B', 'C', hoặc 'D'
+    private String correctAnswer;
+
     private Integer points;
     private Integer sortOrder;
 }

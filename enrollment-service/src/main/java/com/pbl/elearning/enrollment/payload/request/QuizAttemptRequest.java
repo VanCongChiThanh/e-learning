@@ -12,9 +12,7 @@ public class QuizAttemptRequest {
     private UUID userId;
     private UUID enrollmentId;
     private UUID questionId;
-    private UUID selectedAnswerId;
-    private String answerText;
-    private Boolean isCorrect;
+    private String selectedOption;
     private Integer pointsEarned;
     private Integer attemptNumber;
     private Integer timeTakenMinutes;
