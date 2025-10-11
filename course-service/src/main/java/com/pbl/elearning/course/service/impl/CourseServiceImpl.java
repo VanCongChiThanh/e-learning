@@ -62,6 +62,7 @@ public class CourseServiceImpl implements CourseService {
                 .price(courseRequest.getPrice())
                 .level(courseRequest.getLevel())
                 .category(courseRequest.getCategory())
+                .image(courseRequest.getImage())
                 .instructorId(instructorId)
 
                 .build();

@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 
+import java.sql.Timestamp;
 import java.util.UUID;
 
 @Getter
@@ -30,6 +31,8 @@ public class NotificationResponse {
     private String metadata;
 
     private Boolean isRead;
+
+    private Timestamp createdAt;
     public static NotificationResponse toResponse(Notification notification) {
         if (notification == null) return null;
 
@@ -41,6 +44,7 @@ public class NotificationResponse {
                 .message(notification.getMessage())
                 .metadata(notification.getMetadata() != null ? notification.getMetadata().toString() : null)
                 .isRead(Boolean.TRUE.equals(notification.getIsRead()))
+                .createdAt(notification.getCreatedAt())
                 .build();
     }
 

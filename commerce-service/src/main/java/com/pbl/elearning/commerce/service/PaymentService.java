@@ -66,7 +66,8 @@ public class PaymentService {
         }
 
         // 2. Check if payment already exists for this order
-        Optional<Payment> existingPayment = paymentRepository.findByOrderCode(order.getOrderNumber());
+         Optional<Payment> existingPayment = paymentRepository.findByOrderId(order.getId());
+        //Optional<Payment> existingPayment = paymentRepository.findByOrderCode(order.getOrderNumber());
         if (existingPayment.isPresent() && existingPayment.get().isPending()) {
             // Return existing payment if still pending
             return mapToPaymentResponse(existingPayment.get());
