@@ -286,4 +286,14 @@ public class UserServiceImpl implements UserService {
         firstname, lastname, result.getEmail(), result.getConfirmationToken(), LANGUAGE_CODE);
     return result;
   }
+
+  @Override
+  public void updateRoleUser(UUID userId, Role role) {
+    User user = this.findById(userId);
+    if(user.getRole().equals(Role.ROLE_ADMIN)) {
+      throw new ForbiddenException(MessageConstant.FORBIDDEN_ERROR);
+    }
+    user.setRole(role);
+    userRepository.save(user);
+  }
 }
