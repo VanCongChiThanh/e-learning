@@ -35,7 +35,6 @@ public class QuizQuestionAnswerServiceImpl implements QuizQuestionAnswerService 
 
     @Override
     public QuizQuestionAnswerResponse createQuizQuestionAnswer(UUID quizId, QuizQuestionAnswerRequest request) {
-        // Use quizId from request if provided, otherwise use parameter
         UUID actualQuizId = request.getQuizId() != null ? request.getQuizId() : quizId;
         Quiz quiz = Quiz.builder().id(actualQuizId).build();
 

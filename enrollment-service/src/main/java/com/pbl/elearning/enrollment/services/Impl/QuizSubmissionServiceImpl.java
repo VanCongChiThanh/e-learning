@@ -24,38 +24,31 @@ import java.util.stream.Collectors;
 public class QuizSubmissionServiceImpl implements QuizSubmissionService {
 
     private final QuizSubmissionRepository quizSubmissionRepository;
-    private final QuizAnswerRepository quizAnswerRepository;
     private final QuizRepository quizRepository;
     private final QuizQuestionAnswerRepository quizQuestionAnswerRepository;
     private final EnrollmentRepository enrollmentRepository;
 
     @Override
     public QuizSubmissionResponse submitQuiz(QuizSubmissionRequest request) {
-        // Validate quiz exists
         Quiz quiz = quizRepository.findById(request.getQuizId())
                 .orElseThrow(() -> new RuntimeException("Quiz not found"));
 
-        // Validate enrollment exists using enrollmentId from request
         Enrollment enrollment = enrollmentRepository.findById(request.getEnrollmentId())
                 .orElseThrow(() -> new RuntimeException("Enrollment not found"));
 
-        // Create User reference
         User user = new User();
         user.setId(request.getUserId());
 
-        // Check if user can attempt quiz
         if (!canUserAttemptQuiz(request.getQuizId(), request.getUserId())) {
             throw new RuntimeException("Maximum attempts reached");
         }
 
-        // Get next attempt number
         Integer nextAttemptNumber = quizSubmissionRepository.countAttemptsByQuizAndUser(
                 request.getQuizId(), request.getUserId()) + 1;
 
-        // Create quiz submission
         QuizSubmission submission = QuizSubmission.builder()
                 .quiz(quiz)
-                .user(user) // Use the user reference created above
+                .user(user) 
                 .enrollment(enrollment)
                 .attemptNumber(nextAttemptNumber)
                 .startedAt(OffsetDateTime.now())
@@ -63,22 +56,18 @@ public class QuizSubmissionServiceImpl implements QuizSubmissionService {
                 .isCompleted(true)
                 .build();
 
-        // Get all questions for this quiz to handle unanswered questions
         List<QuizQuestionAnswer> allQuestions = quizQuestionAnswerRepository.findByQuiz_Id(request.getQuizId());
         
-        // Calculate max possible score from ALL questions
         int maxPossibleScore = allQuestions.stream()
                 .mapToInt(QuizQuestionAnswer::getPoints)
                 .sum();
 
-        // Create a map of submitted answers for quick lookup
         Map<UUID, QuizSubmissionRequest.QuizAnswerRequest> submittedAnswersMap = request.getAnswers().stream()
                 .collect(Collectors.toMap(
                     QuizSubmissionRequest.QuizAnswerRequest::getQuestionId,
                     answer -> answer
                 ));
 
-        // Calculate score and create answers for ALL questions
         List<QuizAnswer> answers = new ArrayList<>();
         int totalScore = 0;
 
@@ -90,26 +79,23 @@ public class QuizSubmissionServiceImpl implements QuizSubmissionService {
             int pointsEarned = 0;
             
             if (submittedAnswer != null) {
-                // Question was answered
                 selectedAnswerIndex = submittedAnswer.getSelectedAnswerIndex();
                 isCorrect = question.getCorrectAnswerIndex().equals(selectedAnswerIndex);
                 pointsEarned = isCorrect ? question.getPoints() : 0;
             }
-            // If submittedAnswer is null, question was left blank (all values remain default)
 
             QuizAnswer answer = QuizAnswer.builder()
                     .quizSubmission(submission)
                     .question(question)
-                    .selectedAnswerIndex(selectedAnswerIndex) // null for unanswered
-                    .isCorrect(isCorrect) // false for unanswered
-                    .pointsEarned(pointsEarned) // 0 for unanswered
+                    .selectedAnswerIndex(selectedAnswerIndex) 
+                    .isCorrect(isCorrect) 
+                    .pointsEarned(pointsEarned)
                     .build();
 
             answers.add(answer);
             totalScore += pointsEarned;
         }
 
-        // Calculate percentage and pass status
         double scorePercentage = maxPossibleScore > 0 ? (double) totalScore / maxPossibleScore * 100 : 0;
         boolean isPassed = scorePercentage >= quiz.getPassingScore();
 
@@ -119,7 +105,6 @@ public class QuizSubmissionServiceImpl implements QuizSubmissionService {
         submission.setScorePercentage(scorePercentage);
         submission.setIsPassed(isPassed);
 
-        // Save submission
         QuizSubmission savedSubmission = quizSubmissionRepository.save(submission);
 
         return convertToResponse(savedSubmission);
@@ -166,8 +151,6 @@ public class QuizSubmissionServiceImpl implements QuizSubmissionService {
 
     @Override
     public QuizStatisticsResponse getQuizStatistics(UUID userId, UUID courseId) {
-        // Implementation for quiz statistics
-        // This would require additional queries to calculate statistics
         return QuizStatisticsResponse.builder()
                 .userId(userId)
                 .courseId(courseId)

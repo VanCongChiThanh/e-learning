@@ -36,7 +36,6 @@ public class AssignmentServiceImpl implements AssignmentService {
     public AssignmentResponse createAssignment(AssignmentRequest request) {
         System.out.println("request " + request);
         
-        // Create a Course reference with just the ID
         Course course = Course.builder()
                 .courseId(request.getCourseId())
                 .build();
@@ -46,7 +45,7 @@ public class AssignmentServiceImpl implements AssignmentService {
                 .title(request.getTitle())
                 .description(request.getDescription())
                 .dueDate(request.getDueDate())
-                .status(AssignmentStatus.ACTIVE) // default status
+                .status(AssignmentStatus.ACTIVE)
                 .createdAt(OffsetDateTime.now())
                 .build();
 

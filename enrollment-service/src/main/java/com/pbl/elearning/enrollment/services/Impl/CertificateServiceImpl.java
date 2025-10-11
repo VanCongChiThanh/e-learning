@@ -36,7 +36,6 @@ public class CertificateServiceImpl implements CertificateService {
                 .certificateUrl(certificate.getCertificateUrl())
                 .isVerified(certificate.getIsVerified())
                 .createdAt(certificate.getCreatedAt())
-                // Enhanced fields
                 .courseName(enrollment != null && enrollment.getCourse() != null ? enrollment.getCourse().getTitle() : null)
                 .courseCode(enrollment != null && enrollment.getCourse() != null ? enrollment.getCourse().getSlug() : null)
                 .userName(enrollment != null && enrollment.getUser() != null ? enrollment.getUser().getEmail() : null)
@@ -55,7 +54,6 @@ public class CertificateServiceImpl implements CertificateService {
             throw new RuntimeException("Enrollment is not eligible for certificate");
         }
 
-        // Check if certificate already exists
         Certificate existing = certificateRepository.findByEnrollment_Id(enrollmentId).orElse(null);
         if (existing != null) {
             return mapToResponse(existing);
@@ -65,7 +63,7 @@ public class CertificateServiceImpl implements CertificateService {
                 .enrollment(enrollment)
                 .certificateNumber(generateCertificateNumber())
                 .issuedDate(OffsetDateTime.now())
-                .expiryDate(null) // Certificates don't expire by default
+                .expiryDate(null)
                 .isVerified(true)
                 .createdAt(OffsetDateTime.now())
                 .build();
@@ -116,7 +114,6 @@ public class CertificateServiceImpl implements CertificateService {
         Enrollment enrollment = enrollmentRepository.findById(enrollmentId)
                 .orElseThrow(() -> new RuntimeException("Enrollment not found"));
         
-        // Check if course is completed (assuming 100% progress)
         return enrollment.getProgressPercentage() != null && enrollment.getProgressPercentage() >= 100.0;
     }
 

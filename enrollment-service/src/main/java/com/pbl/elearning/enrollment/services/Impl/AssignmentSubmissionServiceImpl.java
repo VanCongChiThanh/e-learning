@@ -46,7 +46,6 @@ public class AssignmentSubmissionServiceImpl implements AssignmentSubmissionServ
         Enrollment enrollment = enrollmentRepository.findById(request.getEnrollmentId())
                 .orElseThrow(() -> new RuntimeException("Enrollment not found"));
 
-        // Create a User reference with just the ID
         User user = new User();
         user.setId(request.getUserId());
 
@@ -92,7 +91,6 @@ public class AssignmentSubmissionServiceImpl implements AssignmentSubmissionServ
         AssignmentSubmission submission = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Submission not found"));
 
-        // Create a User reference for gradedBy
         User gradedByUser = new User();
         gradedByUser.setId(gradedBy);
 

@@ -46,7 +46,6 @@ public class EnrollmentServiceImpl implements EnrollmentService {
 
     @Override
     public Enrollment createEnrollment(EnrollmentRequest request) {
-        // Create User and Course references
         User user = new User();
         user.setId(request.getUserId());
         
@@ -144,12 +143,9 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         UUID courseId = enrollment.getCourse() != null ? enrollment.getCourse().getCourseId() : null;
         UUID userId = enrollment.getUser() != null ? enrollment.getUser().getId() : null;
         
-        // Get quiz statistics
-        // Since Quiz relates to Lecture and Lecture relates to Course, we need to find quizzes through lectures
-        // For now, we'll get all quiz submissions for this enrollment
         List<QuizSubmission> userQuizSubmissions = quizSubmissionRepository.findByEnrollment(enrollment);
         
-        int totalQuizzes = 0; // TODO: Calculate based on course lectures
+        int totalQuizzes = 0; 
         int completedQuizzes = userQuizSubmissions.size();
         int passedQuizzes = (int) userQuizSubmissions.stream()
                 .filter(submission -> submission.getIsPassed() != null && submission.getIsPassed())
@@ -161,7 +157,6 @@ public class EnrollmentServiceImpl implements EnrollmentService {
                 .average()
                 .orElse(0.0);
         
-        // Get assignment statistics
         List<Assignment> courseAssignments = assignmentRepository.findByCourse_CourseId(courseId);
         List<AssignmentSubmission> userAssignmentSubmissions = assignmentSubmissionRepository.findByUser_Id(userId);
         
@@ -177,7 +172,6 @@ public class EnrollmentServiceImpl implements EnrollmentService {
                 .average()
                 .orElse(0.0);
         
-        // Get certificate information
         Optional<Certificate> certificate = certificateRepository.findByEnrollment(enrollment);
         
         return EnrollmentReportResponse.builder()

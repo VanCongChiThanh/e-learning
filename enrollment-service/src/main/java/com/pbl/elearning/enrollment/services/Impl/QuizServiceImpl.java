@@ -38,7 +38,6 @@ public class QuizServiceImpl implements QuizService {
     
     @Override
     public Quiz createQuiz(QuizRequest request) {
-        // Create a Lecture reference with just the ID
         Lecture lecture = Lecture.builder()
                 .lectureId(request.getLectureId())
                 .build();
@@ -75,7 +74,6 @@ public class QuizServiceImpl implements QuizService {
     public Quiz updateQuiz(UUID id, QuizRequest request) {
         Quiz quiz = getQuizById(id);
         if (quiz != null) {
-            // Create a Lecture reference with just the ID
             Lecture lecture = Lecture.builder()
                     .lectureId(request.getLectureId())
                     .build();

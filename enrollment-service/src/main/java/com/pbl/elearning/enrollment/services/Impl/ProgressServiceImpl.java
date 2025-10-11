@@ -61,7 +61,6 @@ public class ProgressServiceImpl implements ProgressService {
         Enrollment enrollment = enrollmentRepository.findById(request.getEnrollmentId())
                 .orElseThrow(() -> new RuntimeException("Enrollment not found"));
         
-        // Create a Lecture reference with just the ID
         Lecture lecture = Lecture.builder()
                 .lectureId(request.getLectureId())
                 .build();
