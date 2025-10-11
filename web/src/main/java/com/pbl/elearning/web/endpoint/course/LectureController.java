@@ -10,6 +10,7 @@ import com.pbl.elearning.security.annotation.CurrentUser;
 import com.pbl.elearning.security.domain.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -22,6 +23,7 @@ public class LectureController {
     private final LectureService lectureService;
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('INSTRUCTOR', 'ADMIN')")
     public ResponseEntity<ResponseDataAPI> createLecture(
             @PathVariable UUID sectionId,
             @Valid @RequestBody LectureRequest request) {
@@ -50,6 +52,7 @@ public class LectureController {
     }
 
     @PutMapping("/{lectureId}")
+    @PreAuthorize("hasAnyRole('INSTRUCTOR', 'ADMIN')")
     public ResponseEntity<ResponseDataAPI> updateLecture(
             @PathVariable UUID lectureId,
             @Valid @RequestBody LectureRequest request) {
@@ -60,6 +63,7 @@ public class LectureController {
                 .build());
     }
     @DeleteMapping("/{lectureId}")
+    @PreAuthorize("hasAnyRole('INSTRUCTOR', 'ADMIN')")
     public ResponseEntity<ResponseDataAPI> deleteLecture(@PathVariable UUID lectureId) {
         lectureService.deleteLecture(lectureId);
         return ResponseEntity.ok(ResponseDataAPI.builder()
@@ -70,6 +74,7 @@ public class LectureController {
 
     /// update video
     @PatchMapping("/{lectureId}/video")
+    @PreAuthorize("hasAnyRole('INSTRUCTOR', 'ADMIN')")
     public ResponseEntity<ResponseDataAPI> updateLectureVideo(
             @PathVariable UUID lectureId,
             @RequestParam String videoUrl

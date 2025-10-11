@@ -7,6 +7,7 @@ import com.pbl.elearning.course.payload.response.SectionResponse;
 import com.pbl.elearning.course.service.impl.SectionServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -20,6 +21,7 @@ public class SectionController {
     private  final  SectionServiceImpl sectionService;
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('INSTRUCTOR', 'ADMIN')")
     public ResponseEntity<ResponseDataAPI> createSection(
             @PathVariable UUID courseId,
             @Valid @RequestBody SectionRequest request) {
@@ -49,6 +51,7 @@ public class SectionController {
     }
 
     @PutMapping("/{sectionId}")
+    @PreAuthorize("hasAnyRole('INSTRUCTOR', 'ADMIN')")
     public ResponseEntity<ResponseDataAPI> updateSection(
             @PathVariable UUID sectionId,
             @Valid @RequestBody SectionRequest request) {
@@ -60,6 +63,7 @@ public class SectionController {
     }
 
     @DeleteMapping("/{sectionId}")
+    @PreAuthorize("hasAnyRole('INSTRUCTOR', 'ADMIN')")
     public ResponseEntity<ResponseDataAPI> deleteSection(@PathVariable UUID sectionId) {
         sectionService.deleteSection(sectionId);
         return ResponseEntity.ok(ResponseDataAPI.builder()
