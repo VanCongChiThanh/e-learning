@@ -38,3 +38,4 @@ set-env.ps1
 ### Mac OS ###
 .DS_Store
 web/src/main/resources/application-dev.yml
+web/src/main/resources/application-prod.yml
