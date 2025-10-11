@@ -15,12 +15,12 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/v1/courses/{courseId}/sections")
+@RequestMapping("/v1/courses")
 public class SectionController {
 
     private  final  SectionServiceImpl sectionService;
 
-    @PostMapping
+    @PostMapping("/{courseId}/sections")
     @PreAuthorize("hasAnyRole('INSTRUCTOR', 'ADMIN')")
     public ResponseEntity<ResponseDataAPI> createSection(
             @PathVariable UUID courseId,
@@ -32,7 +32,7 @@ public class SectionController {
                 .build());
     }
 
-    @GetMapping("/{sectionId}")
+    @GetMapping("/sections/{sectionId}")
     public ResponseEntity<ResponseDataAPI> getSectionById(@PathVariable UUID sectionId) {
         SectionResponse sectionResponse = sectionService.getSectionById(sectionId);
         return ResponseEntity.ok(ResponseDataAPI.builder()
@@ -41,7 +41,7 @@ public class SectionController {
                 .build());
     }
 
-    @GetMapping
+    @GetMapping("/{courseId}/sections")
     public ResponseEntity<ResponseDataAPI> getAllSections(@PathVariable UUID courseId) {
         var sections = sectionService.getAllSections(courseId);
         return ResponseEntity.ok(ResponseDataAPI.builder()
@@ -50,7 +50,7 @@ public class SectionController {
                 .build());
     }
 
-    @PutMapping("/{sectionId}")
+    @PutMapping("/sections/{sectionId}")
     @PreAuthorize("hasAnyRole('INSTRUCTOR', 'ADMIN')")
     public ResponseEntity<ResponseDataAPI> updateSection(
             @PathVariable UUID sectionId,
@@ -62,7 +62,7 @@ public class SectionController {
                 .build());
     }
 
-    @DeleteMapping("/{sectionId}")
+    @DeleteMapping("/sections/{sectionId}")
     @PreAuthorize("hasAnyRole('INSTRUCTOR', 'ADMIN')")
     public ResponseEntity<ResponseDataAPI> deleteSection(@PathVariable UUID sectionId) {
         sectionService.deleteSection(sectionId);

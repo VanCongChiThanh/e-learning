@@ -29,6 +29,7 @@ public class CourseResponse {
     @Enumerated(EnumType.STRING)
     private CourseLevel level;
     private UUID instructorId;
+    private String instructorName;
     @Enumerated(EnumType.STRING)
     private Category category;
     private String image;
@@ -58,6 +59,26 @@ public class CourseResponse {
                 .build();
     }
 
+    public static CourseResponse toCourseResponse_instructor (Course course, String instructorName){
+
+        return CourseResponse.builder()
+                .courseId(course.getCourseId())
+                .title(course.getTitle())
+                .slug(course.getSlug())
+                .description(course.getDescription())
+                .price(course.getPrice())
+                .status(course.getCourseStatus())
+                .level(course.getLevel())
+                .instructorId(course.getInstructorId())
+                .instructorName(instructorName)
+                .category(course.getCategory())
+                .image(course.getImage())
+                .createdAt(course.getCreatedAt())
+                .deletedAt(course.getDeletedAt())
+                .build();
+    }
+
+
     // detail response
     public static CourseResponse toCourseDetailResponse(
             Course course,
@@ -65,7 +86,8 @@ public class CourseResponse {
             Double averageRating,
             Integer totalReviews,
             Integer totalLectures,
-            Integer totalStudents
+            Integer totalStudents,
+            String instructorName
     ) {
         return CourseResponse.builder()
                 .courseId(course.getCourseId())
@@ -76,6 +98,7 @@ public class CourseResponse {
                 .status(course.getCourseStatus())
                 .level(course.getLevel())
                 .instructorId(course.getInstructorId())
+                .instructorName(instructorName)
                 .category(course.getCategory())
                 .image(course.getImage())
                 .createdAt(course.getCreatedAt())

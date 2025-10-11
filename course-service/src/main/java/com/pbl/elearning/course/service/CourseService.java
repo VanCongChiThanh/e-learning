@@ -1,6 +1,7 @@
 package com.pbl.elearning.course.service;
 
 import com.pbl.elearning.course.domain.Tag;
+import com.pbl.elearning.course.domain.enums.Category;
 import com.pbl.elearning.course.payload.request.CourseRequest;
 import com.pbl.elearning.course.payload.response.CoursePageResponse;
 import com.pbl.elearning.course.payload.response.CourseResponse;
@@ -18,7 +19,7 @@ import java.util.UUID;
 public interface CourseService {
     CourseResponse createCourse(CourseRequest courseRequest, UUID instructorId);
     List<CourseResponse> getAllCourses(int page, int size);
-    Page<CourseResponse> coursePageResponse(Pageable pageable);
+    Page<CourseResponse> coursePageResponse(Pageable pageable, Category category);
     CourseResponse getCourseById(UUID courseId);
     String uploadCourseImage(UUID courseId, String urlfile);
     CourseResponse updateCourse(UUID courseId, CourseRequest courseRequest);
