@@ -1,0 +1,65 @@
+server:
+  port: 8105
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    hikari:
+      max-lifetime: 60000
+  rabbitmq:
+    host: localhost
+    username: guest
+    password: guest
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${EMAIL_USERNAME}
+    password: ${EMAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+org:
+  jobrunr:
+    background-job-server:
+      enabled: false
+    dashboard:
+      enabled: false
+origin-patterns: "*"
+dev-patterns: "http://localhost:3000"
+web-url: "https://coursevo.vercel.app"
+e-learning-mail:
+  domain: e-learning.com
+app:
+  oauth2:
+    providers:
+      google:
+        clientId: ${GOOGLE_CLIENT_ID}
+        clientSecret: ${GOOGLE_CLIENT_SECRET}
+        redirectUri: http://localhost:3000/oauth2/callback/google
+      facebook:
+        clientId: ${FACEBOOK_CLIENT_ID}
+        clientSecret: ${FACEBOOK_CLIENT_SECRET}
+        redirectUri: http://localhost:8105/oauth2/callback/facebook
+aws:
+  accessKey: ${AWS_ACCESS_KEY}
+  secretKey: ${AWS_SECRET_KEY}
+  region: us-east-1
+  s3:
+    bucket: e-learning-data
+
+payos:
+  client-id: ${PAYOS_CLIENT_ID:your-payos-client-id}
+  api-key: ${PAYOS_API_KEY:your-payos-api-key}
+  checksum-key: ${PAYOS_CHECKSUM_KEY:your-payos-checksum-key}
+  partner-code: ${PAYOS_PARTNER_CODE:your-partner-code}
+  sandbox: ${PAYOS_SANDBOX:true}
+  default-expiration-minutes: ${PAYOS_DEFAULT_EXPIRATION:15}
+  return-url: ${PAYOS_RETURN_URL:http://localhost:8105/api/payments/return/payos}
+  cancel-url: ${PAYOS_CANCEL_URL:http://localhost:8105/api/payments/cancel/payos}
+  webhook-url: ${PAYOS_WEBHOOK_URL:http://localhost:8105/api/payments/webhook/payos}
+firebase:
+  service-account-path: D:\key\firebase-service-account.json

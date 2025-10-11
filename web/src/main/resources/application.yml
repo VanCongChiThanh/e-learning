@@ -1,0 +1,46 @@
+server:
+  servlet:
+    context-path: /api
+spring:
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+  main:
+    banner-mode: off
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+  thymeleaf:
+    mode: HTML
+  profiles:
+    active: prod
+  datasource:
+    hikari:
+      auto-commit: false
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: com.pbl.elearning.common.config.PostgreSqlCustomDialect
+        type: trace
+        temp:
+          use_jdbc_metadata_defaults: false
+        jdbc:
+          time_zone: UTC
+          lob:
+            non_contextual_creation: true
+        batch_size: 25
+        order_inserts: true
+        order_updates: true
+        connection:
+          provider_disables_autocommit: true
+        enable_lazy_load_no_trans: true
+app:
+  auth:
+    tokenSecret: ${TOKEN_SECRET}
+    tokenExpirationMsec: 7200000
+    refreshTokenSecret: ${REFRESH_TOKEN_SECRET}
+    refreshTokenExpirationMsec: 2592000000
