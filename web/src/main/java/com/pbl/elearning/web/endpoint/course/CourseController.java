@@ -4,6 +4,7 @@ import com.pbl.elearning.common.util.PagingUtils;
 import com.pbl.elearning.common.constant.CommonConstant;
 import com.pbl.elearning.common.payload.general.PageInfo;
 import com.pbl.elearning.common.payload.general.ResponseDataAPI;
+import com.pbl.elearning.course.domain.enums.Category;
 import com.pbl.elearning.course.payload.request.CourseRequest;
 import com.pbl.elearning.course.payload.response.CourseResponse;
 import com.pbl.elearning.course.service.CourseService;
@@ -58,9 +59,10 @@ public class CourseController {
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "paging", defaultValue = "5") int paging,
             @RequestParam(value = "sort", defaultValue = "created_at") String sort,
-            @RequestParam(value = "order", defaultValue = "desc") String order) {
+            @RequestParam(value = "order", defaultValue = "desc") String order,
+            @RequestParam(value = "categoryId", required = false) Category category) {
         Pageable pageable = PagingUtils.makePageRequest(sort, order, page, paging);
-        Page<CourseResponse> coursesPage = courseService.coursePageResponse(pageable);
+        Page<CourseResponse> coursesPage = courseService.coursePageResponse(pageable, category);
         PageInfo pageInfo = new PageInfo(
                 pageable.getPageNumber() + 1,
                 coursesPage.getTotalPages(),
