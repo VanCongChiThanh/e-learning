@@ -243,6 +243,11 @@ public class CourseServiceImpl implements CourseService {
         courseRepository.delete(course);
     }
 
+    @Override
+    public List<Category> getAllCategories(){
+        return List.of(Category.values());
+    }
+
 
 
 

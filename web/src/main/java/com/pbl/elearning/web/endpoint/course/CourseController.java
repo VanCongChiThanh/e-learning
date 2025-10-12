@@ -213,4 +213,12 @@ public class CourseController {
         throw new RuntimeException("User not authenticated");
     }
 
+    @GetMapping("/category")
+    public ResponseEntity<ResponseDataAPI> getAllCategories() {
+        return ResponseEntity.ok(ResponseDataAPI.builder()
+                .status(CommonConstant.SUCCESS)
+                .data(courseService.getAllCategories())
+                .build());
+    }
+
 }
