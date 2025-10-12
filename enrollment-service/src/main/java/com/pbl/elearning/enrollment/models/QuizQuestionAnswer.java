@@ -1,35 +1,42 @@
 package com.pbl.elearning.enrollment.models;
 
 import javax.persistence.*;
-
-import com.pbl.elearning.enrollment.Enum.QuestionType;
 import lombok.*;
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "quiz_questions_answers")
+@Table(name = "quizQuestionsAnswers")
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class QuizQuestionAnswer {
+
     @Id
     @GeneratedValue
     private UUID id;
 
-    @ManyToOne
-    @JoinColumn(name = "quiz_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "quizId", nullable = false)
     private Quiz quiz;
 
+    @Column(nullable = false)
     private String questionText;
 
-    @Enumerated(EnumType.STRING)
-    private QuestionType questionType;
+    @ElementCollection
+    @CollectionTable(name = "quizQuestionOptions", joinColumns = @JoinColumn(name = "questionId"))
+    @Column(name = "optionText", nullable = false)
+    @OrderColumn(name = "optionOrder")
+    private List<String> options;
 
-    private String answerText;
-    private Boolean isCorrect;
+    @Column(nullable = false)
+    private Integer correctAnswerIndex; 
+
     private Integer points;
+
     private Integer sortOrder;
+
     private OffsetDateTime createdAt;
 }

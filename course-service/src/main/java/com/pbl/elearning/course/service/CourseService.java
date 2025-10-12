@@ -1,12 +1,15 @@
 package com.pbl.elearning.course.service;
 
+import com.pbl.elearning.course.domain.Course;
 import com.pbl.elearning.course.domain.Tag;
+import com.pbl.elearning.course.domain.enums.Category;
 import com.pbl.elearning.course.payload.request.CourseRequest;
 import com.pbl.elearning.course.payload.response.CoursePageResponse;
 import com.pbl.elearning.course.payload.response.CourseResponse;
 import com.pbl.elearning.course.payload.response.TagResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.web.multipart.MultipartFile;
 import org.w3c.dom.stylesheets.LinkStyle;
 
@@ -18,7 +21,7 @@ import java.util.UUID;
 public interface CourseService {
     CourseResponse createCourse(CourseRequest courseRequest, UUID instructorId);
     List<CourseResponse> getAllCourses(int page, int size);
-    Page<CourseResponse> coursePageResponse(Pageable pageable);
+    Page<CourseResponse> coursePageResponse(Pageable pageable, Specification<Course> spec);
     CourseResponse getCourseById(UUID courseId);
     String uploadCourseImage(UUID courseId, String urlfile);
     CourseResponse updateCourse(UUID courseId, CourseRequest courseRequest);
@@ -36,6 +39,9 @@ public interface CourseService {
     String uploadCourseImageBySlug(String slug, String urlfile);
     CourseResponse updateCourseBySlug(String slug, CourseRequest courseRequest);
     void deleteCourseBySlug(String slug);
+
+    // category
+    List<Category> getAllCategories();
 
 
 

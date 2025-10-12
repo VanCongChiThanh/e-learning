@@ -2,6 +2,7 @@ package com.pbl.elearning.enrollment.services;
 
 import com.pbl.elearning.enrollment.models.Quiz;
 import com.pbl.elearning.enrollment.payload.request.QuizRequest;
+import com.pbl.elearning.enrollment.payload.response.QuizResponse;
 
 import java.util.List;
 import java.util.UUID;
@@ -21,4 +22,8 @@ public interface QuizService {
 
     // 5. Xóa quiz
     void deleteQuiz(UUID id);
+    
+    // Enhanced response methods
+    QuizResponse getQuizResponseById(UUID id);
+    List<QuizResponse> getQuizResponsesByLectureId(UUID lectureId);
 }
