@@ -1,8 +1,9 @@
 package com.pbl.elearning.enrollment.payload.response;
 
-import com.pbl.elearning.enrollment.Enum.QuestionType;
 import lombok.*;
+import java.util.List;
 import java.util.UUID;
+import java.time.OffsetDateTime;
 
 @Data
 @Builder
@@ -12,10 +13,9 @@ public class QuizQuestionAnswerResponse {
     private UUID id;
     private UUID quizId;
     private String questionText;
-    private QuestionType questionType;
-    private String answerText;
-    private Boolean isCorrect;
+    private List<String> options;
+    private Integer correctAnswerIndex;
     private Integer points;
     private Integer sortOrder;
-    private java.time.OffsetDateTime createdAt;
+    private OffsetDateTime createdAt;
 }

@@ -14,5 +14,4 @@ public class AssignmentRequest {
     private String title;
     private String description;
     private OffsetDateTime dueDate;
-    private Integer maxScore;
 }

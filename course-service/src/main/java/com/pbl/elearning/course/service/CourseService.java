@@ -11,7 +11,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.web.multipart.MultipartFile;
-import org.w3c.dom.stylesheets.LinkStyle;
 
 import java.io.IOException;
 import java.util.List;
@@ -23,6 +22,9 @@ public interface CourseService {
     List<CourseResponse> getAllCourses(int page, int size);
     Page<CourseResponse> coursePageResponse(Pageable pageable, Specification<Course> spec);
     CourseResponse getCourseById(UUID courseId);
+
+    List<CourseResponse> getCoursesByInstructorId(UUID instructorId);
+
     String uploadCourseImage(UUID courseId, String urlfile);
     CourseResponse updateCourse(UUID courseId, CourseRequest courseRequest);
     void deleteCourse(UUID courseId);

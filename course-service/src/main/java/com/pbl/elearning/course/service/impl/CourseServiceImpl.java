@@ -5,7 +5,6 @@ import com.pbl.elearning.common.payload.general.PageInfo;
 import com.pbl.elearning.course.domain.Course;
 import com.pbl.elearning.course.domain.Tag;
 import com.pbl.elearning.course.domain.enums.Category;
-import com.pbl.elearning.course.domain.enums.CourseLevel;
 import com.pbl.elearning.course.payload.request.CourseRequest;
 import com.pbl.elearning.course.payload.response.CoursePageResponse;
 import com.pbl.elearning.course.payload.response.CourseResponse;

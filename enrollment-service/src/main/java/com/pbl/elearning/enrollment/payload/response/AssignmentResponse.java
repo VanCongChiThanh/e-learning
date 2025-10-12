@@ -16,7 +16,6 @@ public class AssignmentResponse {
     private String title;
     private String description;
     private OffsetDateTime dueDate;
-    private Integer maxScore;
     private AssignmentStatus status;
     private OffsetDateTime createdAt;
 }

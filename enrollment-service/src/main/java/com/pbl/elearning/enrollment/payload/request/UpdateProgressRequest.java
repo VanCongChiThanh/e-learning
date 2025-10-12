@@ -9,7 +9,7 @@ import java.time.OffsetDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateProgressRequest {
-    private Boolean isCompleted;       // đã hoàn thành bài chưa
-    private Integer watchTimeMinutes;  // cập nhật số phút xem
-    private OffsetDateTime completionDate; // set khi hoàn thành bài
+    private Boolean isCompleted;       
+    private Integer watchTimeMinutes; 
+    private OffsetDateTime completionDate;
 }

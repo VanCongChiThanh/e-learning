@@ -9,6 +9,7 @@ import com.pbl.elearning.enrollment.services.QuizQuestionAnswerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -22,11 +23,10 @@ public class QuizQuestionAnswerServiceImpl implements QuizQuestionAnswerService 
     private QuizQuestionAnswerResponse mapToResponse(QuizQuestionAnswer entity) {
         return QuizQuestionAnswerResponse.builder()
                 .id(entity.getId())
-                .quizId(entity.getQuiz().getId())
+                .quizId(entity.getQuiz() != null ? entity.getQuiz().getId() : null)
                 .questionText(entity.getQuestionText())
-                .questionType(entity.getQuestionType())
-                .answerText(entity.getAnswerText())
-                .isCorrect(entity.getIsCorrect())
+                .options(entity.getOptions())
+                .correctAnswerIndex(entity.getCorrectAnswerIndex())
                 .points(entity.getPoints())
                 .sortOrder(entity.getSortOrder())
                 .createdAt(entity.getCreatedAt())
@@ -34,24 +34,27 @@ public class QuizQuestionAnswerServiceImpl implements QuizQuestionAnswerService 
     }
 
     @Override
-    public QuizQuestionAnswerResponse createQuizQuestionAnswer(UUID id, QuizQuestionAnswerRequest request) {
-        Quiz quiz = Quiz.builder().id(id).build();
+    public QuizQuestionAnswerResponse createQuizQuestionAnswer(UUID quizId, QuizQuestionAnswerRequest request) {
+        UUID actualQuizId = request.getQuizId() != null ? request.getQuizId() : quizId;
+        Quiz quiz = Quiz.builder().id(actualQuizId).build();
+
         QuizQuestionAnswer entity = QuizQuestionAnswer.builder()
                 .quiz(quiz)
                 .questionText(request.getQuestionText())
-                .questionType(request.getQuestionType())
-                .answerText(request.getAnswerText())
-                .isCorrect(request.getIsCorrect())
+                .options(request.getOptions())
+                .correctAnswerIndex(request.getCorrectAnswerIndex())
                 .points(request.getPoints())
                 .sortOrder(request.getSortOrder())
+                .createdAt(OffsetDateTime.now())
                 .build();
+
         QuizQuestionAnswer saved = repository.save(entity);
         return mapToResponse(saved);
     }
 
     @Override
     public List<QuizQuestionAnswerResponse> getAllByQuizId(UUID quizId) {
-        return repository.findByQuizId(quizId)
+        return repository.findByQuiz_Id(quizId)
                 .stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
@@ -70,9 +73,8 @@ public class QuizQuestionAnswerServiceImpl implements QuizQuestionAnswerService 
                 .orElseThrow(() -> new RuntimeException("QuizQuestionAnswer not found with id: " + id));
 
         entity.setQuestionText(request.getQuestionText());
-        entity.setQuestionType(request.getQuestionType());
-        entity.setAnswerText(request.getAnswerText());
-        entity.setIsCorrect(request.getIsCorrect());
+        entity.setOptions(request.getOptions());
+        entity.setCorrectAnswerIndex(request.getCorrectAnswerIndex());
         entity.setPoints(request.getPoints());
         entity.setSortOrder(request.getSortOrder());
 

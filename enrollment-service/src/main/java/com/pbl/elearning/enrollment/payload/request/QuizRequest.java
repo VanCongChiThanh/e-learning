@@ -15,4 +15,5 @@ public class QuizRequest {
     private Integer timeLimitMinutes;
     private Integer passingScore;
     private Integer maxAttempts;
+    private Integer numberQuestions;
 }
