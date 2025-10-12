@@ -30,7 +30,7 @@ org:
       enabled: false
 origin-patterns: "*"
 dev-patterns: "http://localhost:3000"
-web-url: "http://localhost:3000"
+web-url: "https://coursevo.vercel.app"
 e-learning-mail:
   domain: e-learning.com
 app:
@@ -39,7 +39,7 @@ app:
       google:
         clientId: ${GOOGLE_CLIENT_ID}
         clientSecret: ${GOOGLE_CLIENT_SECRET}
-        redirectUri: http://localhost:3000/oauth2/callback/google
+        redirectUri: https://coursevo.vercel.app/oauth2/callback/google
       facebook:
         clientId: ${FACEBOOK_CLIENT_ID}
         clientSecret: ${FACEBOOK_CLIENT_SECRET}
@@ -60,3 +60,5 @@ payos:
   return-url: ${PAYOS_RETURN_URL:http://localhost:8105/api/payments/return/payos}
   cancel-url: ${PAYOS_CANCEL_URL:http://localhost:8105/api/payments/cancel/payos}
   webhook-url: ${PAYOS_WEBHOOK_URL:http://localhost:8105/api/payments/webhook/payos}
+firebase:
+  service-account-path: /app/firebase-service-account.json

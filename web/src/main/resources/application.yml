@@ -44,11 +44,3 @@ app:
     tokenExpirationMsec: 7200000
     refreshTokenSecret: ${REFRESH_TOKEN_SECRET}
     refreshTokenExpirationMsec: 2592000000
-
-#logging:
-#  level:
-#    org:
-#      hibernate:
-#        SQL: DEBUG
-#        tool:
-#          hbm2ddl: DEBUG
