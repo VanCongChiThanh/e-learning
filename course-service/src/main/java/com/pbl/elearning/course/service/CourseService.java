@@ -38,6 +38,9 @@ public interface CourseService {
     CourseResponse updateCourseBySlug(String slug, CourseRequest courseRequest);
     void deleteCourseBySlug(String slug);
 
+    // category
+    List<Category> getAllCategories();
+
 
 
 
