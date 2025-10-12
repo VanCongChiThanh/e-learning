@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -106,15 +107,10 @@ public class CourseServiceImpl implements CourseService {
                 .toList();
     }
     @Override
-    public Page<CourseResponse> coursePageResponse(Pageable pageable, Category category){
+    public Page<CourseResponse> coursePageResponse(Pageable pageable, Specification<Course> spec) {
         Page<Course> coursePage;
 
-        if (category != null) {
-            coursePage = courseRepository.findByCategory(category, pageable);
-        } else {
-            coursePage = courseRepository.findAll(pageable);
-        }
-
+        coursePage = courseRepository.findAll(spec, pageable);
         return coursePage.map(course -> {
             String instructorName = userInfoRepository.findById(course.getInstructorId())
                     .map(user -> user.getFirstName() + " " + user.getLastName())
