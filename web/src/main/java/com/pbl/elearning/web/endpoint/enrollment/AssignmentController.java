@@ -19,6 +19,7 @@ public class AssignmentController {
 
     @PostMapping
     public ResponseEntity<AssignmentResponse> create(@RequestBody AssignmentRequest request) {
+        System.out.println("request " + request);
         return ResponseEntity.ok(service.createAssignment(request));
     }
 

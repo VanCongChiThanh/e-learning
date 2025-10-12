@@ -122,9 +122,9 @@ public class CourseServiceImpl implements CourseService {
 
 
     @Override
-     public CourseResponse getCourseById(UUID courseId){
+    public CourseResponse getCourseById(UUID courseId){
         Course course= courseRepository.findById(courseId).orElseThrow(() ->
-            new EntityNotFoundException("Course not found with id: " + courseId));
+                new EntityNotFoundException("Course not found with id: " + courseId));
         return CourseResponse.toCourseResponse(course);
     }
     @Override
@@ -221,9 +221,9 @@ public class CourseServiceImpl implements CourseService {
     public CourseResponse getCourseDetailBySlug(String slug){
         Course course = courseRepository.findBySlug(slug)
                 .orElseThrow(() -> new EntityNotFoundException("Course not found with slug: " + slug));
-        UserInfo instructor = userInfoService.getUserInfoByUserId(course.getInstructorId());
-        String instructorName = instructor != null ? instructor.getFirstName()+" " +instructor.getLastName() : "Unknown Instructor";
-
+        String instructorName = userInfoRepository.findById(course.getInstructorId())
+                .map(user -> user.getFirstName() + " " + user.getLastName())
+                .orElse("Unknown Instructor");
         Set<TagResponse> tags = tagService.getTagsByCourseId(course.getCourseId());
         Double avgRating = reviewService.getAverageRatingByCourseId(course.getCourseId());
         Integer totalReviews = reviewService.getTotalReviewsByCourseId(course.getCourseId());

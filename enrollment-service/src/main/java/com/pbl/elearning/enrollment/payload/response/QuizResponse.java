@@ -15,6 +15,7 @@ public class QuizResponse {
     private Integer timeLimitMinutes;
     private Integer passingScore;
     private Integer maxAttempts;
+    private Integer numberQuestions;
     private Boolean isActive;
     private java.time.OffsetDateTime createdAt;
 }
