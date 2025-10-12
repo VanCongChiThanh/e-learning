@@ -4,18 +4,17 @@ import com.pbl.elearning.common.util.PagingUtils;
 import com.pbl.elearning.common.constant.CommonConstant;
 import com.pbl.elearning.common.payload.general.PageInfo;
 import com.pbl.elearning.common.payload.general.ResponseDataAPI;
-import com.pbl.elearning.course.domain.enums.Category;
+import com.pbl.elearning.course.domain.Course;
 import com.pbl.elearning.course.payload.request.CourseRequest;
 import com.pbl.elearning.course.payload.response.CourseResponse;
 import com.pbl.elearning.course.service.CourseService;
-import com.pbl.elearning.course.service.impl.CourseServiceImpl;
 import com.pbl.elearning.security.domain.UserPrincipal;
+import com.turkraft.springfilter.boot.Filter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.xmlbeans.impl.xb.xsdschema.Public;
-import org.mapstruct.MappingTarget;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -60,9 +59,9 @@ public class CourseController {
             @RequestParam(value = "paging", defaultValue = "5") int paging,
             @RequestParam(value = "sort", defaultValue = "created_at") String sort,
             @RequestParam(value = "order", defaultValue = "desc") String order,
-            @RequestParam(value = "categoryId", required = false) Category category) {
+            @Filter Specification<Course> specification) {
         Pageable pageable = PagingUtils.makePageRequest(sort, order, page, paging);
-        Page<CourseResponse> coursesPage = courseService.coursePageResponse(pageable, category);
+        Page<CourseResponse> coursesPage = courseService.coursePageResponse(pageable, specification);
         PageInfo pageInfo = new PageInfo(
                 pageable.getPageNumber() + 1,
                 coursesPage.getTotalPages(),
