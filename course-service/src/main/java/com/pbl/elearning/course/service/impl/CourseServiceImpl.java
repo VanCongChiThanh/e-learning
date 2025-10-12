@@ -4,6 +4,7 @@ import com.github.slugify.Slugify;
 import com.pbl.elearning.common.payload.general.PageInfo;
 import com.pbl.elearning.course.domain.Course;
 import com.pbl.elearning.course.domain.Tag;
+import com.pbl.elearning.course.domain.enums.Category;
 import com.pbl.elearning.course.domain.enums.CourseLevel;
 import com.pbl.elearning.course.payload.request.CourseRequest;
 import com.pbl.elearning.course.payload.response.CoursePageResponse;
@@ -15,12 +16,16 @@ import com.pbl.elearning.course.service.CourseService;
 import com.pbl.elearning.course.service.LectureService;
 import com.pbl.elearning.course.service.ReviewService;
 import com.pbl.elearning.course.service.TagService;
+import com.pbl.elearning.user.domain.UserInfo;
+import com.pbl.elearning.user.repository.UserInfoRepository;
+import com.pbl.elearning.user.service.UserInfoService;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.proxy.EntityNotFoundDelegate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -47,6 +52,9 @@ public class CourseServiceImpl implements CourseService {
     private final TagService tagService;
     private final ReviewService reviewService;
     private final LectureService lectureService;
+
+    private final UserInfoService userInfoService;
+    private final UserInfoRepository userInfoRepository;
 
 
 
@@ -99,9 +107,17 @@ public class CourseServiceImpl implements CourseService {
                 .toList();
     }
     @Override
-    public Page<CourseResponse> coursePageResponse(Pageable pageable){
-        Page<Course> coursePage = courseRepository.findAll(pageable);
-        return coursePage.map(CourseResponse::toCourseResponse);
+    public Page<CourseResponse> coursePageResponse(Pageable pageable, Specification<Course> spec) {
+        Page<Course> coursePage;
+
+        coursePage = courseRepository.findAll(spec, pageable);
+        return coursePage.map(course -> {
+            String instructorName = userInfoRepository.findById(course.getInstructorId())
+                    .map(user -> user.getFirstName() + " " + user.getLastName())
+                    .orElse("Unknown Instructor");
+
+            return CourseResponse.toCourseResponse_instructor(course, instructorName);
+        });
     }
 
 
@@ -205,12 +221,15 @@ public class CourseServiceImpl implements CourseService {
     public CourseResponse getCourseDetailBySlug(String slug){
         Course course = courseRepository.findBySlug(slug)
                 .orElseThrow(() -> new EntityNotFoundException("Course not found with slug: " + slug));
+        UserInfo instructor = userInfoService.getUserInfoByUserId(course.getInstructorId());
+        String instructorName = instructor != null ? instructor.getFirstName()+" " +instructor.getLastName() : "Unknown Instructor";
+
         Set<TagResponse> tags = tagService.getTagsByCourseId(course.getCourseId());
         Double avgRating = reviewService.getAverageRatingByCourseId(course.getCourseId());
         Integer totalReviews = reviewService.getTotalReviewsByCourseId(course.getCourseId());
         Integer totalLectures = lectureService.countLectureByCourseId(course.getCourseId());
         return CourseResponse.toCourseDetailResponse(
-                course, tags, avgRating, totalReviews, totalLectures, 40
+                course, tags, avgRating, totalReviews, totalLectures, 40,instructorName
         );
 
 
@@ -222,6 +241,11 @@ public class CourseServiceImpl implements CourseService {
         Course course = courseRepository.findBySlug(slug)
                 .orElseThrow(() -> new EntityNotFoundException("Course not found with slug: " + slug));
         courseRepository.delete(course);
+    }
+
+    @Override
+    public List<Category> getAllCategories(){
+        return List.of(Category.values());
     }
 
 
