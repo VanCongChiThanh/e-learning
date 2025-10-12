@@ -4,6 +4,7 @@ import com.pbl.elearning.enrollment.models.Enrollment;
 import com.pbl.elearning.enrollment.payload.request.EnrollmentRequest;
 import com.pbl.elearning.enrollment.payload.request.UpdateEnrollmentRequest;
 import com.pbl.elearning.enrollment.payload.response.EnrollmentResponse;
+import com.pbl.elearning.enrollment.payload.response.EnrollmentReportResponse;
 import com.pbl.elearning.enrollment.services.EnrollmentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -29,16 +30,14 @@ public class EnrollmentController {
     private EnrollmentResponse toResponse(Enrollment enrollment) {
         return EnrollmentResponse.builder()
                 .id(enrollment.getId())
-                .userId(enrollment.getUserId())
-                .courseId(enrollment.getCourseId())
+                .userId(enrollment.getUser() != null ? enrollment.getUser().getId() : null)
+                .courseId(enrollment.getCourse() != null ? enrollment.getCourse().getCourseId() : null)
                 .enrollmentDate(enrollment.getEnrollmentDate())
                 .completionDate(enrollment.getCompletionDate())
                 .progressPercentage(enrollment.getProgressPercentage())
                 .status(enrollment.getStatus())
                 .totalWatchTimeMinutes(enrollment.getTotalWatchTimeMinutes())
                 .lastAccessedAt(enrollment.getLastAccessedAt())
-                .createdAt(enrollment.getCreatedAt())
-                .updatedAt(enrollment.getUpdatedAt())
                 .build();
     }
 
@@ -107,5 +106,25 @@ public class EnrollmentController {
                 .collect(Collectors.toList());
         System.err.println("Found " + responses );
         return ResponseEntity.ok(responses);
+    }
+
+    // API Báo cáo thống kê
+    
+    @GetMapping("/{enrollmentId}/report")
+    public ResponseEntity<EnrollmentReportResponse> getEnrollmentReport(@PathVariable UUID enrollmentId) {
+        EnrollmentReportResponse report = enrollmentService.getEnrollmentReport(enrollmentId);
+        return ResponseEntity.ok(report);
+    }
+
+    @GetMapping("/reports/course/{courseId}")
+    public ResponseEntity<List<EnrollmentReportResponse>> getEnrollmentReportsByCourse(@PathVariable UUID courseId) {
+        List<EnrollmentReportResponse> reports = enrollmentService.getEnrollmentReportsByCourse(courseId);
+        return ResponseEntity.ok(reports);
+    }
+
+    @GetMapping("/reports/user/{userId}")
+    public ResponseEntity<List<EnrollmentReportResponse>> getEnrollmentReportsByUser(@PathVariable UUID userId) {
+        List<EnrollmentReportResponse> reports = enrollmentService.getEnrollmentReportsByUser(userId);
+        return ResponseEntity.ok(reports);
     }
 }

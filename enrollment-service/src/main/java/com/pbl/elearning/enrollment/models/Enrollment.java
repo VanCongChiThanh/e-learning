@@ -1,6 +1,8 @@
 package com.pbl.elearning.enrollment.models;
 
 import com.pbl.elearning.enrollment.Enum.EnrollmentStatus;
+import com.pbl.elearning.security.domain.User;
+import com.pbl.elearning.course.domain.Course;
 import lombok.*;
 
 import javax.persistence.*;
@@ -13,18 +15,20 @@ import java.util.UUID;
 @AllArgsConstructor
 @Entity
 @Table(name = "enrollments", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"user_id", "course_id"})
+        @UniqueConstraint(columnNames = {"userId", "courseId"})
 })
 public class Enrollment {
     @Id
     @GeneratedValue
     private UUID id;
 
-    @Column(name = "user_id", nullable = false)
-    private UUID userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "userId", nullable = false)
+    private User user;
 
-    @Column(name = "course_id", nullable = false)
-    private UUID courseId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "courseId", nullable = false)
+    private Course course;
 
     private OffsetDateTime enrollmentDate;
     private OffsetDateTime completionDate;
@@ -36,7 +40,5 @@ public class Enrollment {
     private EnrollmentStatus status;
 
     private Integer totalWatchTimeMinutes;
-    private OffsetDateTime lastAccessedAt; // ko can
-    private OffsetDateTime createdAt; // ko can
-    private OffsetDateTime updatedAt; // ko can
+    private OffsetDateTime lastAccessedAt;
 }

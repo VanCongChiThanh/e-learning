@@ -10,9 +10,9 @@ import java.time.OffsetDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateEnrollmentRequest {
-    private Double progressPercentage;       // % tiến độ học tập
-    private EnrollmentStatus status;         // Trạng thái: IN_PROGRESS, COMPLETED, DROPPED...
-    private OffsetDateTime completionDate;   // Ngày hoàn thành (nếu có)
-    private Integer totalWatchTimeMinutes;   // Tổng thời gian học (phút)
-    private OffsetDateTime lastAccessedAt;   // Lần truy cập cuối
+    private Double progressPercentage;      
+    private EnrollmentStatus status;         
+    private OffsetDateTime completionDate;  
+    private Integer totalWatchTimeMinutes;   
+    private OffsetDateTime lastAccessedAt;   
 }

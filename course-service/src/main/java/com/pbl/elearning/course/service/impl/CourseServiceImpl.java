@@ -122,9 +122,9 @@ public class CourseServiceImpl implements CourseService {
 
 
     @Override
-     public CourseResponse getCourseById(UUID courseId){
+    public CourseResponse getCourseById(UUID courseId){
         Course course= courseRepository.findById(courseId).orElseThrow(() ->
-            new EntityNotFoundException("Course not found with id: " + courseId));
+                new EntityNotFoundException("Course not found with id: " + courseId));
         return CourseResponse.toCourseResponse(course);
     }
     @Override
