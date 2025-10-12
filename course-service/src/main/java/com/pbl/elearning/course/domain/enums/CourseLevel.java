@@ -4,5 +4,6 @@ public enum CourseLevel {
     BEGINNER,
     INTERMEDIATE,
     ADVANCED,
-    EXPERT
+    EXPERT,
+    ALL_LEVEL
 }

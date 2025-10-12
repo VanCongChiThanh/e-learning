@@ -1,0 +1,12 @@
+package com.pbl.elearning.notification.domain.enums;
+
+public enum NotificationType {
+  COURSE_ENROLLMENT,
+  ASSIGNMENT_GRADED,
+  NEW_COURSE_AVAILABLE,
+  COURSE_COMPLETED,
+  PASSWORD_RESET,
+  ACCOUNT_ACTIVATION,
+  INSTRUCTOR_MESSAGE,
+  SYSTEM_ALERT
+}

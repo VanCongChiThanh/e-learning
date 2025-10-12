@@ -1,4 +1,4 @@
-package com.pbl.elearning.web.endpoint;
+package com.pbl.elearning.web.endpoint.media;
 
 import com.amazonaws.HttpMethod;
 import com.pbl.elearning.common.constant.MessageConstant;
@@ -13,7 +13,6 @@ import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.joda.time.DateTime;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
