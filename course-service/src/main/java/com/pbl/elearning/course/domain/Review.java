@@ -1,9 +1,7 @@
 package com.pbl.elearning.course.domain;
 
 import com.pbl.elearning.common.domain.AbstractEntity;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.UUID;
@@ -13,6 +11,8 @@ import java.util.UUID;
 @Table(name = "reviews")
 @Entity
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Review extends AbstractEntity {
 
     @Id
