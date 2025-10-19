@@ -34,19 +34,21 @@ public class CartService {
             throw new RuntimeException("You have already purchased this course");
         }
 
+        // Validate if course id is exists in course service
+        // CourseResponse course = courseService.getCourseById(request.getCourseId());
+        // if (course == null) {
+            // throw new RuntimeException("Course not found");
+        // }
+
         // 2. Get or create cart for user
         Cart cart = getOrCreateCart(userId);
 
         // 3. Check if course already in cart
         CartItem existingItem = cart.getItemByCourseId(request.getCourseId());
         if (existingItem != null) {
-            // Update quantity
-            // existingItem.updateQuantity(existingItem.getQuantity() +
-            // request.getQuantity());
-            // log.info("Updated quantity for course {} in cart for user {}",
-            // request.getCourseId(), userId);
-            // course has been added to cart
-            log.info("Course {} already in cart for user {}", request.getCourseId(), userId);
+            throw new RuntimeException("Course already in cart");
+            // log.info("Course {} already in cart for user {}", request.getCourseId(),
+            // userId);
         } else {
             // Create new cart item
             CartItem cartItem = createCartItem(request, cart);

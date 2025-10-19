@@ -1,10 +1,13 @@
 package com.pbl.elearning.web.endpoint.course;
 
+import org.springframework.security.core.Authentication;
 import com.pbl.elearning.common.constant.CommonConstant;
 import com.pbl.elearning.common.payload.general.ResponseDataAPI;
 import com.pbl.elearning.course.payload.request.NoteRequest;
 import com.pbl.elearning.course.payload.response.NoteResponse;
 import com.pbl.elearning.course.service.NoteService;
+import com.pbl.elearning.security.domain.UserPrincipal;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,17 +21,32 @@ import java.util.UUID;
 public class NoteController {
     private final NoteService noteService;
 
+    private UUID getUserIdFromAuthentication(Authentication authentication) {
+
+        if (authentication != null && authentication.getPrincipal() != null) {
+            UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+            return userPrincipal.getId();
+        }
+
+        throw new RuntimeException("User not authenticated");
+    }
+
     @PostMapping
     public ResponseEntity<ResponseDataAPI> createNote(
             @PathVariable UUID lectureId,
-            @RequestHeader("X-User-ID") UUID userId,
-            @Valid @RequestBody NoteRequest request) {
+            // @RequestHeader("X-User-ID") UUID userId,
+            @Valid @RequestBody NoteRequest request,
+            Authentication authentication) {
+
+        UUID userId = getUserIdFromAuthentication(authentication);
+
         NoteResponse noteResponse = noteService.createNote(request, lectureId, userId);
         return ResponseEntity.ok(ResponseDataAPI.builder()
                 .status(CommonConstant.SUCCESS)
                 .data(noteResponse)
                 .build());
     }
+
     @GetMapping
     public ResponseEntity<ResponseDataAPI> getAllNotes(@PathVariable UUID lectureId) {
         var notes = noteService.getAllNotesByLectureId(lectureId);
@@ -46,6 +64,7 @@ public class NoteController {
                 .data(noteResponse)
                 .build());
     }
+
     @PutMapping("/{noteId}")
     public ResponseEntity<ResponseDataAPI> updateNote(
             @PathVariable UUID noteId,
@@ -56,6 +75,7 @@ public class NoteController {
                 .data(updatedNote)
                 .build());
     }
+
     @DeleteMapping("/{noteId}")
     public ResponseEntity<ResponseDataAPI> deleteNote(@PathVariable UUID noteId) {
         noteService.deleteNote(noteId);

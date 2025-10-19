@@ -11,4 +11,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class NoteRequest {
     private String content;
+    private Long videoTimestamp;
 }
