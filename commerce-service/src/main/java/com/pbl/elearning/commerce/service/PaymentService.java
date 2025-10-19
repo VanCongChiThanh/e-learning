@@ -125,12 +125,7 @@ public class PaymentService {
 
             // 2. Find payment by order code
             Payment payment = paymentRepository.findByOrderCode(webhookRequest.getData().getOrderCode())
-                    .orElse(null);
-
-            if (payment == null) {
-                log.error("Payment not found for orderCode: {}", webhookRequest.getData().getOrderCode());
-                return false;
-            }
+                    .orElseThrow(() -> new RuntimeException("Payment not found"));
 
             // 3. Check if already processed (idempotency)
             if (payment.isPaid()) {

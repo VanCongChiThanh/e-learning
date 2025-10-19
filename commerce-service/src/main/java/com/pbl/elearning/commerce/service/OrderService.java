@@ -8,6 +8,7 @@ import com.pbl.elearning.commerce.payload.response.OrderResponse;
 import com.pbl.elearning.commerce.repository.CartRepository;
 import com.pbl.elearning.commerce.repository.OrderItemRepository;
 import com.pbl.elearning.commerce.repository.OrderRepository;
+import com.pbl.elearning.enrollment.payload.request.EnrollmentRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -18,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.UUID;
@@ -31,6 +33,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
     private final CartRepository cartRepository;
+    private final EnrollmentClient enrollmentClient;
 
     @Transactional
     public OrderResponse createOrder(CreateOrderRequest request, UUID userId) {
@@ -171,16 +174,25 @@ public class OrderService {
             order.setDeliveredAt(new Timestamp(System.currentTimeMillis()));
             orderRepository.save(order);
 
-            // Log course access granted
+            // Integrate with enrollment service to actually grant course access
             for (OrderItem item : order.getItems()) {
-                log.info("Granted access to course {} for user {} via order {}",
-                        item.getCourseId(), order.getUserId(), order.getOrderNumber());
+                EnrollmentRequest enrollmentRequest = EnrollmentRequest.builder()
+                        .userId(order.getUserId())
+                        .courseId(item.getCourseId())
+                        .enrollmentDate(OffsetDateTime.now())
+                        .build();
+
+                enrollmentClient.grantAccessToCourse(enrollmentRequest)
+                        .doOnSuccess(enrollment -> log.info(
+                                "Successfully granted access to course {} for user {} via enrollment {}",
+                                item.getCourseId(), order.getUserId(), enrollment.getId()))
+                        .doOnError(error -> log.error("Failed to grant access to course {} for user {}: {}",
+                                item.getCourseId(), order.getUserId(), error.getMessage()))
+                        .subscribe(); // Fire and forget for async processing
+
             }
 
-            // TODO: Integrate with enrollment service to actually grant course access
-            // enrollmentService.grantCourseAccess(order.getUserId(), order.getItems());
-
-            // TODO: Send notification email
+            // Send notification email
             // emailService.sendPurchaseConfirmation(order);
 
         } catch (Exception e) {
