@@ -66,7 +66,8 @@ public class PaymentService {
         }
 
         // 2. Check if payment already exists for this order
-        Optional<Payment> existingPayment = paymentRepository.findByOrderCode(order.getOrderNumber());
+         Optional<Payment> existingPayment = paymentRepository.findByOrderId(order.getId());
+        //Optional<Payment> existingPayment = paymentRepository.findByOrderCode(order.getOrderNumber());
         if (existingPayment.isPresent() && existingPayment.get().isPending()) {
             // Return existing payment if still pending
             return mapToPaymentResponse(existingPayment.get());
@@ -124,12 +125,7 @@ public class PaymentService {
 
             // 2. Find payment by order code
             Payment payment = paymentRepository.findByOrderCode(webhookRequest.getData().getOrderCode())
-                    .orElse(null);
-
-            if (payment == null) {
-                log.error("Payment not found for orderCode: {}", webhookRequest.getData().getOrderCode());
-                return false;
-            }
+                    .orElseThrow(() -> new RuntimeException("Payment not found"));
 
             // 3. Check if already processed (idempotency)
             if (payment.isPaid()) {

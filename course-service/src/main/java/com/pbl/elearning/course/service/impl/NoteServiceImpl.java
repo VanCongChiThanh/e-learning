@@ -18,56 +18,55 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Transactional
 public class NoteServiceImpl implements NoteService {
-    private final NoteRepository noteRepository;
-    private final LectureRepository lectureRepository;
+        private final NoteRepository noteRepository;
+        private final LectureRepository lectureRepository;
 
-    @Override
-    public NoteResponse createNote(NoteRequest noteRequest, UUID lectureId, UUID userId){
-        Lecture lecture= lectureRepository.findById(lectureId)
-                .orElseThrow(() ->
-                        new RuntimeException("Lecture not found with id: " + lectureId));
+        @Override
+        public NoteResponse createNote(NoteRequest noteRequest, UUID lectureId, UUID userId) {
+                Lecture lecture = lectureRepository.findById(lectureId)
+                                .orElseThrow(() -> new RuntimeException("Lecture not found with id: " + lectureId));
 
-        Note note = Note.builder()
-                .content(noteRequest.getContent())
-                .lecture(lecture)
-                .userId(userId)
-                .build();
-        Note savedNote = noteRepository.save(note);
-        return NoteResponse.fromEntity(savedNote);
-    }
-    @Override
-    public List<NoteResponse> getAllNotesByLectureId(UUID lectureId){
-        Lecture lecture= lectureRepository.findById(lectureId)
-                .orElseThrow(() ->
-                        new RuntimeException("Lecture not found with id: " + lectureId));
-        List<Note> note = noteRepository.findByLecture_LectureId(lectureId);
-        return note.stream()
-                .map(NoteResponse::fromEntity)
-                .toList();
-    }
+                Note note = Note.builder()
+                                .content(noteRequest.getContent())
+                                .lecture(lecture)
+                                .userId(userId)
+                                .videoTimestamp(noteRequest.getVideoTimestamp())
+                                .build();
+                Note savedNote = noteRepository.save(note);
+                return NoteResponse.fromEntity(savedNote);
+        }
 
-    @Override
-    public NoteResponse getNoteById(UUID noteId){
-        Note note = noteRepository.findById(noteId)
-                .orElseThrow(() ->
-                        new RuntimeException("Note not found with id: " + noteId));
-        return NoteResponse.fromEntity(note);
-    }
-    @Override
-    public NoteResponse updateNote(UUID noteId, NoteRequest noteRequest) {
-        Note note = noteRepository.findById(noteId)
-                .orElseThrow(() ->
-                        new RuntimeException("Note not found with id: " + noteId));
-        note.setContent(noteRequest.getContent());
-        Note updatedNote = noteRepository.save(note);
-        return NoteResponse.fromEntity(updatedNote);
-    }
-    @Override
-    public void deleteNote(UUID noteId) {
-        Note note = noteRepository.findById(noteId)
-                .orElseThrow(() ->
-                        new RuntimeException("Note not found with id: " + noteId));
-        noteRepository.delete(note);
-    }
+        @Override
+        public List<NoteResponse> getAllNotesByLectureId(UUID lectureId) {
+                Lecture lecture = lectureRepository.findById(lectureId)
+                                .orElseThrow(() -> new RuntimeException("Lecture not found with id: " + lectureId));
+                List<Note> note = noteRepository.findByLecture_LectureId(lectureId);
+                return note.stream()
+                                .map(NoteResponse::fromEntity)
+                                .toList();
+        }
+
+        @Override
+        public NoteResponse getNoteById(UUID noteId) {
+                Note note = noteRepository.findById(noteId)
+                                .orElseThrow(() -> new RuntimeException("Note not found with id: " + noteId));
+                return NoteResponse.fromEntity(note);
+        }
+
+        @Override
+        public NoteResponse updateNote(UUID noteId, NoteRequest noteRequest) {
+                Note note = noteRepository.findById(noteId)
+                                .orElseThrow(() -> new RuntimeException("Note not found with id: " + noteId));
+                note.setContent(noteRequest.getContent());
+                Note updatedNote = noteRepository.save(note);
+                return NoteResponse.fromEntity(updatedNote);
+        }
+
+        @Override
+        public void deleteNote(UUID noteId) {
+                Note note = noteRepository.findById(noteId)
+                                .orElseThrow(() -> new RuntimeException("Note not found with id: " + noteId));
+                noteRepository.delete(note);
+        }
 
 }
