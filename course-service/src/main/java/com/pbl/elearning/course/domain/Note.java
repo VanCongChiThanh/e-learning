@@ -28,5 +28,7 @@ public class Note extends AbstractEntity {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
+    @Column(name = "videoTimestamp", nullable = true)
+    private Long videoTimestamp;
 
 }

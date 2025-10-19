@@ -12,19 +12,23 @@ import java.util.UUID;
 public class NoteResponse {
     private UUID noteId;
     private UUID lectureId;
+    private String lectureTitle;
     private UUID userId;
     private String content;
     private Timestamp createdAt;
     private Timestamp deletedAt;
+    private Long videoTimestamp;
 
     public static NoteResponse fromEntity(Note note) {
         return NoteResponse.builder()
                 .noteId(note.getNoteId())
                 .lectureId(note.getLecture() != null ? note.getLecture().getLectureId() : null)
+                .lectureTitle(note.getLecture() != null ? note.getLecture().getTitle() : null)
                 .userId(note.getUserId())
                 .content(note.getContent())
                 .createdAt(note.getCreatedAt())
                 .deletedAt(note.getDeletedAt())
+                .videoTimestamp(note.getVideoTimestamp())
                 .build();
     }
 
