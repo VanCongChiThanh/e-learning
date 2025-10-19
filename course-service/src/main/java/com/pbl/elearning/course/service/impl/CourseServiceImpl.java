@@ -112,7 +112,7 @@ public class CourseServiceImpl implements CourseService {
 
         coursePage = courseRepository.findAll(spec, pageable);
         return coursePage.map(course -> {
-            String instructorName = userInfoRepository.findById(course.getInstructorId())
+            String instructorName = userInfoRepository.findByUserId(course.getInstructorId())
                     .map(user -> user.getFirstName() + " " + user.getLastName())
                     .orElse("Unknown Instructor");
 
