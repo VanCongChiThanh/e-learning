@@ -14,6 +14,6 @@ import java.util.UUID;
 public interface InstructorApplicationRepository extends JpaRepository<InstructorApplication, UUID> {
     Optional<InstructorApplication> findByIdAndUserId(UUID applicationId, UUID userId);
 
-    @Query("SELECT a, ui FROM InstructorApplication a JOIN UserInfo ui ON a.userId = ui.userId")
+    @Query("SELECT a, ui FROM InstructorApplication a JOIN UserInfo ui ON a.userId = ui.userId  where a.status = 'PENDING'")
     Page<Object[]> findAllWithUserInfo(Pageable pageable);
 }
