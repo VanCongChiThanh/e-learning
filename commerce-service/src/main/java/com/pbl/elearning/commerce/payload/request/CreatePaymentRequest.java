@@ -29,14 +29,4 @@ public class CreatePaymentRequest {
     @Min(value = 1, message = "Expiration time must be at least 1 minute")
     @Max(value = 43200, message = "Expiration time cannot exceed 43200 minutes (30 days)")
     private Integer expirationMinutes = 15; // Default 15 minutes
-
-    private String buyerName;
-
-    @Email(message = "Invalid email format")
-    private String buyerEmail;
-
-    @Pattern(regexp = "^[0-9+\\-\\s()]+$", message = "Invalid phone number format")
-    private String buyerPhone;
-
-    private String buyerAddress;
 }
