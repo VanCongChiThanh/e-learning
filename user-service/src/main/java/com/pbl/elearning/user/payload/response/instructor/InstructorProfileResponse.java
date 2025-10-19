@@ -17,7 +17,6 @@ import lombok.*;
 public class InstructorProfileResponse {
     private String bio;
     private String headline;
-    private String biography;
     private String linkedin;
     private String github;
     private String facebook;
@@ -29,7 +28,6 @@ public class InstructorProfileResponse {
         return InstructorProfileResponse.builder()
                 .bio(profile.getBio())
                 .headline(profile.getHeadline())
-                .biography(profile.getBiography())
                 .linkedin(profile.getLinkedin())
                 .github(profile.getGithub())
                 .facebook(profile.getFacebook())
