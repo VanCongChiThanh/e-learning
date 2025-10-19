@@ -249,7 +249,22 @@ public class CourseServiceImpl implements CourseService {
     }
 
 
-
+@Override
+public List<CourseResponse> getCoursesByInstructorId(UUID instructorId) {
+        List<Course> courses = courseRepository.findByInstructorId(instructorId);
+        return courses.stream()
+                .map(course -> CourseResponse.builder()
+                        .courseId(course.getCourseId())
+                        .slug(course.getSlug())
+                        .title(course.getTitle())
+                        .description(course.getDescription())
+                        .price(course.getPrice())
+                        .level(course.getLevel())
+                        .category(course.getCategory())
+                        .instructorId(course.getInstructorId())
+                        .build())
+                .toList();
+}
 
 
 }

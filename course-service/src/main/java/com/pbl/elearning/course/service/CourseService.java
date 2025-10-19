@@ -42,6 +42,7 @@ public interface CourseService {
 
     // category
     List<Category> getAllCategories();
+    List<CourseResponse> getCoursesByInstructorId(UUID instructorId);
 
 
 

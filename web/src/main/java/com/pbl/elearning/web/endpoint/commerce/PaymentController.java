@@ -25,7 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 @RestController
-@RequestMapping("/payments")
+@RequestMapping("/v1/payments")
 @RequiredArgsConstructor
 @Slf4j
 @Api(tags = "Payment Management", description = "APIs for managing payments with PayOS")
