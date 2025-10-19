@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/orders")
+@RequestMapping("/v1/orders")
 @RequiredArgsConstructor
 @Slf4j
 @Api(tags = "Order Management", description = "APIs for managing orders")
