@@ -144,3 +144,4 @@ public class CertificateServiceImpl implements CertificateService {
         return "CERT-" + System.currentTimeMillis() + "-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
     }
 }
+

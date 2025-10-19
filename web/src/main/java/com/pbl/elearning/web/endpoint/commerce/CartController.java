@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/cart")
+@RequestMapping("/v1/cart")
 @RequiredArgsConstructor
 @Slf4j
 @Api(tags = "Shopping Cart", description = "APIs for managing shopping cart")

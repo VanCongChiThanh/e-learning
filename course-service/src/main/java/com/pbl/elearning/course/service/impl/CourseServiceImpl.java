@@ -112,7 +112,7 @@ public class CourseServiceImpl implements CourseService {
 
         coursePage = courseRepository.findAll(spec, pageable);
         return coursePage.map(course -> {
-            String instructorName = userInfoRepository.findById(course.getInstructorId())
+            String instructorName = userInfoRepository.findByUserId(course.getInstructorId())
                     .map(user -> user.getFirstName() + " " + user.getLastName())
                     .orElse("Unknown Instructor");
 
@@ -221,7 +221,7 @@ public class CourseServiceImpl implements CourseService {
     public CourseResponse getCourseDetailBySlug(String slug){
         Course course = courseRepository.findBySlug(slug)
                 .orElseThrow(() -> new EntityNotFoundException("Course not found with slug: " + slug));
-        String instructorName = userInfoRepository.findById(course.getInstructorId())
+        String instructorName = userInfoRepository.findByUserId(course.getInstructorId())
                 .map(user -> user.getFirstName() + " " + user.getLastName())
                 .orElse("Unknown Instructor");
         Set<TagResponse> tags = tagService.getTagsByCourseId(course.getCourseId());
@@ -249,7 +249,22 @@ public class CourseServiceImpl implements CourseService {
     }
 
 
-
+@Override
+public List<CourseResponse> getCoursesByInstructorId(UUID instructorId) {
+        List<Course> courses = courseRepository.findByInstructorId(instructorId);
+        return courses.stream()
+                .map(course -> CourseResponse.builder()
+                        .courseId(course.getCourseId())
+                        .slug(course.getSlug())
+                        .title(course.getTitle())
+                        .description(course.getDescription())
+                        .price(course.getPrice())
+                        .level(course.getLevel())
+                        .category(course.getCategory())
+                        .instructorId(course.getInstructorId())
+                        .build())
+                .toList();
+}
 
 
 }
