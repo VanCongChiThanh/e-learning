@@ -6,7 +6,9 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.sql.Timestamp;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Data
 @Builder
@@ -21,6 +23,11 @@ public class ReviewResponse {
     private Timestamp createdAt;
     private String userAvatar;
 
+    private int likeCount;
+    private int dislikeCount;
+    private UUID parentReviewId;
+    private Set<ReviewResponse> replies;
+
     public static ReviewResponse fromEntity(Review review) {
         return ReviewResponse.builder()
                 .reviewId(review.getReviewId())
@@ -30,7 +37,24 @@ public class ReviewResponse {
                 .comment(review.getComment())
                 .build();
     }
+
+    public static  ReviewResponse fromEntityWithIdRely(Review review) {
+        return ReviewResponse.builder()
+                .reviewId(review.getReviewId())
+                .parentReviewId(review.getParentReview() != null ? review.getParentReview().getReviewId() : null)
+                .build();
+    }
+
     public static ReviewResponse fromEntityDetail(Review review, String userName, String userAvatar) {
+
+        Set<ReviewResponse> replyResponses = null;
+        if (review.getReplies() != null && !review.getReplies().isEmpty()) {
+            // Đệ quy: map các replies của review này
+            // Lưu ý: Tạm thời không lấy thông tin chi tiết (userName, avatar) cho các reply cấp 2 để tránh query phức tạp
+            replyResponses = review.getReplies().stream()
+                    .map(ReviewResponse::fromEntityWithIdRely) // Dùng fromEntity đơn giản cho cấp con
+                    .collect(Collectors.toSet());
+        }
         return ReviewResponse.builder()
                 .reviewId(review.getReviewId())
                 .courseId(review.getCourse().getCourseId())
@@ -40,6 +64,11 @@ public class ReviewResponse {
                 .UserName(userName)
                 .createdAt(review.getCreatedAt())
                 .userAvatar(userAvatar)
+
+                .likeCount(review.getLikeCount())
+                .dislikeCount(review.getDislikeCount())
+                .parentReviewId(review.getParentReview() != null ? review.getParentReview().getReviewId() : null)
+                .replies(replyResponses)
                 .build();
     }
 

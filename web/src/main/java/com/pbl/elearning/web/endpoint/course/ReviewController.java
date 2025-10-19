@@ -5,6 +5,7 @@ import com.pbl.elearning.common.constant.CommonConstant;
 import com.pbl.elearning.common.payload.general.PageInfo;
 import com.pbl.elearning.common.payload.general.ResponseDataAPI;
 import com.pbl.elearning.course.domain.Review;
+import com.pbl.elearning.course.domain.enums.VoteType;
 import com.pbl.elearning.course.payload.request.ReviewRequest;
 import com.pbl.elearning.course.payload.response.ReviewResponse;
 import com.pbl.elearning.course.service.ReviewService;
@@ -116,6 +117,29 @@ public class ReviewController {
         }
 
         throw new RuntimeException("User not authenticated");
+    }
+
+    @PostMapping("/{reviewId}/reply")
+    @PreAuthorize("hasAnyRole('LEARNER','INSTRUCTOR', 'ADMIN')")
+    public ResponseEntity<ResponseDataAPI> replyToReview(
+            @PathVariable UUID reviewId,
+            @Valid @RequestBody ReviewRequest request,
+            Authentication authentication) {
+        UUID userId = getUserIdFromAuthentication(authentication);
+        ReviewResponse replyResponse = reviewService.replyToReview(reviewId, userId, request);
+        return ResponseEntity.ok(ResponseDataAPI.success(replyResponse, "Replied successfully"));
+    }
+
+    // Endpoint để like/dislike một review
+    @PostMapping("/{reviewId}/vote")
+    @PreAuthorize("hasAnyRole('LEARNER','INSTRUCTOR', 'ADMIN')")
+    public ResponseEntity<ResponseDataAPI> voteReview(
+            @PathVariable UUID reviewId,
+            @RequestParam VoteType voteType,
+            Authentication authentication) {
+        UUID userId = getUserIdFromAuthentication(authentication);
+        reviewService.voteReview(reviewId, userId, voteType);
+        return ResponseEntity.ok(ResponseDataAPI.success(null, "Voted successfully"));
     }
 
 

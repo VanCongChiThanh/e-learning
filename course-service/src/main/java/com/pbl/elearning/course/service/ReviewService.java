@@ -1,6 +1,7 @@
 package com.pbl.elearning.course.service;
 
 import com.pbl.elearning.course.domain.Review;
+import com.pbl.elearning.course.domain.enums.VoteType;
 import com.pbl.elearning.course.payload.request.ReviewRequest;
 import com.pbl.elearning.course.payload.response.ReviewResponse;
 import org.springframework.data.domain.Page;
@@ -22,4 +23,7 @@ public interface ReviewService {
 
     Double getAverageRatingByCourseId(UUID courseId);
     Integer getTotalReviewsByCourseId(UUID courseId);
+
+    ReviewResponse replyToReview(UUID parentReviewId, UUID userId, ReviewRequest reviewRequest);
+    void voteReview(UUID reviewId, UUID userId, VoteType voteType);
 }

@@ -2,10 +2,13 @@ package com.pbl.elearning.course.service.impl;
 
 import com.pbl.elearning.course.domain.Course;
 import com.pbl.elearning.course.domain.Review;
+import com.pbl.elearning.course.domain.ReviewVote;
+import com.pbl.elearning.course.domain.enums.VoteType;
 import com.pbl.elearning.course.payload.request.ReviewRequest;
 import com.pbl.elearning.course.payload.response.ReviewResponse;
 import com.pbl.elearning.course.repository.CourseRepository;
 import com.pbl.elearning.course.repository.ReviewRepository;
+import com.pbl.elearning.course.repository.ReviewVoteRepository;
 import com.pbl.elearning.course.service.ReviewService;
 import com.pbl.elearning.user.domain.UserInfo;
 import com.pbl.elearning.user.domain.enums.Gender;
@@ -18,10 +21,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,6 +31,7 @@ public class ReviewServiceImpl implements ReviewService {
     private final ReviewRepository reviewRepository;
     private final CourseRepository courseRepository;
     private final UserInfoRepository userInfoRepository;
+    private final ReviewVoteRepository reviewVoteRepository;
 
     @Override
     public ReviewResponse createReview( ReviewRequest reviewRequest, UUID courseId, UUID userId){
@@ -89,8 +90,14 @@ public class ReviewServiceImpl implements ReviewService {
         if (!courseRepository.existsById(courseId)) {
             throw new RuntimeException("Course not found with id: " + courseId);
         }
+        // 3. **THÊM ĐIỀU KIỆN MỚI**: Chỉ lấy các review gốc (parentReview IS NULL)
+        Specification<Review> parentSpec = (root, query, criteriaBuilder) ->
+                criteriaBuilder.isNull(root.get("parentReview"));
 
-        Page<Review> reviewPage = reviewRepository.findAll(spec, pageable);
+        // 4. Kết hợp CẢ BA Specification: từ controller, của courseId, và điều kiện mới
+        Specification<Review> finalSpec = parentSpec.and(spec);
+
+        Page<Review> reviewPage = reviewRepository.findAll(finalSpec, pageable);
 
         List<UUID> userIds = reviewPage.getContent().stream()
                 .map(Review::getUserId)
@@ -165,5 +172,54 @@ public class ReviewServiceImpl implements ReviewService {
         }
         return "https://static.vecteezy.com/system/resources/previews/009/292/244/original/default-avatar-icon-of-social-media-user-vector.jpg";
     }
+
+    @Override
+    public ReviewResponse replyToReview(UUID parentReviewId, UUID userId, ReviewRequest reviewRequest) {
+        Review parentReview = reviewRepository.findById(parentReviewId)
+                .orElseThrow(() -> new RuntimeException("Parent review not found"));
+
+        Review reply = Review.builder()
+                .rating(0)
+                .comment(reviewRequest.getComment())
+                .course(parentReview.getCourse())
+                .userId(userId)
+                .parentReview(parentReview)
+                .build();
+
+        Review savedReply = reviewRepository.save(reply);
+        // Có thể trả về response chi tiết hơn nếu muốn
+        return ReviewResponse.fromEntity(savedReply);
+    }
+
+    @Override
+    public void voteReview(UUID reviewId, UUID userId, VoteType voteType) {
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new RuntimeException("Review not found"));
+
+
+        Optional<ReviewVote> existingVoteOpt = reviewVoteRepository.findByReviewAndUserId(review, userId);
+
+        if (existingVoteOpt.isPresent()) {
+            ReviewVote existingVote = existingVoteOpt.get();
+
+            if (existingVote.getVoteType() == voteType) {
+                reviewVoteRepository.delete(existingVote);
+            } else {
+
+                existingVote.setVoteType(voteType);
+                reviewVoteRepository.save(existingVote);
+            }
+        } else {
+
+            ReviewVote newVote = ReviewVote.builder()
+                    .review(review)
+                    .userId(userId)
+                    .voteType(voteType)
+                    .build();
+            reviewVoteRepository.save(newVote);
+        }
+    }
+
+
 
 }
