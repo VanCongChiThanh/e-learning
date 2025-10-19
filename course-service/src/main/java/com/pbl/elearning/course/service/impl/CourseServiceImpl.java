@@ -221,7 +221,7 @@ public class CourseServiceImpl implements CourseService {
     public CourseResponse getCourseDetailBySlug(String slug){
         Course course = courseRepository.findBySlug(slug)
                 .orElseThrow(() -> new EntityNotFoundException("Course not found with slug: " + slug));
-        String instructorName = userInfoRepository.findById(course.getInstructorId())
+        String instructorName = userInfoRepository.findByUserId(course.getInstructorId())
                 .map(user -> user.getFirstName() + " " + user.getLastName())
                 .orElse("Unknown Instructor");
         Set<TagResponse> tags = tagService.getTagsByCourseId(course.getCourseId());
