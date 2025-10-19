@@ -7,6 +7,7 @@ import com.pbl.elearning.user.domain.InstructorApplication;
 import com.pbl.elearning.user.payload.response.UserInfoResponse;
 import lombok.*;
 
+import java.sql.Timestamp;
 import java.util.UUID;
 
 @Getter
@@ -23,6 +24,7 @@ public class InstructorCandidateResponse {
     private String portfolioLink;
     private String motivation;
     private String status;
+    private Timestamp createdAt;
     public static InstructorCandidateResponse toResponse(UserInfoResponse userInfo, InstructorApplication application) {
         return InstructorCandidateResponse.builder()
                 .userInfo(userInfo)
@@ -31,6 +33,7 @@ public class InstructorCandidateResponse {
                 .portfolioLink(application.getPortfolioLink())
                 .motivation(application.getMotivation())
                 .status(application.getStatus().name())
+                .createdAt(application.getCreatedAt())
                 .build();
     }
 }

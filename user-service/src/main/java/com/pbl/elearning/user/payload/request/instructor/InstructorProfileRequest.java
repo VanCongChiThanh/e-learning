@@ -11,7 +11,6 @@ import lombok.Setter;
 public class InstructorProfileRequest {
     private String bio;
     private String headline;
-    private String biography;
     private String linkedin;
     private String github;
     private String facebook;

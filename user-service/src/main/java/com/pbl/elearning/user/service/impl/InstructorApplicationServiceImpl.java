@@ -2,6 +2,7 @@ package com.pbl.elearning.user.service.impl;
 
 
 import com.pbl.elearning.common.domain.enums.Role;
+import com.pbl.elearning.common.exception.NotFoundException;
 import com.pbl.elearning.email.service.EmailService;
 import com.pbl.elearning.user.domain.InstructorApplication;
 import com.pbl.elearning.user.domain.UserInfo;
@@ -80,7 +81,7 @@ public class InstructorApplicationServiceImpl implements InstructorApplicationSe
     public ApplicationStatus reviewApplication(UUID applicationId, ReviewApplicationRequest request) {
         ApplicationStatus status = request.getStatus();
         InstructorApplication application = instructorApplicationRepository.findById(applicationId)
-                .orElseThrow(() -> new IllegalArgumentException("Application not found"));
+                .orElseThrow(() -> new NotFoundException("Application not found"));
         UserInfo userInfo = userInfoService.getUserInfoByUserId(application.getUserId());
         switch (status) {
             case APPROVED:
