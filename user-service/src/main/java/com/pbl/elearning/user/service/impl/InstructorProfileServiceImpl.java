@@ -1,5 +1,7 @@
 package com.pbl.elearning.user.service.impl;
 
+import com.pbl.elearning.common.constant.MessageConstant;
+import com.pbl.elearning.common.exception.NotFoundException;
 import com.pbl.elearning.common.util.BeanUtilsHelper;
 import com.pbl.elearning.user.domain.InstructorProfile;
 import com.pbl.elearning.user.payload.request.instructor.InstructorProfileRequest;
@@ -50,6 +52,6 @@ public class InstructorProfileServiceImpl implements InstructorProfileService {
 
     private InstructorProfile findByUserId(UUID userId) {
         return instructorProfileRepository.findByUserId(userId)
-                .orElseThrow(() -> new IllegalArgumentException("Instructor profile not found for user: " + userId));
+                .orElseThrow(() -> new NotFoundException(MessageConstant.INSTRUCTOR_PROFILE_NOT_FOUND));
     }
 }

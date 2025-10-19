@@ -240,16 +240,7 @@ qr_code_invalid:
   code: ERR.QR0201
   message: Qr code invalid
 
-#Call
-end_call_failed:
-  code: ERR.ED0101
-  message: End call failed
-decline_call_failed:
-  code: ERR.DE0201
-  message: Decline call failed
-session_manager_not_found:
-  code: ERR.SS0201
-  message: Session manager not found
-call_type_invalid:
-  code: ERR.TE0201
-  message: Call type invalid
+#instructor
+instructor_profile_not_found:
+  code: ERR.IPNF
+  message: Instructo Profile not found for id
