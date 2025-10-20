@@ -220,5 +220,11 @@ public class CourseController {
                 .data(courseService.getAllCategories())
                 .build());
     }
-
+        @GetMapping("/instructor/{instructorId}")       
+        public ResponseEntity<ResponseDataAPI> getCoursesByInstructorId(@PathVariable UUID instructorId) {
+                return ResponseEntity.ok(ResponseDataAPI.builder()
+                                .status(CommonConstant.SUCCESS)
+                                .data(courseService.getCoursesByInstructorId(instructorId))
+                                .build());
+        }
 }

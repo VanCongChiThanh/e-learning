@@ -73,3 +73,4 @@ public class CertificateController {
         return ResponseEntity.noContent().build();
     }
 }
+

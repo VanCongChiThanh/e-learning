@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Giấy chứng nhận hoàn thành</title>
+  <style>
+    /* CRITICAL: Font declaration for Flying Saucer */
+    body {
+      font-family: 'Arial', 'DejaVu Sans', sans-serif;
+      text-align: center;
+      padding: 60px;
+      border: 8px solid #000;
+      margin: 0;
+      background-color: white;
+    }
+
+    .title {
+      font-size: 28px;
+      font-weight: bold;
+      margin-top: 30px;
+      color: #000;
+    }
+    
+    .subtitle {
+      font-size: 20px;
+      margin-top: 10px;
+      color: #333;
+    }
+    
+    .name {
+      font-size: 32px;
+      font-weight: bold;
+      margin: 40px 0 20px 0;
+      color: #000;
+    }
+    
+    .details {
+      font-size: 18px;
+      margin-top: 10px;
+      line-height: 1.8;
+      color: #333;
+    }
+    
+    .footer {
+      margin-top: 60px;
+      font-size: 16px;
+      color: #333;
+    }
+    
+    strong {
+      color: #000;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <h1 class="title">GIẤY CHỨNG NHẬN HOÀN THÀNH</h1>
+  <p class="subtitle">Chứng nhận rằng</p>
+
+  <h2 class="name">{{ userName }}</h2>
+
+  <p class="details">đã hoàn thành khóa học</p>
+  <h2 class="name">{{ courseName }}</h2>
+
+  <p class="details">
+    Số chứng nhận: <strong>{{ certificateNumber }}</strong><br/>
+    Điểm hoàn thành: <strong>{{ completionScore }}%</strong><br/>
+    Ngày cấp: <strong>{{ issuedDate }}</strong>
+  </p>
+
+  <div class="footer">
+    <p>Người cấp</p>
+    <p>______________ (Chữ ký)</p>
+  </div>
+
+</body>
+</html>
