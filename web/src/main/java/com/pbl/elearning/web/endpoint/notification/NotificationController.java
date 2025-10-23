@@ -28,7 +28,7 @@ public class NotificationController {
     private final NotificationService notificationService;
     private final DeviceTokenService deviceTokenService;
 
-    @GetMapping("/all")
+    @GetMapping
     @ApiOperation("get all notifications")
     public ResponseEntity<ResponseDataAPI> getNotifications(
             @RequestParam(value="only_unread", defaultValue = "false") boolean onlyUnread,
@@ -55,7 +55,7 @@ public class NotificationController {
     @PostMapping("/device-token")
     @ApiOperation("Save device token for push notifications")
     public ResponseEntity<ResponseDataAPI> saveDeviceToken(
-            @RequestParam RegisterDeviceRequest request,
+            @RequestBody RegisterDeviceRequest request,
             @CurrentUser UserPrincipal userPrincipal
     ){
         return ResponseEntity.ok(ResponseDataAPI
