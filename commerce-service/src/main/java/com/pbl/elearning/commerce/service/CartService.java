@@ -35,10 +35,10 @@ public class CartService {
         }
 
         // Validate if course id is exists in course service
-        // CourseResponse course = courseService.getCourseById(request.getCourseId());
-        // if (course == null) {
-            // throw new RuntimeException("Course not found");
-        // }
+        CourseClient courseClient = new CourseClient();
+        if (!courseClient.isCourseExist(request.getCourseId().toString())) {
+            throw new RuntimeException("Course does not exist");
+        }
 
         // 2. Get or create cart for user
         Cart cart = getOrCreateCart(userId);
