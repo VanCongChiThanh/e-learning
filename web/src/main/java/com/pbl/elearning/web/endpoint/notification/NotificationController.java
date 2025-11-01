@@ -68,7 +68,7 @@ public class NotificationController {
         return ResponseEntity.ok(ResponseDataAPI
                 .successWithoutMeta(notificationService.markAsRead(notificationId)));
     }
-    //test notification endpoint
+    //test notification endpoint for current user
     @PostMapping("/test")
     @ApiOperation("Send test notification to user")
     public ResponseEntity<ResponseDataAPI> sendTestNotification(
