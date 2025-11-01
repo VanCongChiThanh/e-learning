@@ -5,6 +5,7 @@ import com.pbl.elearning.commerce.payload.request.CreateOrderRequest;
 import com.pbl.elearning.commerce.payload.response.OrderResponse;
 import com.pbl.elearning.commerce.service.OrderService;
 import com.pbl.elearning.common.payload.general.ResponseDataAPI;
+import com.pbl.elearning.security.annotation.CurrentUser;
 import com.pbl.elearning.security.domain.UserPrincipal;
 
 import io.swagger.annotations.Api;
@@ -36,10 +37,9 @@ public class OrderController {
     @ApiOperation(value = "Create a new order", notes = "Create a new order for the authenticated user")
     public ResponseEntity<ResponseDataAPI> createOrder(
             @Valid @RequestBody CreateOrderRequest request,
-            Authentication authentication) {
+            @CurrentUser UserPrincipal userPrincipal) {
 
-        UUID userId = getUserIdFromAuthentication(authentication);
-        OrderResponse orderResponse = orderService.createOrder(request, userId);
+        OrderResponse orderResponse = orderService.createOrder(request, userPrincipal.getId());
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ResponseDataAPI.success(orderResponse, "Order created successfully"));
@@ -49,10 +49,9 @@ public class OrderController {
     @ApiOperation(value = "Create order from cart", notes = "Create a new order from the user's shopping cart")
     public ResponseEntity<ResponseDataAPI> createOrderFromCart(
             @Valid @RequestBody CreateOrderFromCartRequest request,
-            Authentication authentication) {
+            @CurrentUser UserPrincipal userPrincipal) {
 
-        UUID userId = getUserIdFromAuthentication(authentication);
-        OrderResponse orderResponse = orderService.createOrderFromCart(request, userId);
+        OrderResponse orderResponse = orderService.createOrderFromCart(request, userPrincipal.getId());
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ResponseDataAPI.success(orderResponse, "Order created from cart successfully"));
@@ -62,10 +61,9 @@ public class OrderController {
     @ApiOperation(value = "Get order by ID", notes = "Get order details by order ID")
     public ResponseEntity<ResponseDataAPI> getOrderById(
             @PathVariable UUID orderId,
-            Authentication authentication) {
+            @CurrentUser UserPrincipal userPrincipal) {
 
-        UUID userId = getUserIdFromAuthentication(authentication);
-        OrderResponse orderResponse = orderService.getOrderById(orderId, userId);
+        OrderResponse orderResponse = orderService.getOrderById(orderId, userPrincipal.getId());
 
         return ResponseEntity.ok(
                 ResponseDataAPI.success(orderResponse, "Order retrieved successfully"));
@@ -75,10 +73,9 @@ public class OrderController {
     @ApiOperation(value = "Get order by number", notes = "Get order details by order number")
     public ResponseEntity<ResponseDataAPI> getOrderByNumber(
             @PathVariable String orderNumber,
-            Authentication authentication) {
+            @CurrentUser UserPrincipal userPrincipal) {
 
-        UUID userId = getUserIdFromAuthentication(authentication);
-        OrderResponse orderResponse = orderService.getOrderByNumber(orderNumber, userId);
+        OrderResponse orderResponse = orderService.getOrderByNumber(orderNumber, userPrincipal.getId());
 
         return ResponseEntity.ok(
                 ResponseDataAPI.success(orderResponse, "Order retrieved successfully"));
@@ -89,11 +86,9 @@ public class OrderController {
     public ResponseEntity<ResponseDataAPI> getUserOrders(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            Authentication authentication) {
-
-        UUID userId = getUserIdFromAuthentication(authentication);
+            @CurrentUser UserPrincipal userPrincipal) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<OrderResponse> orders = orderService.getUserOrders(userId, pageable);
+        Page<OrderResponse> orders = orderService.getUserOrders(userPrincipal.getId(), pageable);
 
         return ResponseEntity.ok(
                 ResponseDataAPI.success(orders, "Orders retrieved successfully"));
@@ -105,14 +100,12 @@ public class OrderController {
             @PathVariable String status,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            Authentication authentication) {
-
-        UUID userId = getUserIdFromAuthentication(authentication);
+            @CurrentUser UserPrincipal userPrincipal) {
         Pageable pageable = PageRequest.of(page, size);
 
         try {
             var orderStatus = com.pbl.elearning.commerce.domain.enums.OrderStatus.valueOf(status.toUpperCase());
-            Page<OrderResponse> orders = orderService.getUserOrdersByStatus(userId, orderStatus, pageable);
+            Page<OrderResponse> orders = orderService.getUserOrdersByStatus(userPrincipal.getId(), orderStatus, pageable);
 
             return ResponseEntity.ok(
                     ResponseDataAPI.success(orders, "Orders retrieved successfully"));
@@ -125,10 +118,9 @@ public class OrderController {
     @GetMapping("/purchased-courses")
     @ApiOperation(value = "Get purchased course IDs", notes = "Get list of course IDs that the user has purchased")
     public ResponseEntity<ResponseDataAPI> getPurchasedCourseIds(
-            Authentication authentication) {
+            @CurrentUser UserPrincipal userPrincipal) {
 
-        UUID userId = getUserIdFromAuthentication(authentication);
-        List<UUID> courseIds = orderService.getPurchasedCourseIds(userId);
+        List<UUID> courseIds = orderService.getPurchasedCourseIds(userPrincipal.getId());
 
         return ResponseEntity.ok(
                 ResponseDataAPI.success(courseIds, "Purchased courses retrieved successfully"));
@@ -138,10 +130,9 @@ public class OrderController {
     @ApiOperation(value = "Check if course is purchased", notes = "Check if the user has purchased a specific course")
     public ResponseEntity<ResponseDataAPI> hasUserPurchasedCourse(
             @PathVariable UUID courseId,
-            Authentication authentication) {
+            @CurrentUser UserPrincipal userPrincipal) {
 
-        UUID userId = getUserIdFromAuthentication(authentication);
-        boolean hasPurchased = orderService.hasUserPurchasedCourse(userId, courseId);
+        boolean hasPurchased = orderService.hasUserPurchasedCourse(userPrincipal.getId(), courseId);
 
         return ResponseEntity.ok(
                 ResponseDataAPI.success(hasPurchased, "Purchase status checked successfully"));
@@ -151,10 +142,8 @@ public class OrderController {
     @ApiOperation(value = "Cancel order", notes = "Cancel a pending order")
     public ResponseEntity<ResponseDataAPI> cancelOrder(
             @PathVariable UUID orderId,
-            Authentication authentication) {
-
-        UUID userId = getUserIdFromAuthentication(authentication);
-        OrderResponse orderResponse = orderService.cancelOrder(orderId, userId);
+            @CurrentUser UserPrincipal userPrincipal) {
+        OrderResponse orderResponse = orderService.cancelOrder(orderId, userPrincipal.getId());
 
         return ResponseEntity.ok(
                 ResponseDataAPI.success(orderResponse, "Order cancelled successfully"));
@@ -174,13 +163,4 @@ public class OrderController {
                 .body(ResponseDataAPI.error("An unexpected error occurred"));
     }
 
-    private UUID getUserIdFromAuthentication(Authentication authentication) {
-
-        if (authentication != null && authentication.getPrincipal() != null) {
-            UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-            return userPrincipal.getId();
-        }
-
-        throw new RuntimeException("User not authenticated");
-    }
 }
