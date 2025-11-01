@@ -15,7 +15,6 @@ public class AddToCartRequest {
     private UUID courseId;
 
     @NotNull(message = "Course price is required")
-    @DecimalMin(value = "0.0", inclusive = false, message = "Course price must be greater than 0")
     private BigDecimal addedPrice;
 
 }

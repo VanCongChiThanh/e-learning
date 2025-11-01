@@ -34,11 +34,10 @@ public class ReviewServiceImpl implements ReviewService {
     private final ReviewVoteRepository reviewVoteRepository;
 
     @Override
-    public ReviewResponse createReview( ReviewRequest reviewRequest, UUID courseId, UUID userId){
+    public ReviewResponse createReview(ReviewRequest reviewRequest, UUID courseId, UUID userId) {
         Course course = courseRepository.findById(courseId)
-                .orElseThrow(() ->
-                        new RuntimeException("Course not found with id: " + courseId));
-        Review review= Review.builder()
+                .orElseThrow(() -> new RuntimeException("Course not found with id: " + courseId));
+        Review review = Review.builder()
                 .rating(reviewRequest.getRating())
                 .comment(reviewRequest.getComment())
                 .course(course)
@@ -48,23 +47,22 @@ public class ReviewServiceImpl implements ReviewService {
         return ReviewResponse.fromEntity(savedReview);
 
     }
-    @Override
-    public ReviewResponse getReviewById(UUID reviewId){
-        Review review = reviewRepository.findById(reviewId)
-                .orElseThrow(() ->
-                        new RuntimeException("Review not found with id: " + reviewId));
-        UserInfo userInfo = userInfoRepository.findByUserId(review.getUserId())
-                .orElseThrow(() ->
-                        new RuntimeException("UserInfo not found with userId: " + review.getUserId()));
 
-        String userName = userInfo.getFirstName()+" "+userInfo.getLastName();
-        if(userInfo.getFirstName() == null && userInfo.getLastName() == null){
+    @Override
+    public ReviewResponse getReviewById(UUID reviewId) {
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new RuntimeException("Review not found with id: " + reviewId));
+        UserInfo userInfo = userInfoRepository.findByUserId(review.getUserId())
+                .orElseThrow(() -> new RuntimeException("UserInfo not found with userId: " + review.getUserId()));
+
+        String userName = userInfo.getFirstName() + " " + userInfo.getLastName();
+        if (userInfo.getFirstName() == null && userInfo.getLastName() == null) {
             userName = "Unknown User Name";
         }
         String avatar = userInfo.getAvatar();
-        if (avatar == null){
+        if (avatar == null) {
             Gender gender = userInfo.getGender();
-            if (gender == Gender.MALE){
+            if (gender == Gender.MALE) {
                 avatar = "https://png.pngtree.com/png-vector/20230321/ourlarge/pngtree-profile-avatar-of-young-man-in-blue-shirt-and-hat-vector-png-image_6658604.png";
             } else if (gender == Gender.FEMALE) {
                 avatar = "https://kynguyenlamdep.com/wp-content/uploads/2022/08/avatar-co-gai-sang-chanh.jpg";
@@ -74,25 +72,50 @@ public class ReviewServiceImpl implements ReviewService {
 
         return ReviewResponse.fromEntityDetail(review, userName, avatar);
     }
-    @Override
-    public Set<ReviewResponse> getReviewsByCourseId(UUID courseId){
-        Course course = courseRepository.findById(courseId)
-                .orElseThrow(() ->
-                        new RuntimeException("Course not found with id: " + courseId));
 
-        return course.getReviews().stream()
-                .map(ReviewResponse::fromEntity)
-                .collect(java.util.stream.Collectors.toSet());
+    @Override
+    public Set<ReviewResponse> getReviewsByCourseId(UUID courseId) {
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new RuntimeException("Course not found with id: " + courseId));
+
+        ArrayList<Review> reviews = new ArrayList<>(course.getReviews());
+        ArrayList<ReviewResponse> reviewResponses = new ArrayList<>();
+
+        for (Review review : reviews) {
+            // trả về thêm user name và avatar
+            UserInfo userInfo = userInfoRepository.findByUserId(review.getUserId())
+                    .orElseThrow(() -> new RuntimeException("UserInfo not found with userId: " + review.getUserId()));
+
+            String userName = userInfo.getFirstName() + " " + userInfo.getLastName();
+            if (userInfo.getFirstName() == null && userInfo.getLastName() == null) {
+                userName = "Unknown User Name";
+            }
+
+            String avatar = userInfo.getAvatar();
+            if (avatar == null) {
+                Gender gender = userInfo.getGender();
+                if (gender == Gender.MALE) {
+                    avatar = "https://png.pngtree.com/png-vector/20230321/ourlarge/pngtree-profile-avatar-of-young-man-in-blue-shirt-and-hat-vector-png-image_6658604.png";
+                } else {
+                    avatar = "https://kynguyenlamdep.com/wp-content/uploads/2022/08/avatar-co-gai-sang-chanh.jpg";
+                }
+            }
+
+            ReviewResponse response = ReviewResponse.fromEntityDetail(review, userName, avatar);
+            reviewResponses.add(response);
+        }
+
+        return new HashSet<>(reviewResponses);
     }
 
     @Override
-    public Page<ReviewResponse> getReviewsPageByCourseId(UUID courseId, Pageable pageable, Specification<Review> spec){
+    public Page<ReviewResponse> getReviewsPageByCourseId(UUID courseId, Pageable pageable, Specification<Review> spec) {
         if (!courseRepository.existsById(courseId)) {
             throw new RuntimeException("Course not found with id: " + courseId);
         }
         // 3. **THÊM ĐIỀU KIỆN MỚI**: Chỉ lấy các review gốc (parentReview IS NULL)
-        Specification<Review> parentSpec = (root, query, criteriaBuilder) ->
-                criteriaBuilder.isNull(root.get("parentReview"));
+        Specification<Review> parentSpec = (root, query, criteriaBuilder) -> criteriaBuilder
+                .isNull(root.get("parentReview"));
 
         // 4. Kết hợp CẢ BA Specification: từ controller, của courseId, và điều kiện mới
         Specification<Review> finalSpec = parentSpec.and(spec);
@@ -123,12 +146,10 @@ public class ReviewServiceImpl implements ReviewService {
 
     }
 
-
     @Override
     public ReviewResponse updateReview(UUID reviewId, ReviewRequest reviewRequest, UUID userId) {
         Review review = reviewRepository.findById(reviewId)
-                .orElseThrow(() ->
-                        new RuntimeException("Review not found with id: " + reviewId));
+                .orElseThrow(() -> new RuntimeException("Review not found with id: " + reviewId));
         if (!review.getUserId().equals(userId)) {
             throw new AccessDeniedException("You do not have permission to update this review.");
         }
@@ -137,11 +158,11 @@ public class ReviewServiceImpl implements ReviewService {
         Review updatedReview = reviewRepository.save(review);
         return ReviewResponse.fromEntity(updatedReview);
     }
+
     @Override
     public void deleteReview(UUID reviewId, UUID userId) {
         Review review = reviewRepository.findById(reviewId)
-                .orElseThrow(() ->
-                        new RuntimeException("Review not found with id: " + reviewId));
+                .orElseThrow(() -> new RuntimeException("Review not found with id: " + reviewId));
         if (!review.getUserId().equals(userId)) {
             throw new AccessDeniedException("You do not have permission to delete this review.");
         }
@@ -149,21 +170,20 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public Double getAverageRatingByCourseId(UUID courseId){
+    public Double getAverageRatingByCourseId(UUID courseId) {
         Course course = courseRepository.findById(courseId)
-                .orElseThrow(() ->
-                        new RuntimeException("Course not found with id: " + courseId));
+                .orElseThrow(() -> new RuntimeException("Course not found with id: " + courseId));
         Double avg = reviewRepository.findAverageRatingByCourseId(courseId);
         return avg != null ? avg : 4.7;
     }
 
     @Override
-    public Integer getTotalReviewsByCourseId(UUID courseId){
+    public Integer getTotalReviewsByCourseId(UUID courseId) {
         Course course = courseRepository.findById(courseId)
-                .orElseThrow(() ->
-                        new RuntimeException("Course not found with id: " + courseId));
+                .orElseThrow(() -> new RuntimeException("Course not found with id: " + courseId));
         return reviewRepository.countByCourse_CourseId(courseId);
     }
+
     private String getDefaultAvatar(Gender gender) {
         if (gender == Gender.MALE) {
             return "https://png.pngtree.com/png-vector/20230321/ourlarge/pngtree-profile-avatar-of-young-man-in-blue-shirt-and-hat-vector-png-image_6658604.png";
@@ -196,7 +216,6 @@ public class ReviewServiceImpl implements ReviewService {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new RuntimeException("Review not found"));
 
-
         Optional<ReviewVote> existingVoteOpt = reviewVoteRepository.findByReviewAndUserId(review, userId);
 
         if (existingVoteOpt.isPresent()) {
@@ -219,7 +238,5 @@ public class ReviewServiceImpl implements ReviewService {
             reviewVoteRepository.save(newVote);
         }
     }
-
-
 
 }
