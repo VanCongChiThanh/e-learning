@@ -51,7 +51,6 @@ public class NotificationController {
         return ResponseEntity.ok(ResponseDataAPI
                 .success(notifications.getContent(), pageInfo));
     }
-
     @PostMapping("/device-token")
     @ApiOperation("Save device token for push notifications")
     public ResponseEntity<ResponseDataAPI> saveDeviceToken(
@@ -69,7 +68,7 @@ public class NotificationController {
         return ResponseEntity.ok(ResponseDataAPI
                 .successWithoutMeta(notificationService.markAsRead(notificationId)));
     }
-    //test
+    //test notification endpoint
     @PostMapping("/test")
     @ApiOperation("Send test notification to user")
     public ResponseEntity<ResponseDataAPI> sendTestNotification(
