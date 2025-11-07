@@ -34,6 +34,8 @@ public class CartResponse {
     public static class CartItemResponse {
         private UUID id;
         private UUID courseId;
+        private String courseTitle;
+        private String courseImage;
         private BigDecimal totalPrice;
         private BigDecimal discountAmount; // always zero
         private Timestamp addedAt;

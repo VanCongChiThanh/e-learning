@@ -8,7 +8,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Service
 public class CourseClient {
     private final WebClient webClient = WebClient.builder()
-            .baseUrl("http://localhost:8105/api/v1/courses")
+            .baseUrl("https://coursevo.vercel.app/api/v1/courses")
+            // .baseUrl("http://localhost:8105/api/v1/courses")
             .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .build();
 
@@ -25,6 +26,19 @@ public class CourseClient {
             return false;
         }
 
+    }
+
+    public CourseResponse getCourseDetails(String courseId) {
+        try {
+            CourseResponse response = webClient.get()
+                    .uri("/{courseId}", courseId)
+                    .retrieve()
+                    .bodyToMono(CourseResponse.class)
+                    .block();
+            return response;
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public static class CourseResponse {
