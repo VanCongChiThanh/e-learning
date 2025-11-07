@@ -10,6 +10,7 @@ import com.pbl.elearning.enrollment.services.EnrollmentService;
 import com.pbl.elearning.security.domain.User;
 import com.pbl.elearning.course.domain.Course;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
@@ -17,7 +18,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
+import com.pbl.elearning.enrollment.models.EnrollmentCompletedEvent;
+import org.springframework.context.ApplicationEventPublisher;  // để inject eventPublisher
+import org.springframework.beans.factory.annotation.Autowired;
 @Service
 public class EnrollmentServiceImpl implements EnrollmentService {
 
@@ -28,6 +31,8 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     private final QuizRepository quizRepository;
     private final AssignmentRepository assignmentRepository;
 
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
     @Autowired
     public EnrollmentServiceImpl(
             EnrollmentRepository enrollmentRepository,
@@ -65,29 +70,44 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         return enrollmentRepository.save(enrollment);
     }
 
-   @Override
-    public Enrollment updateEnrollment(UUID id, UpdateEnrollmentRequest request) {
-        Optional<Enrollment> optionalEnrollment = enrollmentRepository.findById(id);
-        if (optionalEnrollment.isPresent()) {
-            Enrollment enrollment = optionalEnrollment.get();
-
-            enrollment.setProgressPercentage(request.getProgressPercentage());
-
-            if (request.getProgressPercentage() != null && request.getProgressPercentage() == 100) {
-                enrollment.setStatus(EnrollmentStatus.COMPLETED); 
-                enrollment.setCompletionDate(OffsetDateTime.now());
-            } else {
-                enrollment.setStatus(EnrollmentStatus.ACTIVE);
-                enrollment.setCompletionDate(null);
-            }
-
-            enrollment.setTotalWatchTimeMinutes(request.getTotalWatchTimeMinutes());
-            enrollment.setLastAccessedAt(request.getLastAccessedAt());
-
-            return enrollmentRepository.save(enrollment);
-        }
+@Override
+public Enrollment updateEnrollment(UUID id, UpdateEnrollmentRequest request) {
+    Optional<Enrollment> optionalEnrollment = enrollmentRepository.findById(id);
+    if (!optionalEnrollment.isPresent()) {
         return null;
     }
+
+    Enrollment enrollment = optionalEnrollment.get();
+
+    // 1️⃣ Cập nhật tiến trình và trạng thái
+    enrollment.setProgressPercentage(request.getProgressPercentage());
+    boolean justCompleted = false;
+
+    if (request.getProgressPercentage() != null && request.getProgressPercentage() == 100) {
+        if (enrollment.getStatus() != EnrollmentStatus.COMPLETED) {
+            justCompleted = true; // chỉ trigger khi vừa đạt 100%
+        }
+        enrollment.setStatus(EnrollmentStatus.COMPLETED);
+        enrollment.setCompletionDate(OffsetDateTime.now());
+    } else {
+        enrollment.setStatus(EnrollmentStatus.ACTIVE);
+        enrollment.setCompletionDate(null);
+    }
+
+    enrollment.setTotalWatchTimeMinutes(request.getTotalWatchTimeMinutes());
+    enrollment.setLastAccessedAt(request.getLastAccessedAt());
+
+    // 2️⃣ Lưu enrollment
+    Enrollment saved = enrollmentRepository.save(enrollment);
+
+    // 3️⃣ Phát sinh event nếu vừa hoàn thành
+    if (justCompleted) {
+        eventPublisher.publishEvent(new EnrollmentCompletedEvent(enrollment.getId()));
+    }
+
+    return saved;
+}
+
 
 
     @Override
