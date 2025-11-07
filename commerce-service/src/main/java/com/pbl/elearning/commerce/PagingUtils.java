@@ -11,23 +11,23 @@ public final class PagingUtils {
 
   public static final String DESC = "desc";
 
-  private PagingUtils() {}
+  private PagingUtils() {
+  }
 
   /**
    * Handle make page request for query
    *
    * @param sortBy Sort By Field
-   * @param order Order By Desc Or Asc
-   * @param page Page No
+   * @param order  Order By Desc Or Asc
+   * @param page   Page No
    * @param paging Page Size
    * @return Pageable
    */
   public static Pageable makePageRequest(String sortBy, String order, int page, int paging) {
     String sortField = CaseUtils.toCamelCase(sortBy, false, '_');
-    Sort sort =
-        ASC.equalsIgnoreCase(order)
-            ? Sort.by(sortField).ascending()
-            : Sort.by(sortField).descending();
+    Sort sort = ASC.equalsIgnoreCase(order)
+        ? Sort.by(sortField).ascending()
+        : Sort.by(sortField).descending();
     return PageRequest.of(page - 1, paging, sort);
   }
 }

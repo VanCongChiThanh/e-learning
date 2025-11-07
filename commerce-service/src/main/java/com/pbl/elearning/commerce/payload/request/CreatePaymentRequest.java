@@ -3,7 +3,6 @@ package com.pbl.elearning.commerce.payload.request;
 import com.pbl.elearning.commerce.domain.enums.PaymentMethod;
 import lombok.Getter;
 import lombok.Setter;
-
 import javax.validation.constraints.*;
 
 @Getter
@@ -13,11 +12,10 @@ public class CreatePaymentRequest {
     @NotNull(message = "Order ID is required")
     private java.util.UUID orderId;
 
-    @NotNull(message = "Payment method is required")
     private PaymentMethod paymentMethod = PaymentMethod.PAYOS;
 
-    @Size(max = 500, message = "Description cannot exceed 500 characters")
-    private String description;
+    @Size(max = 25, message = "Description cannot exceed 25 characters")
+    private String description = "Coursevo";
 
     @Size(max = 200, message = "Return URL cannot exceed 200 characters")
     private String returnUrl;

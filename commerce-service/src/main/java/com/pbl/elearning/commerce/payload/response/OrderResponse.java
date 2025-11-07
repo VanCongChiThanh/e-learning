@@ -34,6 +34,8 @@ public class OrderResponse {
     public static class OrderItemResponse {
         private UUID id;
         private UUID courseId;
+        private String courseTitle;
+        private String courseImage;
         private BigDecimal unitPrice;
         private BigDecimal discountAmount;
     }

@@ -28,7 +28,7 @@ public class NotificationController {
     private final NotificationService notificationService;
     private final DeviceTokenService deviceTokenService;
 
-    @GetMapping("/all")
+    @GetMapping
     @ApiOperation("get all notifications")
     public ResponseEntity<ResponseDataAPI> getNotifications(
             @RequestParam(value="only_unread", defaultValue = "false") boolean onlyUnread,
@@ -51,11 +51,10 @@ public class NotificationController {
         return ResponseEntity.ok(ResponseDataAPI
                 .success(notifications.getContent(), pageInfo));
     }
-
     @PostMapping("/device-token")
     @ApiOperation("Save device token for push notifications")
     public ResponseEntity<ResponseDataAPI> saveDeviceToken(
-            @RequestParam RegisterDeviceRequest request,
+            @RequestBody RegisterDeviceRequest request,
             @CurrentUser UserPrincipal userPrincipal
     ){
         return ResponseEntity.ok(ResponseDataAPI
@@ -69,7 +68,7 @@ public class NotificationController {
         return ResponseEntity.ok(ResponseDataAPI
                 .successWithoutMeta(notificationService.markAsRead(notificationId)));
     }
-    //test
+    //test notification endpoint for current user
     @PostMapping("/test")
     @ApiOperation("Send test notification to user")
     public ResponseEntity<ResponseDataAPI> sendTestNotification(

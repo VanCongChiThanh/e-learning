@@ -7,6 +7,7 @@ import com.pbl.elearning.commerce.payload.response.CartResponse;
 import com.pbl.elearning.commerce.payload.response.CartSummaryResponse;
 import com.pbl.elearning.commerce.repository.CartItemRepository;
 import com.pbl.elearning.commerce.repository.CartRepository;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -35,10 +36,10 @@ public class CartService {
         }
 
         // Validate if course id is exists in course service
-        // CourseResponse course = courseService.getCourseById(request.getCourseId());
-        // if (course == null) {
-            // throw new RuntimeException("Course not found");
-        // }
+        CourseClient courseClient = new CourseClient();
+        if (!courseClient.isCourseExist(request.getCourseId().toString())) {
+            throw new RuntimeException("Course does not exist");
+        }
 
         // 2. Get or create cart for user
         Cart cart = getOrCreateCart(userId);
@@ -207,9 +208,28 @@ public class CartService {
     }
 
     private CartResponse.CartItemResponse mapToCartItemResponse(CartItem cartItem) {
+        CourseClient courseClient = new CourseClient();
+        CourseClient.CourseResponse courseResponse = courseClient
+                .getCourseDetails(cartItem.getCourseId().toString());
+
         CartResponse.CartItemResponse response = new CartResponse.CartItemResponse();
         response.setId(cartItem.getId());
         response.setCourseId(cartItem.getCourseId());
+
+        // Extract course title from response data if available
+        if (courseResponse != null && courseResponse.getData() != null) {
+            try {
+                @SuppressWarnings("unchecked")
+                java.util.Map<String, Object> courseData = (java.util.Map<String, Object>) courseResponse.getData();
+                if (courseData.containsKey("title")) {
+                    response.setCourseTitle((String) courseData.get("title"));
+                    response.setCourseImage((String) courseData.get("image"));
+                }
+            } catch (Exception e) {
+                log.warn("Could not extract course title from response data: {}", e.getMessage());
+            }
+        }
+
         response.setTotalPrice(cartItem.getAddedPrice());
         response.setDiscountAmount(BigDecimal.ZERO);
         response.setAddedAt(cartItem.getCreatedAt());
