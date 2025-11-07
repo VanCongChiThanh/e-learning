@@ -1,76 +1,66 @@
 package com.pbl.elearning.web.endpoint.enrollment;
-
-import com.pbl.elearning.enrollment.payload.request.CertificateRequest;
 import com.pbl.elearning.enrollment.payload.response.CertificateResponse;
 import com.pbl.elearning.enrollment.services.CertificateService;
-import lombok.RequiredArgsConstructor;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/v1/certificates")
-@RequiredArgsConstructor
 public class CertificateController {
+    @Autowired
+    private CertificateService certificateService;
+    /**
+     * Trả về certificate URL nếu đã có PDF.
+     * Nếu chưa upload PDF thì chỉ trả về thông báo.
+     */
+    @GetMapping("/get-or-generate")
+    public ResponseEntity<String> getCertificate(@RequestParam UUID enrollmentId) {
+        try {
+            CertificateResponse cert = certificateService.getOrGenerateCertificate(enrollmentId);
 
-    private final CertificateService certificateService;
-
-    @PostMapping("/generate/{enrollmentId}")
-    public ResponseEntity<CertificateResponse> generateCertificate(@PathVariable UUID enrollmentId) {
-        CertificateResponse response = certificateService.generateCertificate(enrollmentId);
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<CertificateResponse> getCertificateById(@PathVariable UUID id) {
-        CertificateResponse response = certificateService.getCertificateById(id);
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/enrollment/{enrollmentId}")
-    public ResponseEntity<CertificateResponse> getCertificateByEnrollmentId(@PathVariable UUID enrollmentId) {
-        CertificateResponse response = certificateService.getCertificateByEnrollmentId(enrollmentId);
-        return response != null ? ResponseEntity.ok(response) : ResponseEntity.notFound().build();
+            if (cert.getCertificateUrl() != null && !cert.getCertificateUrl().isEmpty()) {
+                return ResponseEntity.ok(cert.getCertificateUrl());
+            } else {
+                return ResponseEntity.ok("Certificate record created, PDF generation in progress");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error generating certificate");
+        }
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<CertificateResponse>> getCertificatesByUserId(@PathVariable UUID userId) {
-        List<CertificateResponse> responses = certificateService.getCertificatesByUserId(userId);
-        return ResponseEntity.ok(responses);
+    public ResponseEntity<?> getAllCertificatesForUser(@PathVariable UUID userId) {
+        try {
+            return ResponseEntity.ok(certificateService.getAllCertificatesForUser(userId));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error retrieving certificates for user");
+        }
     }
 
-    @GetMapping("/course/{courseId}")
-    public ResponseEntity<List<CertificateResponse>> getCertificatesByCourseId(@PathVariable UUID courseId) {
-        List<CertificateResponse> responses = certificateService.getCertificatesByCourseId(courseId);
-        return ResponseEntity.ok(responses);
-    }
-
-    @GetMapping("/verify/{certificateNumber}")
-    public ResponseEntity<CertificateResponse> verifyCertificate(@PathVariable String certificateNumber) {
-        CertificateResponse response = certificateService.verifyCertificate(certificateNumber);
-        return response != null ? ResponseEntity.ok(response) : ResponseEntity.notFound().build();
-    }
-
-    @GetMapping("/enrollment/{enrollmentId}/eligible")
-    public ResponseEntity<Boolean> isEligibleForCertificate(@PathVariable UUID enrollmentId) {
-        Boolean eligible = certificateService.isEligibleForCertificate(enrollmentId);
-        return ResponseEntity.ok(eligible);
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<CertificateResponse> updateCertificate(
-            @PathVariable UUID id, 
-            @RequestBody CertificateRequest request) {
-        CertificateResponse response = certificateService.updateCertificate(id, request);
-        return ResponseEntity.ok(response);
-    }
-
-    @PutMapping("/{id}/revoke")
-    public ResponseEntity<Void> revokeCertificate(@PathVariable UUID id) {
-        certificateService.revokeCertificate(id);
-        return ResponseEntity.noContent().build();
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getCertificateById(@PathVariable UUID id) {
+        try {
+            CertificateResponse cert = certificateService.getCertificateById(id);
+            if (cert != null) {
+                return ResponseEntity.ok(cert);
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("Certificate not found");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error retrieving certificate");
+        }
     }
 }
 
