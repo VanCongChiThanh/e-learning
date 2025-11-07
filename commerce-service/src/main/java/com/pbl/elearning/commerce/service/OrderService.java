@@ -22,6 +22,7 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -46,7 +47,6 @@ public class OrderService {
         order.setUserId(userId);
         order.setStatus(OrderStatus.PENDING);
         order.setNotes(request.getNotes());
-        // Coupon removed
 
         // 3. Create order items
         List<OrderItem> orderItems = request.getItems().stream()
@@ -57,8 +57,6 @@ public class OrderService {
 
         // 4. Calculate amounts
         order.calculateTotalAmount();
-
-        // No discount application; final amount equals total
 
         // 5. Save order
         Order savedOrder = orderRepository.save(order);
@@ -304,8 +302,29 @@ public class OrderService {
 
     private OrderResponse.OrderItemResponse mapToOrderItemResponse(OrderItem orderItem) {
         OrderResponse.OrderItemResponse response = new OrderResponse.OrderItemResponse();
+
+        // Fetch course details from Course Service
+        CourseClient courseClient = new CourseClient();
+        CourseClient.CourseResponse courseResponse = courseClient
+                .getCourseDetails(orderItem.getCourseId().toString());
+
+        // Extract course title from response data if available
+        if (courseResponse != null && courseResponse.getData() != null) {
+            try {
+                @SuppressWarnings("unchecked")
+                Map<String, Object> courseData = (Map<String, Object>) courseResponse.getData();
+                if (courseData.containsKey("title")) {
+                    response.setCourseTitle((String) courseData.get("title"));
+                    response.setCourseImage((String) courseData.get("image"));
+                }
+            } catch (Exception e) {
+                log.warn("Could not extract course title from response data: {}", e.getMessage());
+            }
+        }
+
         response.setId(orderItem.getId());
         response.setCourseId(orderItem.getCourseId());
+        response.setUnitPrice(orderItem.getUnitPrice());
         response.setDiscountAmount(BigDecimal.ZERO);
         return response;
     }
