@@ -12,13 +12,12 @@ import java.util.UUID;
 
 public interface CertificateRepository extends JpaRepository<Certificate, UUID> {
     Optional<Certificate> findByEnrollment(Enrollment enrollment);
-    Optional<Certificate> findByEnrollment_Id(UUID enrollmentId);
-    
+    Certificate findByEnrollment_Id(UUID enrollmentId);
+    boolean existsByEnrollmentId(UUID enrollmentId);
     Optional<Certificate> findByCertificateNumber(String certificateNumber);
-    
-    @Query("SELECT c FROM Certificate c WHERE c.enrollment.user.id = :userId")
-    List<Certificate> findByUserId(@Param("userId") UUID userId);
     
     @Query("SELECT c FROM Certificate c WHERE c.enrollment.course.courseId = :courseId")
     List<Certificate> findByCourseId(@Param("courseId") UUID courseId);
+
+    List<Certificate> findAllByEnrollment_User_Id(UUID userId);
 }
