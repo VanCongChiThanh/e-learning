@@ -25,6 +25,7 @@ public class CertificateResponse {
     private String courseName;
     private String courseCode;
     private String userName;
+    private String imageUrl;
     private String userEmail;
     private Double completionScore;
     private OffsetDateTime courseCompletionDate;

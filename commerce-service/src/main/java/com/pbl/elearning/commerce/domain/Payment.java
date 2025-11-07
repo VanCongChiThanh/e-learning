@@ -32,7 +32,7 @@ public class Payment extends AbstractEntity {
     private BigDecimal amount;
 
     @Column(name = "description")
-    private String description;
+    private String description = "Coursevo";
 
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_method", nullable = false)
