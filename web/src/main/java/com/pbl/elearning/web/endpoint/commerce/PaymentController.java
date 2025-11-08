@@ -1,5 +1,6 @@
 package com.pbl.elearning.web.endpoint.commerce;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pbl.elearning.commerce.payload.request.CreatePaymentRequest;
 import com.pbl.elearning.commerce.payload.response.PaymentResponse;
 import com.pbl.elearning.commerce.payload.webhook.PayOSWebhookRequest;
@@ -86,11 +87,29 @@ public class PaymentController {
     @PostMapping("/webhook/payos")
     @ApiOperation(value = "PayOS webhook", notes = "Handle PayOS webhook notifications")
     public ResponseEntity<String> handlePayOSWebhook(
-            @RequestBody PayOSWebhookRequest webhookRequest,
+            // @RequestBody PayOSWebhookRequest webhookRequest,
+            @RequestBody String raw,
             HttpServletRequest request) {
 
         try {
-            //log.info("Received PayOS webhook: {}", webhookRequest.getData().getOrderCode());
+            ObjectMapper mapper = new ObjectMapper();
+            PayOSWebhookRequest webhookRequest = mapper.readValue(raw, PayOSWebhookRequest.class);
+
+
+            if (webhookRequest == null) {
+                log.error("Webhook request is null");
+                return ResponseEntity.badRequest().body("Request body is null");
+            }
+
+            if (webhookRequest.getData() == null) {
+                log.error("Webhook data is null");
+                return ResponseEntity.badRequest().body("Webhook data is null");
+            }
+
+            log.info("Received PayOS webhook - Code: {}, OrderCode: {}, Desc: {}",
+                    webhookRequest.getCode(),
+                    webhookRequest.getData().getOrderCode(),
+                    webhookRequest.getDesc());
 
             boolean success = paymentService.handlePayOSWebhook(webhookRequest);
 
@@ -102,7 +121,8 @@ public class PaymentController {
 
         } catch (Exception e) {
             log.error("Error processing PayOS webhook", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("ERROR");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("ERROR: "
+                    + e.getMessage());
         }
     }
 

@@ -93,7 +93,7 @@ public class Payment extends AbstractEntity {
 
     // One-to-One relationship with Order
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id", unique = true)
+    @JoinColumn(name = "order_id")
     private Order order;
 
     // Helper methods

@@ -66,11 +66,18 @@ public class PaymentService {
         }
 
         // 2. Check if payment already exists for this order
-         Optional<Payment> existingPayment = paymentRepository.findByOrderId(order.getId());
-        //Optional<Payment> existingPayment = paymentRepository.findByOrderCode(order.getOrderNumber());
+        Optional<Payment> existingPayment = paymentRepository.findByOrderId(order.getId());
+        // Optional<Payment> existingPayment =
+        // paymentRepository.findByOrderCode(order.getOrderNumber());
         if (existingPayment.isPresent() && existingPayment.get().isPending()) {
-            // Return existing payment if still pending
-            return mapToPaymentResponse(existingPayment.get());
+            // check expiration
+            if (existingPayment.get().getExpiresAt().before(new Timestamp(System.currentTimeMillis()))) {
+                existingPayment.get().setStatus(PaymentStatus.CANCELLED);
+                paymentRepository.save(existingPayment.get());
+            } else {
+                // return existing payment if still pending
+                return mapToPaymentResponse(existingPayment.get());
+            }
         }
 
         // 3. Create new payment record
@@ -196,8 +203,7 @@ public class PaymentService {
         Payment payment = new Payment();
         payment.setOrderCode(generateOrderCode());
         payment.setAmount(order.getTotalAmount());
-        payment.setDescription(request.getDescription() != null ? request.getDescription()
-                : "Payment for order " + order.getOrderNumber());
+        payment.setDescription(request.getDescription() != null ? request.getDescription() : order.getOrderNumber());
         payment.setPaymentMethod(PaymentMethod.PAYOS);
         payment.setStatus(PaymentStatus.PENDING);
         payment.setUserId(order.getUserId());
