@@ -8,7 +8,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Service
 public class CourseClient {
     private final WebClient webClient = WebClient.builder()
-            .baseUrl("https://coursevo.vercel.app/api/v1/courses")
+            .baseUrl("http://coursevo.duckdns.org/api/v1/courses")
             // .baseUrl("http://localhost:8105/api/v1/courses")
             .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .build();
