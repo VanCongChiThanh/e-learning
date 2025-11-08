@@ -8,6 +8,7 @@ import com.pbl.elearning.course.domain.Course;
 import com.pbl.elearning.course.payload.request.CourseRequest;
 import com.pbl.elearning.course.payload.response.CourseResponse;
 import com.pbl.elearning.course.service.CourseService;
+import com.pbl.elearning.security.annotation.CurrentUser;
 import com.pbl.elearning.security.domain.UserPrincipal;
 import com.turkraft.springfilter.boot.Filter;
 import lombok.RequiredArgsConstructor;
@@ -35,11 +36,10 @@ public class CourseController {
     public ResponseEntity<ResponseDataAPI> createCourse(
             @Valid
             @RequestBody CourseRequest courseRequest,
-            Authentication authentication) {
-        UUID instructorId = getUserIdFromAuthentication(authentication);
+            @CurrentUser UserPrincipal userPrincipal) {
         return ResponseEntity.ok(ResponseDataAPI.builder()
                         .status(CommonConstant.SUCCESS)
-                        .data(courseService.createCourse(courseRequest,instructorId))
+                        .data(courseService.createCourse(courseRequest,userPrincipal.getId()))
                 .build());
 
     }
@@ -202,16 +202,6 @@ public class CourseController {
                 .data("Course deleted successfully")
                 .build());
     }
-    private UUID getUserIdFromAuthentication(Authentication authentication) {
-
-        if (authentication != null && authentication.getPrincipal() != null) {
-            // Example implementation - adjust based on your User details implementation
-            UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-            return userPrincipal.getId();
-        }
-
-        throw new RuntimeException("User not authenticated");
-    }
 
     @GetMapping("/category")
     public ResponseEntity<ResponseDataAPI> getAllCategories() {
@@ -220,7 +210,7 @@ public class CourseController {
                 .data(courseService.getAllCategories())
                 .build());
     }
-        @GetMapping("/instructor/{instructorId}")       
+        @GetMapping("/instructor/{instructorId}")
         public ResponseEntity<ResponseDataAPI> getCoursesByInstructorId(@PathVariable UUID instructorId) {
                 return ResponseEntity.ok(ResponseDataAPI.builder()
                                 .status(CommonConstant.SUCCESS)

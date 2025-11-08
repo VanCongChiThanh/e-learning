@@ -6,6 +6,7 @@ import com.pbl.elearning.commerce.payload.response.PaymentResponse;
 import com.pbl.elearning.commerce.payload.webhook.PayOSWebhookRequest;
 import com.pbl.elearning.commerce.service.PaymentService;
 import com.pbl.elearning.common.payload.general.ResponseDataAPI;
+import com.pbl.elearning.security.annotation.CurrentUser;
 import com.pbl.elearning.security.domain.UserPrincipal;
 
 import io.swagger.annotations.Api;
@@ -38,10 +39,9 @@ public class PaymentController {
     @ApiOperation(value = "Create payment", notes = "Create a new payment for an order using PayOS")
     public ResponseEntity<ResponseDataAPI> createPayment(
             @Valid @RequestBody CreatePaymentRequest request,
-            Authentication authentication) {
+            @CurrentUser UserPrincipal userPrincipal) {
 
-        UUID userId = getUserIdFromAuthentication(authentication);
-        PaymentResponse paymentResponse = paymentService.createPayment(request, userId);
+        PaymentResponse paymentResponse = paymentService.createPayment(request, userPrincipal.getId());
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ResponseDataAPI.success(paymentResponse, "Payment created successfully"));
@@ -51,10 +51,9 @@ public class PaymentController {
     @ApiOperation(value = "Get payment by order code", notes = "Get payment details by PayOS order code")
     public ResponseEntity<ResponseDataAPI> getPaymentByOrderCode(
             @PathVariable String orderCode,
-            Authentication authentication) {
+            @CurrentUser UserPrincipal userPrincipal) {
 
-        UUID userId = getUserIdFromAuthentication(authentication);
-        PaymentResponse paymentResponse = paymentService.getPaymentByOrderCode(orderCode, userId);
+        PaymentResponse paymentResponse = paymentService.getPaymentByOrderCode(orderCode, userPrincipal.getId());
 
         return ResponseEntity.ok(
                 ResponseDataAPI.success(paymentResponse, "Payment retrieved successfully"));
@@ -65,11 +64,10 @@ public class PaymentController {
     public ResponseEntity<ResponseDataAPI> getUserPayments(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            Authentication authentication) {
+            @CurrentUser UserPrincipal userPrincipal) {
 
-        UUID userId = getUserIdFromAuthentication(authentication);
         Pageable pageable = PageRequest.of(page, size);
-        Page<PaymentResponse> payments = paymentService.getUserPayments(userId, pageable);
+        Page<PaymentResponse> payments = paymentService.getUserPayments(userPrincipal.getId(), pageable);
 
         return ResponseEntity.ok(
                 ResponseDataAPI.success(payments, "Payments retrieved successfully"));
@@ -79,10 +77,8 @@ public class PaymentController {
     @ApiOperation(value = "Cancel payment", notes = "Cancel a pending payment")
     public ResponseEntity<ResponseDataAPI> cancelPayment(
             @PathVariable String orderCode,
-            Authentication authentication) {
-
-        UUID userId = getUserIdFromAuthentication(authentication);
-        PaymentResponse paymentResponse = paymentService.cancelPayment(orderCode, userId);
+            @CurrentUser UserPrincipal userPrincipal) {
+        PaymentResponse paymentResponse = paymentService.cancelPayment(orderCode, userPrincipal.getId());
 
         return ResponseEntity.ok(
                 ResponseDataAPI.success(paymentResponse, "Payment cancelled successfully"));
@@ -194,15 +190,5 @@ public class PaymentController {
         log.error("Unexpected error in PaymentController", ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ResponseDataAPI.error("An unexpected error occurred"));
-    }
-
-    private UUID getUserIdFromAuthentication(Authentication authentication) {
-
-        if (authentication != null && authentication.getPrincipal() != null) {
-            UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-            return userPrincipal.getId();
-        }
-
-        throw new RuntimeException("User not authenticated");
     }
 }

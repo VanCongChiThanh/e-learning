@@ -5,6 +5,7 @@ import com.pbl.elearning.commerce.payload.response.CartResponse;
 import com.pbl.elearning.commerce.payload.response.CartSummaryResponse;
 import com.pbl.elearning.commerce.service.CartService;
 import com.pbl.elearning.common.payload.general.ResponseDataAPI;
+import com.pbl.elearning.security.annotation.CurrentUser;
 import com.pbl.elearning.security.domain.UserPrincipal;
 
 import io.swagger.annotations.Api;
@@ -35,10 +36,9 @@ public class CartController {
     @ApiOperation(value = "Add item to cart", notes = "Add a course to the user's shopping cart")
     public ResponseEntity<ResponseDataAPI> addToCart(
             @Valid @RequestBody AddToCartRequest request,
-            Authentication authentication) {
+            @CurrentUser UserPrincipal userPrincipal) {
 
-            UUID userId = getUserIdFromAuthentication(authentication);
-        CartResponse cartResponse = cartService.addToCart(request, userId);
+        CartResponse cartResponse = cartService.addToCart(request, userPrincipal.getId());
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ResponseDataAPI.success(cartResponse, "Item added to cart successfully"));
@@ -46,10 +46,9 @@ public class CartController {
 
         @GetMapping
         @ApiOperation(value = "Get cart", notes = "Get the user's current shopping cart")
-        public ResponseEntity<ResponseDataAPI> getCart(Authentication authentication) {
+        public ResponseEntity<ResponseDataAPI> getCart(@CurrentUser UserPrincipal userPrincipal) {
 
-                UUID userId = getUserIdFromAuthentication(authentication);
-                CartResponse cartResponse = cartService.getCart(userId);
+                CartResponse cartResponse = cartService.getCart(userPrincipal.getId());
 
                 return ResponseEntity.ok(
                                 ResponseDataAPI.success(cartResponse, "Cart retrieved successfully"));
@@ -58,10 +57,8 @@ public class CartController {
         @GetMapping("/summary")
         @ApiOperation(value = "Get cart summary", notes = "Get a summary of the user's shopping cart")
         public ResponseEntity<ResponseDataAPI> getCartSummary(
-                        Authentication authentication) {
-
-                UUID userId = getUserIdFromAuthentication(authentication);
-                CartSummaryResponse summaryResponse = cartService.getCartSummary(userId);
+                        @CurrentUser UserPrincipal userPrincipal) {
+                CartSummaryResponse summaryResponse = cartService.getCartSummary(userPrincipal.getId());
 
                 return ResponseEntity.ok(
                                 ResponseDataAPI.success(summaryResponse, "Cart summary retrieved successfully"));
@@ -86,10 +83,9 @@ public class CartController {
         @ApiOperation(value = "Remove item from cart", notes = "Remove a specific course from the cart")
         public ResponseEntity<ResponseDataAPI> removeFromCart(
                         @PathVariable UUID courseId,
-                        Authentication authentication) {
+                        @CurrentUser UserPrincipal userPrincipal) {
 
-                UUID userId = getUserIdFromAuthentication(authentication);
-                CartResponse cartResponse = cartService.removeFromCart(courseId, userId);
+                CartResponse cartResponse = cartService.removeFromCart(courseId, userPrincipal.getId());
 
                 return ResponseEntity.ok(
                                 ResponseDataAPI.success(cartResponse, "Item removed from cart successfully"));
@@ -97,10 +93,8 @@ public class CartController {
 
         @DeleteMapping("/clear")
         @ApiOperation(value = "Clear cart", notes = "Remove all items from the cart")
-        public ResponseEntity<ResponseDataAPI> clearCart(Authentication authentication) {
-
-                UUID userId = getUserIdFromAuthentication(authentication);
-                CartResponse cartResponse = cartService.clearCart(userId);
+        public ResponseEntity<ResponseDataAPI> clearCart(@CurrentUser UserPrincipal userPrincipal) {
+                CartResponse cartResponse = cartService.clearCart(userPrincipal.getId());
 
                 return ResponseEntity.ok(
                                 ResponseDataAPI.success(cartResponse, "Cart cleared successfully"));
@@ -108,10 +102,8 @@ public class CartController {
 
         @GetMapping("/count")
         @ApiOperation(value = "Get cart item count", notes = "Get the number of items in the cart")
-        public ResponseEntity<ResponseDataAPI> getCartItemCount(Authentication authentication) {
-
-                UUID userId = getUserIdFromAuthentication(authentication);
-                Integer itemCount = cartService.getCartItemCount(userId);
+        public ResponseEntity<ResponseDataAPI> getCartItemCount(@CurrentUser UserPrincipal userPrincipal) {
+                Integer itemCount = cartService.getCartItemCount(userPrincipal.getId());
 
                 return ResponseEntity.ok(
                                 ResponseDataAPI.success(itemCount, "Cart item count retrieved successfully"));
@@ -119,10 +111,8 @@ public class CartController {
 
         @GetMapping("/courses")
         @ApiOperation(value = "Get cart course IDs", notes = "Get list of course IDs in the cart")
-        public ResponseEntity<ResponseDataAPI> getCartCourseIds(Authentication authentication) {
-
-                UUID userId = getUserIdFromAuthentication(authentication);
-                List<UUID> courseIds = cartService.getCartCourseIds(userId);
+        public ResponseEntity<ResponseDataAPI> getCartCourseIds(@CurrentUser UserPrincipal userPrincipal) {
+                List<UUID> courseIds = cartService.getCartCourseIds(userPrincipal.getId());
 
                 return ResponseEntity.ok(
                                 ResponseDataAPI.success(courseIds, "Cart course IDs retrieved successfully"));
@@ -132,10 +122,8 @@ public class CartController {
         @ApiOperation(value = "Check if course is in cart", notes = "Check if a specific course is in the cart")
         public ResponseEntity<ResponseDataAPI> isInCart(
                         @PathVariable UUID courseId,
-                        Authentication authentication) {
-
-                UUID userId = getUserIdFromAuthentication(authentication);
-                Boolean isInCart = cartService.isInCart(courseId, userId);
+                        @CurrentUser UserPrincipal userPrincipal) {
+                Boolean isInCart = cartService.isInCart(courseId, userPrincipal.getId());
 
                 return ResponseEntity.ok(
                                 ResponseDataAPI.success(isInCart, "Cart check completed successfully"));
@@ -155,14 +143,4 @@ public class CartController {
                                 .body(ResponseDataAPI.error("An unexpected error occurred"));
         }
 
-        private UUID getUserIdFromAuthentication(Authentication authentication) {
-
-                if (authentication != null && authentication.getPrincipal() != null) {
-                        // Example implementation - adjust based on your User details implementation
-                        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-                        return userPrincipal.getId();
-                }
-
-                throw new RuntimeException("User not authenticated");
-        }
 }
