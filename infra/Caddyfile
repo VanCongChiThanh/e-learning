@@ -1,0 +1,9 @@
+api-coursevo-dev.id.vn {
+  encode zstd gzip
+  reverse_proxy e-learning:8105
+  header {
+    Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+    X-Content-Type-Options "nosniff"
+    Referrer-Policy "no-referrer-when-downgrade"
+  }
+}
