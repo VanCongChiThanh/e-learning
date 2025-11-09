@@ -12,7 +12,6 @@ jobs:
   test:
     name: Run Unit Tests
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -24,7 +23,7 @@ jobs:
           java-version: 17
           cache: maven
 
-      # Chỉ chạy Unit Test (bỏ qua IT nếu có)
+      # Chỉ chạy unit test (bỏ Integration Test nếu có)
       - name: Run unit tests
         run: mvn -B -ntp test -DskipITs=true
 
@@ -38,57 +37,40 @@ jobs:
             **/target/failsafe-reports/**
 
   build-and-deploy:
-    name: Build & Deploy
+    name: Build & Deploy (App only, keep Caddy)
     runs-on: ubuntu-latest
     needs: test
 
     steps:
-      # 1) Checkout
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      # 2) Cache Maven + JDK
-      - name: Set up JDK 17
+      - name: Set up JDK 17 (cache maven)
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
           cache: maven
 
-      # 3) Build Maven (skip tests để nhanh giai đoạn đóng gói)
-      - name: Build Maven project (package)
+      - name: Build Maven project (package, skip tests for speed)
         run: mvn -B -ntp clean package -DskipTests
 
-      # 4) Build Docker image
       - name: Build Docker image
         run: docker build -t e-learning:latest .
 
-      # 5) Login Docker Hub
       - name: Login Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # 6) Push image
       - name: Push Docker image
         run: |
           docker tag e-learning:latest ${{ secrets.DOCKER_USERNAME }}/e-learning:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/e-learning:latest
 
-      # 7) Upload Caddyfile lên EC2 (tránh embed YAML)
-      - name: Upload Caddyfile
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ubuntu
-          key: ${{ secrets.EC2_SSH_KEY }}
-          source: infra/Caddyfile
-          target: /home/ubuntu/caddy/
-          overwrite: true
-
-      # 8) Deploy trên EC2 (HTTPS qua Caddy)
-      - name: Deploy on EC2 (HTTPS)
+      # Chỉ deploy app, KHÔNG đụng tới Caddy
+      - name: Deploy app on EC2 (keep Caddy running)
         uses: appleboy/ssh-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -96,8 +78,8 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             set -Eeuo pipefail
-            DOMAIN="api-coursevo-dev.id.vn"
             IMAGE="${{ secrets.DOCKER_USERNAME }}/e-learning:latest"
+            DOMAIN="api-coursevo-dev.id.vn"
 
             echo "==> Ensure docker network"
             docker network create web || true
@@ -140,20 +122,8 @@ jobs:
               --restart unless-stopped \
               "$IMAGE"
 
-            echo "==> Ensure Caddy (auto-HTTPS with uploaded Caddyfile)"
-            mkdir -p /srv/caddy/data /srv/caddy/config /home/ubuntu/caddy
-            docker stop caddy || true
-            docker rm caddy || true
-            docker run -d --name caddy \
-              --network web \
-              -p 80:80 -p 443:443 \
-              -v /home/ubuntu/caddy/Caddyfile:/etc/caddy/Caddyfile \
-              -v /srv/caddy/data:/data \
-              -v /srv/caddy/config:/config \
-              --restart unless-stopped \
-              caddy:2
-
-            echo "==> (1) Internal warm-up (backend behind proxy network)"
+            echo "==> (1) Internal warm-up via Caddy container network"
+            # Đợi backend mở cổng nội bộ trước khi check HTTPS ngoài
             ATTEMPTS=120
             SLEEP=2
             until docker exec caddy sh -lc \
@@ -165,17 +135,7 @@ jobs:
             done
             echo "Backend is ready internally."
 
-            echo "==> (2) Wait Caddy binds 443"
-            ATTEMPTS=60
-            SLEEP=2
-            until docker exec caddy sh -lc 'wget -qO- https://127.0.0.1 -T 2 --no-check-certificate >/dev/null 2>&1'; do
-              ATTEMPTS=$((ATTEMPTS-1))
-              [ $ATTEMPTS -le 0 ] && { echo "Caddy 443 not ready"; exit 1; }
-              sleep $SLEEP
-            done
-            echo "Caddy is serving TLS."
-
-            echo "==> (3) External HTTPS check (accept 200/301/302/401/403/404)"
+            echo "==> (2) External HTTPS check (accept 200/301/302/401/403/404)"
             ATTEMPTS=90
             SLEEP=2
             until code=$(curl -k -s -o /dev/null -w "%{http_code}" "https://${DOMAIN}/api"); \
