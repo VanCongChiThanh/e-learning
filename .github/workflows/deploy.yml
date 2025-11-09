@@ -2,8 +2,7 @@ name: CI/CD Docker to EC2
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
 
 jobs:
   build-and-deploy:
@@ -12,18 +11,18 @@ jobs:
     steps:
       # 1. Checkout code
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # 2. Set up JDK
       - name: Set up JDK 17
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
 
       # 3. Build Maven project (all modules)
       - name: Build Maven project
-        run: mvn clean package -DskipTests
+        run: mvn -B -ntp clean package -DskipTests
 
       # 4. Build Docker image
       - name: Build Docker image
@@ -31,7 +30,7 @@ jobs:
 
       # 5. Login Docker Hub
       - name: Login Docker Hub
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
@@ -42,19 +41,32 @@ jobs:
           docker tag e-learning:latest ${{ secrets.DOCKER_USERNAME }}/e-learning:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/e-learning:latest
 
-      # 7. Deploy on EC2
-      - name: Deploy on EC2
+      # 7. Deploy on EC2 (HTTPS via Caddy)
+      - name: Deploy on EC2 (HTTPS)
         uses: appleboy/ssh-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            docker pull ${{ secrets.DOCKER_USERNAME }}/e-learning:latest
+            set -Eeuo pipefail
+            DOMAIN="api-coursevo-dev.id.vn"
+            IMAGE="${{ secrets.DOCKER_USERNAME }}/e-learning:latest"
+
+            # Network chung cho proxy & app
+            docker network create web || true
+
+            # Pull image mới
+            docker pull "$IMAGE"
+
+            # Stop/remove app cũ nếu có
             docker stop e-learning || true
             docker rm e-learning || true
-            docker run -d --name e-learning -p 80:8105 \
-              -v /home/ubuntu/firebase-service-account.json:/app/firebase-service-account.json \
+
+            # Run app: KHÔNG publish port, chỉ nối network web
+            docker run -d --name e-learning \
+              --network web \
+              -e SERVER_FORWARD_HEADERS_STRATEGY=native \
               -e DB_USERNAME="${{ secrets.DB_USERNAME }}" \
               -e DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
               -e DB_URL="${{ secrets.DB_URL }}" \
@@ -77,4 +89,42 @@ jobs:
               -e PAYOS_RETURN_URL="${{ secrets.PAYOS_RETURN_URL }}" \
               -e PAYOS_CANCEL_URL="${{ secrets.PAYOS_CANCEL_URL }}" \
               -e PAYOS_WEBHOOK_URL="${{ secrets.PAYOS_WEBHOOK_URL }}" \
-              ${{ secrets.DOCKER_USERNAME }}/e-learning:latest
+              -v /home/ubuntu/firebase-service-account.json:/app/firebase-service-account.json \
+              --restart unless-stopped \
+              "$IMAGE"
+
+            # Đảm bảo Caddy (auto-HTTPS) đang chạy, nếu chưa thì tạo kèm Caddyfile
+            if [ -z "$(docker ps -q -f name=caddy)" ]; then
+              mkdir -p ~/caddy /srv/caddy/data /srv/caddy/config
+              if [ ! -f ~/caddy/Caddyfile ]; then
+                cat > ~/caddy/Caddyfile <<'EOF'
+            api-coursevo-dev.id.vn {
+              encode zstd gzip
+              reverse_proxy e-learning:8105
+              header {
+                Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+                X-Content-Type-Options "nosniff"
+                Referrer-Policy "no-referrer-when-downgrade"
+              }
+            }
+            EOF
+              fi
+              docker run -d --name caddy \
+                --network web \
+                -p 80:80 -p 443:443 \
+                -v ~/caddy/Caddyfile:/etc/caddy/Caddyfile \
+                -v /srv/caddy/data:/data \
+                -v /srv/caddy/config:/config \
+                --restart unless-stopped \
+                caddy:2
+            else
+              docker restart caddy || true
+            fi
+
+            # Health check HTTPS (đổi path nếu có /actuator/health)
+            ATTEMPTS=45
+            until curl -fsS "https://${DOMAIN}/" > /dev/null; do
+              ATTEMPTS=$((ATTEMPTS-1))
+              [ $ATTEMPTS -le 0 ] && exit 1
+              sleep 2
+            done
