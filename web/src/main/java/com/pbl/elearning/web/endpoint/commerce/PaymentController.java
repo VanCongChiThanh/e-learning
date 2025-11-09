@@ -96,7 +96,7 @@ public class PaymentController {
 
             if (webhookRequest == null) {
                 log.error("Webhook request is null");
-                return ResponseEntity.badRequest().body("Request body is null");
+                return ResponseEntity.ok("OK");
             }
 
             if (webhookRequest.getData() == null) {
@@ -114,13 +114,13 @@ public class PaymentController {
             if (success) {
                 return ResponseEntity.ok("OK");
             } else {
-                return ResponseEntity.badRequest().body("FAILED");
+                log.warn("Webhook handled but failed internally: {}", webhookRequest);
+                return ResponseEntity.ok("OK");
             }
 
         } catch (Exception e) {
             log.error("Error processing PayOS webhook", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("ERROR: "
-                    + e.getMessage());
+            return ResponseEntity.ok("OK");
         }
     }
 
