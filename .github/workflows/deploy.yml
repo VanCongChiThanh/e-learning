@@ -9,39 +9,50 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout code
+      # 1) Checkout
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      # 2. Set up JDK
+      # 2) JDK 17
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
 
-      # 3. Build Maven project (all modules)
+      # 3) Build Maven (skip tests theo yêu cầu hiện tại)
       - name: Build Maven project
         run: mvn -B -ntp clean package -DskipTests
 
-      # 4. Build Docker image
+      # 4) Build Docker image
       - name: Build Docker image
         run: docker build -t e-learning:latest .
 
-      # 5. Login Docker Hub
+      # 5) Login Docker Hub
       - name: Login Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # 6. Tag & Push Docker image
+      # 6) Push image
       - name: Push Docker image
         run: |
           docker tag e-learning:latest ${{ secrets.DOCKER_USERNAME }}/e-learning:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/e-learning:latest
 
-      # 7. Deploy on EC2 (HTTPS via Caddy)
+      # 7) Upload Caddyfile to EC2 (tránh lỗi YAML)
+      - name: Upload Caddyfile
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: infra/Caddyfile
+          target: /home/ubuntu/caddy/
+          overwrite: true
+
+      # 8) Deploy on EC2 (HTTPS via Caddy)
       - name: Deploy on EC2 (HTTPS)
         uses: appleboy/ssh-action@v0.1.7
         with:
@@ -53,20 +64,21 @@ jobs:
             DOMAIN="api-coursevo-dev.id.vn"
             IMAGE="${{ secrets.DOCKER_USERNAME }}/e-learning:latest"
 
-            # Network chung cho proxy & app
+            echo "==> Ensure docker network"
             docker network create web || true
 
-            # Pull image mới
+            echo "==> Pull image"
             docker pull "$IMAGE"
 
-            # Stop/remove app cũ nếu có
+            echo "==> Stop/remove old app"
             docker stop e-learning || true
             docker rm e-learning || true
 
-            # Run app: KHÔNG publish port, chỉ nối network web
+            echo "==> Run app (NO port publish, only network web)"
             docker run -d --name e-learning \
               --network web \
               -e SERVER_FORWARD_HEADERS_STRATEGY=native \
+              -e SERVER_PORT=8105 \
               -e DB_USERNAME="${{ secrets.DB_USERNAME }}" \
               -e DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
               -e DB_URL="${{ secrets.DB_URL }}" \
@@ -93,44 +105,28 @@ jobs:
               --restart unless-stopped \
               "$IMAGE"
 
-            # Đảm bảo Caddy (auto-HTTPS) đang chạy, nếu chưa thì tạo kèm Caddyfile
-            if [ -z "$(docker ps -q -f name=caddy)" ]; then
-              mkdir -p ~/caddy /srv/caddy/data /srv/caddy/config
-              if [ ! -f ~/caddy/Caddyfile ]; then
-                cat > ~/caddy/Caddyfile <<'EOF'
-            api-coursevo-dev.id.vn {
-              encode zstd gzip
-              reverse_proxy e-learning:8105
-              header {
-                Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
-                X-Content-Type-Options "nosniff"
-                Referrer-Policy "no-referrer-when-downgrade"
-              }
-            }
-            EOF
-              fi
-              docker run -d --name caddy \
-                --network web \
-                -p 80:80 -p 443:443 \
-                -v ~/caddy/Caddyfile:/etc/caddy/Caddyfile \
-                -v /srv/caddy/data:/data \
-                -v /srv/caddy/config:/config \
-                --restart unless-stopped \
-                caddy:2
-            else
-              docker restart caddy || true
-            fi
+            echo "==> Ensure Caddy (auto-HTTPS with uploaded Caddyfile)"
+            mkdir -p /srv/caddy/data /srv/caddy/config /home/ubuntu/caddy
+            docker stop caddy || true
+            docker rm caddy || true
+            docker run -d --name caddy \
+              --network web \
+              -p 80:80 -p 443:443 \
+              -v /home/ubuntu/caddy/Caddyfile:/etc/caddy/Caddyfile \
+              -v /srv/caddy/data:/data \
+              -v /srv/caddy/config:/config \
+              --restart unless-stopped \
+              caddy:2
 
-          # Health check HTTPS đúng context-path /api
+            echo "==> HTTPS health check (/api/actuator/health with fallback /api)"
             ATTEMPTS=90
-            until curl -fsS "https://api-coursevo-dev.id.vn/api/actuator/health" > /dev/null; do
-            ATTEMPTS=$((ATTEMPTS-1))
-            # nếu chưa bật actuator, chấp nhận /api trả 200..404 là OK để không kẹt pipeline
-            code=$(curl -k -s -o /dev/null -w "%{http_code}" "https://api-coursevo-dev.id.vn/api" || true)
-            if [ "$code" -ge 200 ] && [ "$code" -le 404 ]; then
-            echo "Healthy (fallback /api, HTTP ${code})"
-            break
-            fi
-            [ $ATTEMPTS -le 0 ] && { echo "Health check failed"; exit 1; }
-            sleep 2
+            until curl -fsS "https://${DOMAIN}/api/actuator/health" > /dev/null; do
+              ATTEMPTS=$((ATTEMPTS-1))
+              code=$(curl -k -s -o /dev/null -w "%{http_code}" "https://${DOMAIN}/api" || true)
+              if [ "$code" -ge 200 ] && [ "$code" -le 404 ]; then
+                echo "Healthy (fallback /api, HTTP ${code})"
+                break
+              fi
+              [ $ATTEMPTS -le 0 ] && { echo "Health check failed"; exit 1; }
+              sleep 2
             done
