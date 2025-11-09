@@ -19,7 +19,18 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
+      # -DskipITs=true: bỏ qua Integration Tests (nếu có đánh dấu Surefire/Failsafe)
+      - name: Run unit tests
+        run: mvn -B -ntp -T 1C test -DskipITs=true
 
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-reports
+          path: |
+            **/target/surefire-reports/**
+            **/target/failsafe-reports/**
       # 3) Build Maven (skip tests theo yêu cầu hiện tại)
       - name: Build Maven project
         run: mvn -B -ntp clean package -DskipTests
