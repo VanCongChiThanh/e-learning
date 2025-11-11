@@ -35,6 +35,7 @@ public class OrderService {
     private final OrderItemRepository orderItemRepository;
     private final CartRepository cartRepository;
     private final EnrollmentClient enrollmentClient;
+    private final CourseClient courseClient;
 
     @Transactional
     public OrderResponse createOrder(CreateOrderRequest request, UUID userId) {
@@ -89,7 +90,6 @@ public class OrderService {
         order.setUserId(userId);
         order.setStatus(OrderStatus.PENDING);
         order.setNotes(request.getNotes());
-        // Coupon/discount removed
 
         // 4. Convert cart items to order items
         List<OrderItem> orderItems = cart.getItems().stream()
@@ -109,7 +109,6 @@ public class OrderService {
         if (request.getClearCartAfterOrder()) {
             cart.clearItems();
             cartRepository.save(cart);
-            log.info("Cart cleared for user {} after creating order {}", userId, savedOrder.getOrderNumber());
         }
 
         log.info("Created order {} from cart for user {}", savedOrder.getOrderNumber(), userId);
@@ -218,17 +217,20 @@ public class OrderService {
         return mapToOrderResponse(order);
     }
 
+    // ======= Helper Methods =======
+
     private void validateOrderRequest(CreateOrderRequest request, UUID userId) {
-        // Validate user exists (this should be done by the calling service)
+
+        if (request.getItems() == null || request.getItems().isEmpty()) {
+            throw new RuntimeException("Order items cannot be empty");
+        }
 
         // Validate course availability and prices
         for (CreateOrderRequest.OrderItemRequest item : request.getItems()) {
-            // TODO: Validate course exists and is available for purchase
-            // Course course = courseService.getCourseById(item.getCourseId());
-            // if (!course.isAvailableForPurchase()) {
-            // throw new RuntimeException("Course " + item.getCourseId() + " is not
-            // available for purchase");
-            // }
+            boolean courseExists = courseClient.isCourseExist(item.getCourseId().toString());
+            if (!courseExists) {
+                throw new RuntimeException("Can not found course with ID: " + item.getCourseId());
+            }
 
             // Validate user hasn't already purchased this course
             if (hasUserPurchasedCourse(userId, item.getCourseId())) {
@@ -304,8 +306,7 @@ public class OrderService {
         OrderResponse.OrderItemResponse response = new OrderResponse.OrderItemResponse();
 
         // Fetch course details from Course Service
-        CourseClient courseClient = new CourseClient();
-        CourseClient.CourseResponse courseResponse = courseClient
+        CourseClient.CourseResponse courseResponse = this.courseClient
                 .getCourseDetails(orderItem.getCourseId().toString());
 
         // Extract course title from response data if available
