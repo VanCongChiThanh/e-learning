@@ -1,11 +1,13 @@
 package com.pbl.elearning.commerce.payload.webhook;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class PayOSWebhookRequest {
 
     @JsonProperty("code")
@@ -13,6 +15,9 @@ public class PayOSWebhookRequest {
 
     @JsonProperty("desc")
     private String desc;
+
+    @JsonProperty("success")
+    private boolean success;
 
     @JsonProperty("data")
     private PayOSWebhookData data;
