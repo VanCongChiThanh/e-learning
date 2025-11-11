@@ -1,7 +1,10 @@
 package com.pbl.elearning.enrollment.repository;
 
 import com.pbl.elearning.enrollment.models.QuizSubmission;
+import com.pbl.elearning.security.domain.User;
 import com.pbl.elearning.enrollment.models.Enrollment;
+import com.pbl.elearning.enrollment.models.Quiz;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -29,4 +32,7 @@ public interface QuizSubmissionRepository extends JpaRepository<QuizSubmission, 
     
     @Query("SELECT qs FROM QuizSubmission qs WHERE qs.enrollment.id = :enrollmentId AND qs.isPassed = true")
     List<QuizSubmission> findPassedSubmissionsByEnrollment(@Param("enrollmentId") UUID enrollmentId);
+
+    @Query("SELECT COUNT(s) FROM QuizSubmission s WHERE s.quiz = :quiz AND s.user = :user")
+    int countByQuizAndUser(@Param("quiz") Quiz quiz, @Param("user") User user);
 }

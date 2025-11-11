@@ -12,7 +12,7 @@ public interface QuizSubmissionService {
     /**
      * Submit quiz answers and calculate score
      */
-    QuizSubmissionResponse submitQuiz(QuizSubmissionRequest request);
+    QuizSubmissionResponse submitQuiz(QuizSubmissionRequest request, UUID userId);
     
     /**
      * Get all attempts for a quiz by user

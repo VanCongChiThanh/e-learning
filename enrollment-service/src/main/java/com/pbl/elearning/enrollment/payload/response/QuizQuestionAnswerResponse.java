@@ -11,7 +11,7 @@ import java.time.OffsetDateTime;
 @AllArgsConstructor
 public class QuizQuestionAnswerResponse {
     private UUID id;
-    private UUID quizId;
+    // private UUID quizId;
     private String questionText;
     private List<String> options;
     private Integer correctAnswerIndex;

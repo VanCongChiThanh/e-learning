@@ -1,6 +1,8 @@
 package com.pbl.elearning.enrollment.payload.request;
 
 import lombok.*;
+
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -13,6 +15,7 @@ public class QuizSubmissionRequest {
     private UUID userId;
     private UUID enrollmentId; 
     private List<QuizAnswerRequest> answers;
+    private OffsetDateTime startedAt;
     
     @Data
     @Builder

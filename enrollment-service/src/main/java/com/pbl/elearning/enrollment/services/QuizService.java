@@ -1,7 +1,7 @@
 package com.pbl.elearning.enrollment.services;
 
 import com.pbl.elearning.enrollment.models.Quiz;
-import com.pbl.elearning.enrollment.payload.request.QuizRequest;
+import com.pbl.elearning.enrollment.payload.request.QuizCreateRequestDTO;
 import com.pbl.elearning.enrollment.payload.response.QuizResponse;
 
 import java.util.List;
@@ -9,8 +9,7 @@ import java.util.UUID;
 
 public interface QuizService {
     // 1. Tạo quiz mới
-    Quiz createQuiz(QuizRequest request);
-
+    Quiz createQuiz(QuizCreateRequestDTO dto);
     // 2. Lấy quiz theo id
     Quiz getQuizById(UUID id);
 
@@ -18,7 +17,7 @@ public interface QuizService {
     List<Quiz> getAllQuizzesBylectureId(UUID id);
 
     // 4. Cập nhật quiz
-    Quiz updateQuiz(UUID id, QuizRequest request);
+    Quiz updateQuiz(UUID id, QuizCreateRequestDTO request);
 
     // 5. Xóa quiz
     void deleteQuiz(UUID id);
