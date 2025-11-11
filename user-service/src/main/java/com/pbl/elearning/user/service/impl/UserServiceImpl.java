@@ -82,33 +82,27 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public ResponseDataAPI changePassword(
-      UUID userId, String oldPassword, ChangePasswordRequest changePasswordRequest) {
+          UUID userId, String oldPasswordHashed, ChangePasswordRequest req) {
+    if (oldPasswordHashed == null || !BCrypt.checkpw(req.getOldPassword(), oldPasswordHashed)) {
+      throw new BadRequestException(MessageConstant.CHANGE_CREDENTIAL_NOT_CORRECT);
+    }
+    if (!java.util.Objects.equals(req.getConfirmNewPassword(), req.getNewPassword())) {
+      throw new BadRequestException(MessageConstant.PASSWORD_FIELDS_MUST_MATCH);
+    }
+    if (java.util.Objects.equals(req.getOldPassword(), req.getNewPassword())) {
+      throw new BadRequestException(MessageConstant.NEW_PASSWORD_NOT_SAME_OLD_PASSWORD);
+    }
+    User user = findById(userId);
     try {
-      if (!BCrypt.checkpw(changePasswordRequest.getOldPassword(), oldPassword)) {
-        throw new BadRequestException(MessageConstant.CHANGE_CREDENTIAL_NOT_CORRECT);
-      }
-
-      if (!changePasswordRequest
-          .getConfirmNewPassword()
-          .equals(changePasswordRequest.getNewPassword())) {
-        throw new BadRequestException(MessageConstant.PASSWORD_FIELDS_MUST_MATCH);
-      }
-
-      if (changePasswordRequest.getOldPassword().equals(changePasswordRequest.getNewPassword())) {
-        throw new BadRequestException(MessageConstant.NEW_PASSWORD_NOT_SAME_OLD_PASSWORD);
-      }
-
-      User user = findById(userId);
-      user.setPassword(passwordEncoder.encode(changePasswordRequest.getNewPassword()));
-
+      user.setPassword(passwordEncoder.encode(req.getNewPassword()));
       userRepository.save(user);
-      return ResponseDataAPI.success(null, null);
-    } catch (BadRequestException e) {
-      throw e;
-    } catch (Exception e) {
+    } catch (RuntimeException ex) {
       throw new InternalServerException(MessageConstant.CHANGE_CREDENTIAL_FAIL);
     }
+
+    return ResponseDataAPI.success(null, null);
   }
+
 
   @Override
   public User registerUser(

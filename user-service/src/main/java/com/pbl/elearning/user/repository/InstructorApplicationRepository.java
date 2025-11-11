@@ -16,4 +16,6 @@ public interface InstructorApplicationRepository extends JpaRepository<Instructo
 
     @Query("SELECT a, ui FROM InstructorApplication a JOIN UserInfo ui ON a.userId = ui.userId  where a.status = 'PENDING'")
     Page<Object[]> findAllWithUserInfo(Pageable pageable);
+
+    Optional<InstructorApplication> findTopByUserIdOrderByCreatedAtDesc(UUID userId);
 }

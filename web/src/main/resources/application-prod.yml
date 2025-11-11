@@ -32,7 +32,7 @@ origin-patterns: "*"
 dev-patterns: "http://localhost:3000"
 web-url: "https://coursevo.vercel.app"
 e-learning-mail:
-  domain: e-learning.com
+  domain: coursevo.vercel.app
 app:
   oauth2:
     providers:
@@ -51,14 +51,14 @@ aws:
   s3:
     bucket: e-learning-data
 payos:
-  client-id: ${PAYOS_CLIENT_ID:your-payos-client-id}
-  api-key: ${PAYOS_API_KEY:your-payos-api-key}
-  checksum-key: ${PAYOS_CHECKSUM_KEY:your-payos-checksum-key}
-  partner-code: ${PAYOS_PARTNER_CODE:your-partner-code}
+  client-id: ${PAYOS_CLIENT_ID}
+  api-key: ${PAYOS_API_KEY}
+  checksum-key: ${PAYOS_CHECKSUM_KEY}
+  partner-code: ${PAYOS_PARTNER_CODE}
   sandbox: ${PAYOS_SANDBOX:true}
   default-expiration-minutes: ${PAYOS_DEFAULT_EXPIRATION:15}
-  return-url: ${PAYOS_RETURN_URL:http://localhost:8105/api/payments/return/payos}
-  cancel-url: ${PAYOS_CANCEL_URL:http://localhost:8105/api/payments/cancel/payos}
-  webhook-url: ${PAYOS_WEBHOOK_URL:http://localhost:8105/api/payments/webhook/payos}
+  return-url: ${PAYOS_RETURN_URL}
+  cancel-url: ${PAYOS_CANCEL_URL}
+  webhook-url: ${PAYOS_WEBHOOK_URL}
 firebase:
   service-account-path: /app/firebase-service-account.json

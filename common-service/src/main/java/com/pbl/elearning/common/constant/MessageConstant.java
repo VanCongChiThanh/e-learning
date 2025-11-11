@@ -57,5 +57,15 @@ public final class MessageConstant {
   public static final String FILE_IS_DELETED_FAILED = "file_is_deleted_failed";
 
   public static final String INSTRUCTOR_PROFILE_NOT_FOUND="instructor_profile_not_found";
+
+  public static final String ALREADY_INSTRUCTOR="already_instructor_role";
+  public static final String USER_NOT_VERIFIED="user_not_verified";
+  public static final String TOO_MANY_REQUEST = "too_many_request";
+  public static final String APPLICATION_ALREADY_PENDING = "application_already_pending";
+  public static final String APPLICATION_ALREADY_APPROVED = "application_already_approved";
+  public static final String MOTIVATION_TOO_SHORT = "motivation_too_short";
+  public static final String APPLICATION_COOLDOWN = "application_cooldown";
+  public static final String INVALID_STATUS_REVIEW_APPLICATION = "invalid_status_for_review_application";
+  public static final String APPLICATION_NOT_FOUND = "application_not_found";
   private MessageConstant() {}
 }

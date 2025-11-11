@@ -14,6 +14,7 @@ import com.pbl.elearning.commerce.repository.OrderRepository;
 import com.pbl.elearning.commerce.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,7 @@ import javax.annotation.PostConstruct;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -40,6 +42,7 @@ public class PaymentService {
     private final PayOSConfig payOSConfig;
     private final ObjectMapper objectMapper;
     private final OrderService orderService;
+    private final NotificationClient notificationClient;
 
     private PayOS payOS;
 
@@ -66,11 +69,18 @@ public class PaymentService {
         }
 
         // 2. Check if payment already exists for this order
-         Optional<Payment> existingPayment = paymentRepository.findByOrderId(order.getId());
-        //Optional<Payment> existingPayment = paymentRepository.findByOrderCode(order.getOrderNumber());
+        Optional<Payment> existingPayment = paymentRepository.findByOrderId(order.getId());
+        // Optional<Payment> existingPayment =
+        // paymentRepository.findByOrderCode(order.getOrderNumber());
         if (existingPayment.isPresent() && existingPayment.get().isPending()) {
-            // Return existing payment if still pending
-            return mapToPaymentResponse(existingPayment.get());
+            // check expiration
+            if (existingPayment.get().getExpiresAt().before(new Timestamp(System.currentTimeMillis()))) {
+                existingPayment.get().setStatus(PaymentStatus.CANCELLED);
+                paymentRepository.save(existingPayment.get());
+            } else {
+                // return existing payment if still pending
+                return mapToPaymentResponse(existingPayment.get());
+            }
         }
 
         // 3. Create new payment record
@@ -139,7 +149,6 @@ public class PaymentService {
             // 5. Process payment based on webhook status
             if (webhookRequest.isSuccess()) {
                 processSuccessfulPayment(payment, webhookRequest);
-                
             } else {
                 processFailedPayment(payment, webhookRequest);
             }
@@ -196,8 +205,7 @@ public class PaymentService {
         Payment payment = new Payment();
         payment.setOrderCode(generateOrderCode());
         payment.setAmount(order.getTotalAmount());
-        payment.setDescription(request.getDescription() != null ? request.getDescription()
-                : "Payment for order " + order.getOrderNumber());
+        payment.setDescription(request.getDescription() != null ? request.getDescription() : order.getOrderNumber());
         payment.setPaymentMethod(PaymentMethod.PAYOS);
         payment.setStatus(PaymentStatus.PENDING);
         payment.setUserId(order.getUserId());
@@ -263,6 +271,9 @@ public class PaymentService {
         // Grant course access (delegated to OrderService)
         orderService.grantCourseAccess(order);
 
+        // Send payment success notification via WebSocket
+        sendPaymentSuccessNotification(payment, order);
+
         log.info("Successfully processed payment for orderCode: {}", payment.getOrderCode());
     }
 
@@ -274,7 +285,61 @@ public class PaymentService {
         order.setStatus(OrderStatus.FAILED);
         orderRepository.save(order);
 
+        // Send payment failed notification via WebSocket
+        sendPaymentFailedNotification(payment, order);
+
         log.info("Processed failed payment for orderCode: {}", payment.getOrderCode());
+    }
+
+    private void sendPaymentSuccessNotification(Payment payment, Order order) {
+        try {
+            String title = "Thanh toán thành công";
+            String message = String.format(
+                    "Đơn hàng %s đã được thanh toán thành công. Bạn đã được cấp quyền truy cập khóa học.",
+                    order.getOrderNumber());
+            Map<String, String> metadata = Map.of(
+                    "orderId", order.getId().toString(),
+                    "orderCode", payment.getOrderCode(),
+                    "orderNumber", order.getOrderNumber(),
+                    "amount", payment.getAmount().toString(),
+                    "paymentStatus", "SUCCESS");
+
+            notificationClient.sendPaymentNotification(
+                    payment.getUserId(),
+                    "PAYMENT_SUCCESS",
+                    title,
+                    message,
+                    payment.getOrderCode(),
+                    "SUCCESS",
+                    metadata);
+        } catch (Exception e) {
+            log.error("Failed to send payment success notification for orderCode: {}", payment.getOrderCode(), e);
+        }
+    }
+
+    private void sendPaymentFailedNotification(Payment payment, Order order) {
+        try {
+            String title = "Thanh toán thất bại";
+            String message = String.format("Thanh toán cho đơn hàng %s đã thất bại. Vui lòng thử lại.",
+                    order.getOrderNumber());
+            Map<String, String> metadata = Map.of(
+                    "orderId", order.getId().toString(),
+                    "orderCode", payment.getOrderCode(),
+                    "orderNumber", order.getOrderNumber(),
+                    "amount", payment.getAmount().toString(),
+                    "paymentStatus", "FAILED");
+
+            notificationClient.sendPaymentNotification(
+                    payment.getUserId(),
+                    "PAYMENT_FAILED",
+                    title,
+                    message,
+                    payment.getOrderCode(),
+                    "FAILED",
+                    metadata);
+        } catch (Exception e) {
+            log.error("Failed to send payment failed notification for orderCode: {}", payment.getOrderCode(), e);
+        }
     }
 
     private boolean verifyWebhookSignature(PayOSWebhookRequest webhookRequest) {

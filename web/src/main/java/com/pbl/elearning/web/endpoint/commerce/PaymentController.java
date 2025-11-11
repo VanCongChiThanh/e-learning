@@ -1,5 +1,6 @@
 package com.pbl.elearning.web.endpoint.commerce;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pbl.elearning.commerce.payload.request.CreatePaymentRequest;
 import com.pbl.elearning.commerce.payload.response.PaymentResponse;
 import com.pbl.elearning.commerce.payload.webhook.PayOSWebhookRequest;
@@ -17,10 +18,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -86,23 +85,42 @@ public class PaymentController {
     @PostMapping("/webhook/payos")
     @ApiOperation(value = "PayOS webhook", notes = "Handle PayOS webhook notifications")
     public ResponseEntity<String> handlePayOSWebhook(
-            @RequestBody PayOSWebhookRequest webhookRequest,
+            // @RequestBody PayOSWebhookRequest webhookRequest,
+            @RequestBody String raw,
             HttpServletRequest request) {
 
         try {
-            //log.info("Received PayOS webhook: {}", webhookRequest.getData().getOrderCode());
+            ObjectMapper mapper = new ObjectMapper();
+            PayOSWebhookRequest webhookRequest = mapper.readValue(raw, PayOSWebhookRequest.class);
+
+
+            if (webhookRequest == null) {
+                log.error("Webhook request is null");
+                return ResponseEntity.ok("OK");
+            }
+
+            if (webhookRequest.getData() == null) {
+                log.error("Webhook data is null");
+                return ResponseEntity.badRequest().body("Webhook data is null");
+            }
+
+            log.info("Received PayOS webhook - Code: {}, OrderCode: {}, Desc: {}",
+                    webhookRequest.getCode(),
+                    webhookRequest.getData().getOrderCode(),
+                    webhookRequest.getDesc());
 
             boolean success = paymentService.handlePayOSWebhook(webhookRequest);
 
             if (success) {
                 return ResponseEntity.ok("OK");
             } else {
-                return ResponseEntity.badRequest().body("FAILED");
+                log.warn("Webhook handled but failed internally: {}", webhookRequest);
+                return ResponseEntity.ok("OK");
             }
 
         } catch (Exception e) {
             log.error("Error processing PayOS webhook", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("ERROR");
+            return ResponseEntity.ok("OK");
         }
     }
 
