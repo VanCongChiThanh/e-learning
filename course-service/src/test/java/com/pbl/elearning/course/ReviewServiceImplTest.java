@@ -4,19 +4,14 @@ import com.pbl.elearning.course.domain.Course;
 import com.pbl.elearning.course.domain.Review;
 import com.pbl.elearning.course.domain.ReviewVote;
 import com.pbl.elearning.course.domain.enums.VoteType;
-import com.pbl.elearning.course.payload.request.ReviewRequest;
-import com.pbl.elearning.course.payload.response.ReviewResponse;
 import com.pbl.elearning.course.repository.*;
 import com.pbl.elearning.course.service.impl.ReviewServiceImpl;
-import com.pbl.elearning.user.domain.UserInfo;
-import com.pbl.elearning.user.domain.enums.Gender;
 import com.pbl.elearning.user.repository.UserInfoRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.access.AccessDeniedException;
 
 import java.util.*;
 
@@ -44,10 +39,15 @@ class ReviewServiceImplTest {
 
     @BeforeEach
     void setup() {
+        userId = UUID.fromString("44e1b5fc-2f71-4430-b898-78657459efae");
         reviewId = UUID.randomUUID();
-        userId = UUID.randomUUID();
 
-        Course course = Course.builder().courseId(UUID.randomUUID()).build();
+        Course course = courseRepository
+                .findByCourseIdAndCourseStatus(UUID.fromString("08da0bf0-2c0c-4a38-aa96-3c1b522740bc"), null).orElse(
+                        Course.builder()
+                                .courseId(UUID.fromString("08da0bf0-2c0c-4a38-aa96-3c1b522740bc"))
+                                .title("Sample Course")
+                                .build());
         review = Review.builder()
                 .reviewId(reviewId)
                 .userId(userId)
@@ -58,11 +58,7 @@ class ReviewServiceImplTest {
     }
 
     // --------------------------------------------------------
-    // TEST 1:
-    // --------------------------------------------------------
-
-    // --------------------------------------------------------
-    // TEST 2: voteReview()
+    // TEST : voteReview()
     // --------------------------------------------------------
 
     @Test
