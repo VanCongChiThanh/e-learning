@@ -25,8 +25,6 @@ public class EnrollmentController {
     public EnrollmentController(EnrollmentService enrollmentService) {
         this.enrollmentService = enrollmentService;
     }
-
-    // Hàm helper map Enrollment -> EnrollmentResponse
     private EnrollmentResponse toResponse(Enrollment enrollment) {
         return EnrollmentResponse.builder()
                 .id(enrollment.getId())
@@ -41,14 +39,12 @@ public class EnrollmentController {
                 .build();
     }
 
-    // Tạo Enrollment mới
     @PostMapping
     public ResponseEntity<EnrollmentResponse> createEnrollment(@RequestBody EnrollmentRequest request) {
         Enrollment enrollment = enrollmentService.createEnrollment(request);
         return ResponseEntity.ok(toResponse(enrollment));
     }
 
-    // Cập nhật Enrollment theo ID
     @PutMapping("/{id}")
     public ResponseEntity<EnrollmentResponse> updateEnrollment(
             @PathVariable UUID id,
@@ -60,14 +56,12 @@ public class EnrollmentController {
         return ResponseEntity.notFound().build();
     }
 
-    // Xóa Enrollment theo ID
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteEnrollment(@PathVariable UUID id) {
         enrollmentService.deleteEnrollment(id);
         return ResponseEntity.noContent().build();
     }
 
-    // Lấy Enrollment theo ID
     @GetMapping("/{id}")
     public ResponseEntity<EnrollmentResponse> getEnrollmentById(@PathVariable UUID id) {
         Optional<Enrollment> enrollment = enrollmentService.getEnrollmentById(id);
@@ -75,7 +69,6 @@ public class EnrollmentController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // Lấy tất cả Enrollment
     @GetMapping
     public ResponseEntity<List<EnrollmentResponse>> getAllEnrollments() {
         List<EnrollmentResponse> responses = enrollmentService.getAllEnrollments()
@@ -85,7 +78,6 @@ public class EnrollmentController {
         return ResponseEntity.ok(responses);
     }
 
-    // Lấy Enrollment theo userId
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<EnrollmentResponse>> getEnrollmentsByUserId(@PathVariable UUID userId) {
         System.out.println("Fetching enrollments for userId: " + userId);
@@ -96,7 +88,6 @@ public class EnrollmentController {
         return ResponseEntity.ok(responses);
     }
 
-    // Lấy Enrollment theo courseId
     @GetMapping("/course/{courseId}")
     public ResponseEntity<List<EnrollmentResponse>> getEnrollmentsByCourseId(@PathVariable UUID courseId) {
         System.out.println("Fetching enrollments for courseId: " + courseId);
@@ -106,10 +97,7 @@ public class EnrollmentController {
                 .collect(Collectors.toList());
         System.err.println("Found " + responses );
         return ResponseEntity.ok(responses);
-    }
-
-    // API Báo cáo thống kê
-    
+    }    
     @GetMapping("/{enrollmentId}/report")
     public ResponseEntity<EnrollmentReportResponse> getEnrollmentReport(@PathVariable UUID enrollmentId) {
         EnrollmentReportResponse report = enrollmentService.getEnrollmentReport(enrollmentId);

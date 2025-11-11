@@ -20,7 +20,6 @@ public class QuizSubmissionResponse {
     private Integer maxPossibleScore;
     private Double scorePercentage;
     private Boolean isPassed;
-    private OffsetDateTime startedAt;
     private OffsetDateTime submittedAt;
     private Integer timeTakenMinutes;
     private Boolean isCompleted;

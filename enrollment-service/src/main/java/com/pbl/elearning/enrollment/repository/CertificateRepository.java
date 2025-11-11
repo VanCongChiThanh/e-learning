@@ -12,6 +12,7 @@ import java.util.UUID;
 
 public interface CertificateRepository extends JpaRepository<Certificate, UUID> {
     Optional<Certificate> findByEnrollment(Enrollment enrollment);
+
     Certificate findByEnrollment_Id(UUID enrollmentId);
     boolean existsByEnrollmentId(UUID enrollmentId);
     Optional<Certificate> findByCertificateNumber(String certificateNumber);

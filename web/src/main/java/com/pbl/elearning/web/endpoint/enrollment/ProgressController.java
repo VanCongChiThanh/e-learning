@@ -71,13 +71,14 @@ public class ProgressController {
     @GetMapping("/lecture/{id}")
     public ResponseEntity<List<ProgressResponse>> getProgressByLectureId(@PathVariable UUID id){
         List<Progress> progress = progressService.getProgressByLectureId(id);
+
         if (progress.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
         List<ProgressResponse> responses = progress.stream()
                 .map(this::toResponse)
                 .toList();
-        System.out.println(responses);
+        System.out.println("123" + responses);
 
         return ResponseEntity.ok(responses);
     }

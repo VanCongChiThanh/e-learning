@@ -4,6 +4,9 @@ import com.pbl.elearning.enrollment.payload.request.QuizSubmissionRequest;
 import com.pbl.elearning.enrollment.payload.response.QuizStatisticsResponse;
 import com.pbl.elearning.enrollment.payload.response.QuizSubmissionResponse;
 import com.pbl.elearning.enrollment.services.QuizSubmissionService;
+import com.pbl.elearning.security.annotation.CurrentUser;
+import com.pbl.elearning.security.domain.UserPrincipal;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,9 +22,14 @@ public class QuizSubmissionController {
     private final QuizSubmissionService quizSubmissionService;
 
     @PostMapping("/submit")
-    public ResponseEntity<QuizSubmissionResponse> submitQuiz(@RequestBody QuizSubmissionRequest request) {
-        QuizSubmissionResponse response = quizSubmissionService.submitQuiz(request);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<QuizSubmissionResponse> submitQuiz(@RequestBody QuizSubmissionRequest request, @CurrentUser UserPrincipal userPrincipal) {
+        UUID currentUserId = userPrincipal.getId();
+        try {
+            QuizSubmissionResponse result = quizSubmissionService.submitQuiz(request, currentUserId);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        } 
     }
 
     @GetMapping("/{id}")

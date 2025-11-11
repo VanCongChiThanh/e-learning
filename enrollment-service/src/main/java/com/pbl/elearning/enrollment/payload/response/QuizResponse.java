@@ -1,6 +1,8 @@
 package com.pbl.elearning.enrollment.payload.response;
 
 import lombok.*;
+
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -18,4 +20,5 @@ public class QuizResponse {
     private Integer numberQuestions;
     private Boolean isActive;
     private java.time.OffsetDateTime createdAt;
+    private List<QuizQuestionAnswerResponse> questions;
 }
