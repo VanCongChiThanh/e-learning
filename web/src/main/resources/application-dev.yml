@@ -30,9 +30,9 @@ org:
       enabled: false
 origin-patterns: "*"
 dev-patterns: "http://localhost:3000"
-web-url: "https://coursevo.vercel.app"
+web-url: "http://localhost:3000"
 e-learning-mail:
-  domain: e-learning.com
+  domain: coursevo.vercel.app
 app:
   oauth2:
     providers:

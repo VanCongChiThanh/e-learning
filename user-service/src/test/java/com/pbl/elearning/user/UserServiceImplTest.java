@@ -13,11 +13,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -26,21 +26,17 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceImplTest {
-    @Mock
-    private UserRepository userRepository;
+    @Mock private UserRepository userRepository;
     @Mock private PasswordEncoder passwordEncoder;
 
     @InjectMocks
     private UserServiceImpl service;
-
-    private UserServiceImpl spyService;
 
     private UUID userId;
     private User user;
 
     @BeforeEach
     void setup() {
-        spyService =  Mockito.spy(service);
         userId = UUID.randomUUID();
         user = new User();
         user.setId(userId);
@@ -55,15 +51,15 @@ public class UserServiceImplTest {
         return r;
     }
 
+    // ================= Core happy/negative paths =================
+
     @Test
     void changePassword_shouldThrowBadRequest_whenOldPasswordIncorrect() {
-        // BCrypt.checkpw(request.old, providedHashed) sẽ fail nếu chuỗi không khớp
         String hashedStored = BCrypt.hashpw("CORRECT_OLD", BCrypt.gensalt());
         ChangePasswordRequest request = req("WRONG_OLD", "NEW123!", "NEW123!");
 
-        // Không cần findById vì code sẽ ném lỗi trước khi tới findById
         assertThrows(BadRequestException.class,
-                () -> spyService.changePassword(userId, hashedStored, request));
+                () -> service.changePassword(userId, hashedStored, request));
 
         verify(userRepository, never()).save(any());
     }
@@ -74,7 +70,7 @@ public class UserServiceImplTest {
         ChangePasswordRequest request = req("OLD_123", "NEW_ABC", "MISMATCH");
 
         assertThrows(BadRequestException.class,
-                () -> spyService.changePassword(userId, hashedStored, request));
+                () -> service.changePassword(userId, hashedStored, request));
 
         verify(userRepository, never()).save(any());
     }
@@ -85,23 +81,20 @@ public class UserServiceImplTest {
         ChangePasswordRequest request = req("SAME", "SAME", "SAME");
 
         assertThrows(BadRequestException.class,
-                () -> spyService.changePassword(userId, hashedStored, request));
+                () -> service.changePassword(userId, hashedStored, request));
 
         verify(userRepository, never()).save(any());
     }
 
     @Test
-    void changePassword_shouldThrowInternal_whenUserNotFound() {
-        // Vượt qua 3 check đầu tiên để vào findById
+    void changePassword_shouldThrowNotFound_whenUserNotFound() {
         String hashedStored = BCrypt.hashpw("OLD_OK", BCrypt.gensalt());
         ChangePasswordRequest request = req("OLD_OK", "NEW_OK", "NEW_OK");
 
-        doThrow(new NotFoundException("USER_NOT_FOUND"))
-                .when(spyService).findById(userId);
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-        // Mọi Exception (không phải BadRequestException) đều bị catch và ném InternalServerException
-        assertThrows(InternalServerException.class,
-                () -> spyService.changePassword(userId, hashedStored, request));
+        assertThrows(NotFoundException.class,
+                () -> service.changePassword(userId, hashedStored, request));
 
         verify(userRepository, never()).save(any());
     }
@@ -111,12 +104,26 @@ public class UserServiceImplTest {
         String hashedStored = BCrypt.hashpw("OLD_OK", BCrypt.gensalt());
         ChangePasswordRequest request = req("OLD_OK", "NEW_OK", "NEW_OK");
 
-        doReturn(user).when(spyService).findById(userId);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(passwordEncoder.encode("NEW_OK")).thenReturn("ENCODED_NEW");
         doThrow(new RuntimeException("DB down")).when(userRepository).save(any(User.class));
 
         assertThrows(InternalServerException.class,
-                () -> spyService.changePassword(userId, hashedStored, request));
+                () -> service.changePassword(userId, hashedStored, request));
+    }
+
+    @Test
+    void changePassword_shouldThrowInternal_whenPasswordEncoderThrows() {
+        String hashedStored = BCrypt.hashpw("OLD_OK", BCrypt.gensalt());
+        ChangePasswordRequest request = req("OLD_OK", "NEW_OK", "NEW_OK");
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(passwordEncoder.encode("NEW_OK")).thenThrow(new RuntimeException("encoder error"));
+
+        assertThrows(InternalServerException.class,
+                () -> service.changePassword(userId, hashedStored, request));
+
+        verify(userRepository, never()).save(any());
     }
 
     @Test
@@ -124,18 +131,29 @@ public class UserServiceImplTest {
         String hashedStored = BCrypt.hashpw("OLD_OK", BCrypt.gensalt());
         ChangePasswordRequest request = req("OLD_OK", "NEW_OK", "NEW_OK");
 
-        doReturn(user).when(spyService).findById(userId);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(passwordEncoder.encode("NEW_OK")).thenReturn("ENCODED_NEW");
         when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        ResponseDataAPI resp = spyService.changePassword(userId, hashedStored, request);
+        ResponseDataAPI resp = service.changePassword(userId, hashedStored, request);
 
-        // Đã encode & lưu
         assertEquals("ENCODED_NEW", user.getPassword());
         verify(userRepository, times(1)).save(user);
 
-        // Response success
         assertNotNull(resp);
-        assertTrue(resp.getStatus()=="success");
+        assertEquals("success", resp.getStatus());
+    }
+
+    @Test
+    void changePassword_shouldThrowNotFound_whenFindByIdThrows() {
+        String hashedStored = BCrypt.hashpw("OLD_OK", BCrypt.gensalt());
+        ChangePasswordRequest request = req("OLD_OK", "NEW_OK", "NEW_OK");
+
+        when(userRepository.findById(userId)).thenAnswer(inv -> { throw new NotFoundException("USER_NOT_FOUND"); });
+
+        assertThrows(NotFoundException.class,
+                () -> service.changePassword(userId, hashedStored, request));
+
+        verify(userRepository, never()).save(any());
     }
 }

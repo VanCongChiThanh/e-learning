@@ -93,6 +93,9 @@ token_remove_account_expired:
 token_remove_account_not_correct:
   code: ERR.USE0202
   message: Verification code is not correct!
+user_not_verified:
+  code: ERR.USE0120
+  message: User not verified!
 
 #upload file
 file_not_format:
@@ -244,3 +247,27 @@ qr_code_invalid:
 instructor_profile_not_found:
   code: ERR.IPNF
   message: Instructo Profile not found for id
+already_instructor_role:
+  code: ERR.AIR
+  message: User already has instructor role
+too_many_request:
+  code: ERR.TMR
+  message: Too many request for instructor role
+application_already_pending:
+  code: ERR.AAP
+  message: Application for instructor role is already pending
+application_already_approved:
+  code: ERR.AAA
+  message: Application for instructor role is already approved
+application_not_found:
+  code: ERR.ANF
+  message: Application for instructor role not found
+motivation_too_short:
+  code: ERR.MTS
+  message: Motivation is too short
+application_cooldown:
+    code: ERR.AC
+    message: You have recently applied for instructor role. Please wait before applying again
+invalid_status_for_review_application:
+    code: ERR.ISRAA
+    message: Invalid status for reviewing application
