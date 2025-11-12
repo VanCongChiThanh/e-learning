@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pbl.elearning.commerce.config.PayOSConfig;
 import com.pbl.elearning.commerce.domain.Order;
 import com.pbl.elearning.commerce.domain.Payment;
+import com.pbl.elearning.commerce.domain.enums.OrderStatus;
 import com.pbl.elearning.commerce.domain.enums.PaymentStatus;
 import com.pbl.elearning.commerce.payload.request.CreatePaymentRequest;
 import com.pbl.elearning.commerce.payload.response.PaymentResponse;
@@ -72,30 +73,51 @@ class PaymentServiceTest {
         ReflectionTestUtils.setField(paymentService, "payOS", mockedPayOS);
 
         // 1. Thiết lập dữ liệu cho create Payment
-        mockOrder = mock(Order.class);
-        when(mockOrder.getId()).thenReturn(orderId);
-        when(mockOrder.getUserId()).thenReturn(userId);
-        when(mockOrder.isPaid()).thenReturn(false); // Mặc định là chưa thanh toán
-        when(mockOrder.getTotalAmount()).thenReturn(new BigDecimal("150000"));
-        when(mockOrder.getOrderNumber()).thenReturn("ORDER-12345");
+//        mockOrder = mock(Order.class);
+//        when(mockOrder.getId()).thenReturn(orderId);
+//        when(mockOrder.getUserId()).thenReturn(userId);
+//        when(mockOrder.isPaid()).thenReturn(false); // Mặc định là chưa thanh toán
+//        when(mockOrder.getTotalAmount()).thenReturn(new BigDecimal("150000"));
+//        when(mockOrder.getOrderNumber()).thenReturn("ORDER-12345");
+//        when(mockOrder.getStatus()).thenReturn(OrderStatus.PENDING);
+
+        // 2. Mock PayOSConfig
+//         when(payOSConfig.getDefaultExpirationMinutes()).thenReturn(30); // 30 phút
+//        when(payOSConfig.getReturnUrl()).thenReturn("https://payos.return.url");
+//        when(payOSConfig.getCancelUrl()).thenReturn("https://payos.cancel.url");
     }
 
     /**
      * Test Cases cho createPayment
      */
 
+    void setUpSuccessOrder() {
+        mockOrder = mock(Order.class);
+        when(mockOrder.getId()).thenReturn(orderId);
+        when(mockOrder.getUserId()).thenReturn(userId);
+        when(mockOrder.isPaid()).thenReturn(false); // Mặc định là chưa thanh toán
+        when(mockOrder.getTotalAmount()).thenReturn(new BigDecimal("150000"));
+        when(mockOrder.getOrderNumber()).thenReturn("ORDER-12345");
+        when(mockOrder.getStatus()).thenReturn(OrderStatus.PENDING);
+    }
+
+    void setUpPayOSConfig() {
+//        when(payOSConfig.getDefaultExpirationMinutes()).thenReturn(30); // 30 phút
+        when(payOSConfig.getReturnUrl()).thenReturn("https://payos.return.url");
+        when(payOSConfig.getCancelUrl()).thenReturn("https://payos.cancel.url");
+    }
+
     @Test
     void createPayment_ShouldCreateNewPayment_WhenNoPendingPaymentExists() throws Exception {
         // --- Arrange ---
+        setUpSuccessOrder();
+        setUpPayOSConfig();
 
         // 1. Giả lập Order này có tồn tại
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(mockOrder));
 
         // 2. Giả lập user tạo payment là user sở hữu order
         when(mockOrder.getUserId()).thenReturn(userId);
-
-        // 3. Mock PayOSConfig
-        when(payOSConfig.getDefaultExpirationMinutes()).thenReturn(30); // 30 phút
 
         // 4. Giả lập chưa có payment nào cho order này
         when(paymentRepository.findByOrderId(orderId)).thenReturn(Optional.empty());
@@ -107,8 +129,8 @@ class PaymentServiceTest {
         when(payosResponse.getQrCode()).thenReturn("qr-code-data");
         when(payosResponse.getAccountNumber()).thenReturn("1208200405");
         when(payosResponse.getAccountName()).thenReturn("DINH BAO CHAU THI");
-        when(mockedPayOS.createPaymentLink(any(PaymentData.class))).thenReturn(payosResponse);
 
+        when(mockedPayOS.createPaymentLink(any(PaymentData.class))).thenReturn(payosResponse);
         // 5. Giả lập lưu Payment
         when(paymentRepository.save(paymentCaptor.capture())).thenAnswer(inv -> inv.getArgument(0)); // lấy ra payment
                                                                                                      // được truyền vào
@@ -167,6 +189,9 @@ class PaymentServiceTest {
     @Test
     void createPayment_ShouldThrowException_WhenUserIsNotOrderOwner() {
         // --- Arrange ---
+        setUpSuccessOrder();
+        setUpPayOSConfig();
+
         // 1. Giả lập user tạo payment không phải là người sở hữu order
         UUID otherUserId = UUID.randomUUID();
         when(mockOrder.getUserId()).thenReturn(otherUserId);
@@ -185,6 +210,9 @@ class PaymentServiceTest {
     @Test
     void createPayment_ShouldThrowException_WhenOrderIsAlreadyPaid() {
         // --- Arrange ---
+        setUpSuccessOrder();
+        setUpPayOSConfig();
+
         // 1. Giả lập order đã được thanh toán
         when(mockOrder.isPaid()).thenReturn(true);
 
@@ -200,12 +228,17 @@ class PaymentServiceTest {
     @Test
     void createPayment_ShouldReturnExistingPayment_WhenPendingPaymentExistsAndIsNotExpired() throws Exception {
         // --- Arrange ---
+        setUpSuccessOrder();
+
+        // 0. Giả lập Order có tồn tại
+        when(orderRepository.findById(orderId)).thenReturn(Optional.of(mockOrder));
+
         // 1. Giả lập đã có payment PENDING chưa hết hạn
         Payment existingPayment = new Payment();
         existingPayment.setStatus(PaymentStatus.PENDING);
         existingPayment.setExpiresAt(new Timestamp(System.currentTimeMillis() + 600000));
         existingPayment.setCheckoutUrl("http://payos.existing.url");
-        existingPayment.setOrder(mockOrder); // Cần thiết để map response
+        existingPayment.setOrder(mockOrder);
 
         when(paymentRepository.findByOrderId(orderId)).thenReturn(Optional.of(existingPayment));
 
@@ -214,8 +247,10 @@ class PaymentServiceTest {
 
         // Assert
         assertNotNull(response);
+
         // 1. Kiểm tra trả về đúng link của payment tồn tại
         assertEquals("http://payos.existing.url", response.getCheckoutUrl());
+
         // 2. Đảm bảo không tạo payment mới
         verify(paymentRepository, never()).save(any());
         verify(mockedPayOS, never()).createPaymentLink(any());
@@ -224,6 +259,12 @@ class PaymentServiceTest {
     @Test
     void createPayment_ShouldCreateNewPayment_WhenExistingPaymentIsExpired() throws Exception {
         // --- Arrange ---
+        setUpSuccessOrder();
+        setUpPayOSConfig();
+
+        // 0. Giả lập Order có tồn tại
+        when(orderRepository.findById(orderId)).thenReturn(Optional.of(mockOrder));
+
         // 1. Giả lập đã có payment PENDING nhưng đã hết hạn
         Payment expiredPayment = new Payment();
         expiredPayment.setStatus(PaymentStatus.PENDING);
@@ -267,6 +308,9 @@ class PaymentServiceTest {
     @Test
     void createPayment_ShouldThrowExceptionAndSaveFailedPayment_WhenPayOSApiFails() throws Exception {
         // --- Arrange ---
+        setUpSuccessOrder();
+        setUpPayOSConfig();
+
         // 1. Giả lập Order này có tồn tại
         when(paymentRepository.findByOrderId(orderId)).thenReturn(Optional.empty());
 
