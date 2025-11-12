@@ -70,8 +70,7 @@ public class PaymentService {
 
         // 2. Check if payment already exists for this order
         Optional<Payment> existingPayment = paymentRepository.findByOrderId(order.getId());
-        // Optional<Payment> existingPayment =
-        // paymentRepository.findByOrderCode(order.getOrderNumber());
+
         if (existingPayment.isPresent() && existingPayment.get().isPending()) {
             // check expiration
             if (existingPayment.get().getExpiresAt().before(new Timestamp(System.currentTimeMillis()))) {
@@ -245,13 +244,8 @@ public class PaymentService {
         payment.setPayosPaymentLinkId(response.getPaymentLinkId());
         payment.setCheckoutUrl(response.getCheckoutUrl());
         payment.setQrCode(response.getQrCode());
-
-        if (response.getAccountNumber() != null) {
-            payment.setAccountNumber(response.getAccountNumber());
-        }
-        if (response.getAccountName() != null) {
-            payment.setAccountName(response.getAccountName());
-        }
+        payment.setAccountNumber(response.getAccountNumber());
+        payment.setAccountName(response.getAccountName());
     }
 
     private void processSuccessfulPayment(Payment payment, PayOSWebhookRequest webhookRequest) {

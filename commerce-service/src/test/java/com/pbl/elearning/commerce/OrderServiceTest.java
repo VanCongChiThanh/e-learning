@@ -243,7 +243,7 @@ class OrderServiceTest {
         });
 
         // 1. Xác minh `save` không được gọi
-        verify(orderRepository, times(1)).save(any(Order.class));
+        verify(orderRepository, times(0)).save(any(Order.class));
 
         // 2.Kiểm tra nội dung exception
         assertTrue(exception.getMessage().contains("Order items cannot be empty"));
