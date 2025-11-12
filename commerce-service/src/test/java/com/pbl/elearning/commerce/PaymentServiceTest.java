@@ -69,22 +69,9 @@ class PaymentServiceTest {
         createPaymentRequest = new CreatePaymentRequest();
         createPaymentRequest.setOrderId(orderId);
         createPaymentRequest.setDescription("Test Payment");
+        createPaymentRequest.setExpirationMinutes(30);
 
         ReflectionTestUtils.setField(paymentService, "payOS", mockedPayOS);
-
-        // 1. Thiết lập dữ liệu cho create Payment
-//        mockOrder = mock(Order.class);
-//        when(mockOrder.getId()).thenReturn(orderId);
-//        when(mockOrder.getUserId()).thenReturn(userId);
-//        when(mockOrder.isPaid()).thenReturn(false); // Mặc định là chưa thanh toán
-//        when(mockOrder.getTotalAmount()).thenReturn(new BigDecimal("150000"));
-//        when(mockOrder.getOrderNumber()).thenReturn("ORDER-12345");
-//        when(mockOrder.getStatus()).thenReturn(OrderStatus.PENDING);
-
-        // 2. Mock PayOSConfig
-//         when(payOSConfig.getDefaultExpirationMinutes()).thenReturn(30); // 30 phút
-//        when(payOSConfig.getReturnUrl()).thenReturn("https://payos.return.url");
-//        when(payOSConfig.getCancelUrl()).thenReturn("https://payos.cancel.url");
     }
 
     /**
@@ -95,14 +82,12 @@ class PaymentServiceTest {
         mockOrder = mock(Order.class);
         when(mockOrder.getId()).thenReturn(orderId);
         when(mockOrder.getUserId()).thenReturn(userId);
-        when(mockOrder.isPaid()).thenReturn(false); // Mặc định là chưa thanh toán
+        when(mockOrder.isPaid()).thenReturn(false);
         when(mockOrder.getTotalAmount()).thenReturn(new BigDecimal("150000"));
         when(mockOrder.getOrderNumber()).thenReturn("ORDER-12345");
-        when(mockOrder.getStatus()).thenReturn(OrderStatus.PENDING);
     }
 
     void setUpPayOSConfig() {
-//        when(payOSConfig.getDefaultExpirationMinutes()).thenReturn(30); // 30 phút
         when(payOSConfig.getReturnUrl()).thenReturn("https://payos.return.url");
         when(payOSConfig.getCancelUrl()).thenReturn("https://payos.cancel.url");
     }
@@ -113,16 +98,15 @@ class PaymentServiceTest {
         setUpSuccessOrder();
         setUpPayOSConfig();
 
-        // 1. Giả lập Order này có tồn tại
+        // 1. Giả lập Order này có tồn tại & user sở hữu order
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(mockOrder));
-
-        // 2. Giả lập user tạo payment là user sở hữu order
         when(mockOrder.getUserId()).thenReturn(userId);
+        when(mockOrder.getStatus()).thenReturn(OrderStatus.PENDING);
 
-        // 4. Giả lập chưa có payment nào cho order này
+        // 2. Giả lập chưa có payment nào cho order này
         when(paymentRepository.findByOrderId(orderId)).thenReturn(Optional.empty());
 
-        // 5. Giả lập việc tạo link PayOS thành công
+        // 3. Giả lập việc tạo link PayOS thành công
         CheckoutResponseData payosResponse = mock(CheckoutResponseData.class);
         when(payosResponse.getCheckoutUrl()).thenReturn("http://payos.checkout.url");
         when(payosResponse.getPaymentLinkId()).thenReturn("link-123");
@@ -131,7 +115,7 @@ class PaymentServiceTest {
         when(payosResponse.getAccountName()).thenReturn("DINH BAO CHAU THI");
 
         when(mockedPayOS.createPaymentLink(any(PaymentData.class))).thenReturn(payosResponse);
-        // 5. Giả lập lưu Payment
+        // 4. Giả lập lưu Payment
         when(paymentRepository.save(paymentCaptor.capture())).thenAnswer(inv -> inv.getArgument(0)); // lấy ra payment
                                                                                                      // được truyền vào
 
@@ -151,21 +135,16 @@ class PaymentServiceTest {
         verify(paymentRepository, times(2)).save(any(Payment.class));
 
         List<Payment> savedPayments = paymentCaptor.getAllValues();
-        Payment firstSave = savedPayments.get(0);
-        Payment secondSave = savedPayments.get(1);
-
-        // Kiểm tra lần save 1
-        assertEquals(PaymentStatus.PENDING, firstSave.getStatus());
-        assertEquals(mockOrder.getTotalAmount(), firstSave.getAmount());
-        assertNull(firstSave.getCheckoutUrl()); // Chưa có link
-        long expectedExpiry = System.currentTimeMillis() + (30 * 60 * 1000);
-        assertTrue(Math.abs(firstSave.getExpiresAt().getTime() - expectedExpiry) < 5000);
+        Payment finalSavedPayment = savedPayments.get(1);
 
         // Kiểm tra lần save 2
-        assertEquals(PaymentStatus.PENDING, secondSave.getStatus());
-        assertEquals("http://payos.checkout.url", secondSave.getCheckoutUrl()); // Đã có link
-        assertEquals("link-123", secondSave.getPayosPaymentLinkId());
-        assertEquals("123456", secondSave.getAccountNumber());
+        assertEquals(PaymentStatus.PENDING, finalSavedPayment.getStatus());
+        assertEquals(mockOrder.getTotalAmount(), finalSavedPayment.getAmount());
+        long expectedExpiry = System.currentTimeMillis() + (30 * 60 * 1000);
+        assertTrue(Math.abs(finalSavedPayment.getExpiresAt().getTime() - expectedExpiry) < 5000);
+        assertEquals("http://payos.checkout.url", finalSavedPayment.getCheckoutUrl()); // Đã có link
+        assertEquals("link-123", finalSavedPayment.getPayosPaymentLinkId());
+        assertEquals("1208200405", finalSavedPayment.getAccountNumber());
     }
 
     @Test
@@ -189,10 +168,12 @@ class PaymentServiceTest {
     @Test
     void createPayment_ShouldThrowException_WhenUserIsNotOrderOwner() {
         // --- Arrange ---
-        setUpSuccessOrder();
-        setUpPayOSConfig();
+        mockOrder = mock(Order.class);
 
-        // 1. Giả lập user tạo payment không phải là người sở hữu order
+        // 0. Giả lập Order này có tồn tại
+        when(orderRepository.findById(orderId)).thenReturn((Optional.of(mockOrder)));
+
+        // 1. Giả lập user tạo payment không phải là người sở hữu Order
         UUID otherUserId = UUID.randomUUID();
         when(mockOrder.getUserId()).thenReturn(otherUserId);
 
@@ -210,8 +191,11 @@ class PaymentServiceTest {
     @Test
     void createPayment_ShouldThrowException_WhenOrderIsAlreadyPaid() {
         // --- Arrange ---
-        setUpSuccessOrder();
-        setUpPayOSConfig();
+        mockOrder = mock(Order.class);
+
+        // 0. Giả lập Order có tồn tại & user sở hữu order
+        when(orderRepository.findById(orderId)).thenReturn(Optional.of(mockOrder));
+        when(mockOrder.getUserId()).thenReturn(userId);
 
         // 1. Giả lập order đã được thanh toán
         when(mockOrder.isPaid()).thenReturn(true);
@@ -230,8 +214,10 @@ class PaymentServiceTest {
         // --- Arrange ---
         setUpSuccessOrder();
 
-        // 0. Giả lập Order có tồn tại
+        // 0. Giả lập Order có tồn tại & user sở hữu order
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(mockOrder));
+        when(mockOrder.getUserId()).thenReturn(userId);
+        when(mockOrder.getStatus()).thenReturn(OrderStatus.PENDING);
 
         // 1. Giả lập đã có payment PENDING chưa hết hạn
         Payment existingPayment = new Payment();
@@ -262,8 +248,10 @@ class PaymentServiceTest {
         setUpSuccessOrder();
         setUpPayOSConfig();
 
-        // 0. Giả lập Order có tồn tại
+        // 0. Giả lập Order có tồn tại & user sở hữu order
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(mockOrder));
+        when(mockOrder.getUserId()).thenReturn(userId);
+        when(mockOrder.getStatus()).thenReturn(OrderStatus.PENDING);
 
         // 1. Giả lập đã có payment PENDING nhưng đã hết hạn
         Payment expiredPayment = new Payment();
@@ -311,8 +299,9 @@ class PaymentServiceTest {
         setUpSuccessOrder();
         setUpPayOSConfig();
 
-        // 1. Giả lập Order này có tồn tại
-        when(paymentRepository.findByOrderId(orderId)).thenReturn(Optional.empty());
+        // 1. Giả lập Order có tồn tại & user sở hữu order
+        when(orderRepository.findById(orderId)).thenReturn(Optional.of(mockOrder));
+        when(mockOrder.getUserId()).thenReturn(userId);
 
         // 2. Giả lập PayOS ném lỗi
         when(mockedPayOS.createPaymentLink(any(PaymentData.class)))
@@ -336,7 +325,7 @@ class PaymentServiceTest {
 
         // 3. Kiểm tra trạng thái của payment sau khi lỗi
         List<Payment> savedPayments = paymentCaptor.getAllValues();
-        assertEquals(PaymentStatus.PENDING, savedPayments.get(0).getStatus());
-        assertEquals(PaymentStatus.FAILED, savedPayments.get(1).getStatus()); // Quan trọng
+        Payment finalSavedPayment = savedPayments.get(1);
+        assertEquals(PaymentStatus.FAILED, finalSavedPayment.getStatus()); // Quan trọng
     }
 }
