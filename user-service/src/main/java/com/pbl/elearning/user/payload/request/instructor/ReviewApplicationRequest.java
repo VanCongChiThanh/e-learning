@@ -6,10 +6,13 @@ import com.pbl.elearning.user.domain.enums.ApplicationStatus;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.validation.constraints.NotNull;
+
 @Getter
 @Setter
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class ReviewApplicationRequest {
-    private ApplicationStatus status; // "APPROVED" or "REJECTED"
+    @NotNull(message = "status is required")
+    private ApplicationStatus status;
     private String reason;
 }

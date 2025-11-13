@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.validator.constraints.URL;
 
 import javax.validation.constraints.NotBlank;
 
@@ -12,9 +13,11 @@ import javax.validation.constraints.NotBlank;
 @Setter
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class ApplyInstructorRequest {
-    @NotBlank
-    private String cvUrl;
-    private String portfolioLink;
+    @NotBlank @URL private String cvUrl;
+
+    @NotBlank @URL private String portfolioLink;
+
     private String motivation;
+
     private JsonNode extraInfo;
 }

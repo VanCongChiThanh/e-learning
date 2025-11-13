@@ -1,9 +1,14 @@
 package com.pbl.elearning.user.service.impl;
 
 
+import com.pbl.elearning.common.constant.MessageConstant;
 import com.pbl.elearning.common.domain.enums.Role;
+import com.pbl.elearning.common.exception.BadRequestException;
+import com.pbl.elearning.common.exception.ConflictException;
+import com.pbl.elearning.common.exception.ForbiddenException;
 import com.pbl.elearning.common.exception.NotFoundException;
 import com.pbl.elearning.email.service.EmailService;
+import com.pbl.elearning.security.domain.User;
 import com.pbl.elearning.user.domain.InstructorApplication;
 import com.pbl.elearning.user.domain.UserInfo;
 import com.pbl.elearning.user.domain.enums.ApplicationStatus;
@@ -23,12 +28,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.UUID;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class InstructorApplicationServiceImpl implements InstructorApplicationService {
+    private static final Duration REAPPLY_COOLDOWN = Duration.ofDays(14);
     private final InstructorApplicationRepository instructorApplicationRepository;
     private final InstructorProfileServiceImpl instructorProfileService;
     private final EmailService emailService;
@@ -55,6 +63,34 @@ public class InstructorApplicationServiceImpl implements InstructorApplicationSe
 
     @Override
     public ApplyInstructorResponse applyForInstructor(ApplyInstructorRequest request, UUID userId) {
+        User user = userService.findById(userId);
+
+        if (user.getRole() == Role.ROLE_INSTRUCTOR) {
+            throw new ForbiddenException(MessageConstant.ALREADY_INSTRUCTOR);
+        }
+        if (!Boolean.TRUE.equals(user.getIsEnabled()) || user.getConfirmedAt() == null) {
+            throw new ForbiddenException(MessageConstant.USER_NOT_VERIFIED);
+        }
+
+        instructorApplicationRepository.findTopByUserIdOrderByCreatedAtDesc(userId)
+                .ifPresent(last -> {
+                    if (last.getStatus() == ApplicationStatus.PENDING) {
+                        throw new ConflictException(MessageConstant.APPLICATION_ALREADY_PENDING);
+                    }
+                    if (last.getStatus() == ApplicationStatus.APPROVED) {
+                        throw new ConflictException(MessageConstant.APPLICATION_ALREADY_APPROVED);
+                    }
+                    if (last.getStatus() == ApplicationStatus.REJECTED &&
+                            last.getUpdatedAt() != null &&
+                            last.getUpdatedAt().toInstant().plus(REAPPLY_COOLDOWN).isAfter(Instant.now())) {
+                        throw new ConflictException(MessageConstant.APPLICATION_COOLDOWN);
+                    }
+                });
+
+        if (request.getMotivation() == null || request.getMotivation().trim().length() < 50) {
+            throw new BadRequestException(MessageConstant.MOTIVATION_TOO_SHORT);
+        }
+
         // Save the CV file using FileHandlerService
         InstructorApplication application = new InstructorApplication();
         application.setUserId(userId);
@@ -62,6 +98,7 @@ public class InstructorApplicationServiceImpl implements InstructorApplicationSe
         application.setMotivation(request.getMotivation());
         application.setCvUrl(request.getCvUrl());
         application.setStatus(ApplicationStatus.PENDING);
+        application.setExtraInfo(request.getExtraInfo());
         instructorApplicationRepository.save(application);
         return ApplyInstructorResponse.toResponse(application);
     }
@@ -69,7 +106,7 @@ public class InstructorApplicationServiceImpl implements InstructorApplicationSe
     @Override
     public void cancelApplication(UUID applicationId, UUID userId) {
         InstructorApplication application = instructorApplicationRepository.findByIdAndUserId(applicationId, userId)
-                .orElseThrow(() -> new IllegalArgumentException("Application not found or does not belong to the user"));
+                .orElseThrow(() -> new NotFoundException(MessageConstant.APPLICATION_NOT_FOUND));
         if (application.getStatus() != ApplicationStatus.PENDING) {
             throw new IllegalStateException("Cannot cancel application that is not pending");
         }
@@ -81,7 +118,7 @@ public class InstructorApplicationServiceImpl implements InstructorApplicationSe
     public ApplicationStatus reviewApplication(UUID applicationId, ReviewApplicationRequest request) {
         ApplicationStatus status = request.getStatus();
         InstructorApplication application = instructorApplicationRepository.findById(applicationId)
-                .orElseThrow(() -> new NotFoundException("Application not found"));
+                .orElseThrow(() -> new NotFoundException(MessageConstant.APPLICATION_NOT_FOUND));
         UserInfo userInfo = userInfoService.getUserInfoByUserId(application.getUserId());
         switch (status) {
             case APPROVED:
@@ -108,10 +145,9 @@ public class InstructorApplicationServiceImpl implements InstructorApplicationSe
                 application.setStatus(status);
                 break;
             default:
-                throw new IllegalArgumentException("Invalid status for review");
+                throw new BadRequestException(MessageConstant.INVALID_STATUS_REVIEW_APPLICATION);
         }
         instructorApplicationRepository.save(application);
         return status;
     }
-
 }

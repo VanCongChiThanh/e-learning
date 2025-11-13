@@ -1,21 +1,22 @@
 package com.pbl.elearning.enrollment.payload.request;
 
-import lombok.*;
 import java.util.List;
-import java.util.UUID;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class QuizQuestionAnswerRequest {
-    private UUID quizId;
+public class QuestionCreateRequest {
     private String questionText;
-    
     private List<String> options;
-    
-    private Integer correctAnswerIndex;
-    
-    private Integer points;
+
+    private Integer correctAnswerIndex; 
+
+    private Integer points = 10; 
     private Integer sortOrder;
 }

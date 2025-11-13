@@ -1,6 +1,7 @@
 package com.pbl.elearning.course.service.impl;
 
 import com.github.slugify.Slugify;
+import com.pbl.elearning.common.exception.NotFoundException;
 import com.pbl.elearning.common.payload.general.PageInfo;
 import com.pbl.elearning.course.domain.Course;
 import com.pbl.elearning.course.domain.Tag;
@@ -77,6 +78,7 @@ public class CourseServiceImpl implements CourseService {
 
         Course savedCourse = courseRepository.save(course);
         return CourseResponse.builder()
+                .courseId(savedCourse.getCourseId())
                 .title(savedCourse.getTitle())
                 .description(savedCourse.getDescription())
                 .price(savedCourse.getPrice())
@@ -161,8 +163,15 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public CourseResponse addTagsToCourse(UUID courseId, Set<UUID> tagIds){
         Course course= courseRepository.findById(courseId).orElseThrow(() ->
-                new EntityNotFoundException("Course not found with id: " + courseId));
-        Set<Tag> tagsToAdd = new HashSet<>(tagRepository.findAllById(tagIds));
+                new NotFoundException("Course not found with id: " + courseId));
+        List<Tag> foundTags = tagRepository.findAllById(tagIds);
+        if (foundTags.isEmpty()) {
+            throw new NotFoundException("No tags found with the provided IDs.");
+        }
+        Set<Tag> tagsToAdd = new HashSet<>(foundTags);
+        if (course.getTags() == null) {
+            course.setTags(new HashSet<>());
+        }
         course.getTags().addAll(tagsToAdd);
         Course updatedCourse = courseRepository.save(course);
         return CourseResponse.toCourseResponse(updatedCourse);

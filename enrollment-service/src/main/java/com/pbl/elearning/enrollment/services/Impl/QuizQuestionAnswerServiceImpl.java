@@ -1,20 +1,14 @@
 package com.pbl.elearning.enrollment.services.Impl;
 
-import com.pbl.elearning.enrollment.models.Quiz;
 import com.pbl.elearning.enrollment.models.QuizQuestionAnswer;
-import com.pbl.elearning.enrollment.payload.request.QuizQuestionAnswerRequest;
-import com.pbl.elearning.enrollment.payload.request.BulkQuizQuestionsRequest;
+import com.pbl.elearning.enrollment.payload.request.QuestionCreateRequest;
 import com.pbl.elearning.enrollment.payload.response.QuizQuestionAnswerResponse;
 import com.pbl.elearning.enrollment.repository.QuizQuestionAnswerRepository;
 import com.pbl.elearning.enrollment.services.QuizQuestionAnswerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -25,7 +19,7 @@ public class QuizQuestionAnswerServiceImpl implements QuizQuestionAnswerService 
     private QuizQuestionAnswerResponse mapToResponse(QuizQuestionAnswer entity) {
         return QuizQuestionAnswerResponse.builder()
                 .id(entity.getId())
-                .quizId(entity.getQuiz() != null ? entity.getQuiz().getId() : null)
+                // .quizId(entity.getQuiz() != null ? entity.getQuiz().getId() : null)
                 .questionText(entity.getQuestionText())
                 .options(entity.getOptions())
                 .correctAnswerIndex(entity.getCorrectAnswerIndex())
@@ -36,54 +30,6 @@ public class QuizQuestionAnswerServiceImpl implements QuizQuestionAnswerService 
     }
 
     @Override
-    public QuizQuestionAnswerResponse createQuizQuestionAnswer(UUID quizId, QuizQuestionAnswerRequest request) {
-        UUID actualQuizId = request.getQuizId() != null ? request.getQuizId() : quizId;
-        Quiz quiz = Quiz.builder().id(actualQuizId).build();
-        
-        QuizQuestionAnswer entity = QuizQuestionAnswer.builder()
-                .quiz(quiz)
-                .questionText(request.getQuestionText())
-                .options(request.getOptions())
-                .correctAnswerIndex(request.getCorrectAnswerIndex())
-                .points(request.getPoints())
-                .sortOrder(request.getSortOrder())
-                .createdAt(OffsetDateTime.now())
-                .build();
-
-        QuizQuestionAnswer saved = repository.save(entity);
-        return mapToResponse(saved);
-    }
-
-    @Override
-    @Transactional
-    public List<QuizQuestionAnswerResponse> createBulkQuizQuestions(UUID quizId, BulkQuizQuestionsRequest request) {
-        Quiz quiz = Quiz.builder().id(quizId).build();
-        
-        List<QuizQuestionAnswer> entities = request.getQuestions().stream()
-                .map(questionRequest -> QuizQuestionAnswer.builder()
-                        .quiz(quiz)
-                        .questionText(questionRequest.getQuestionText())
-                        .options(questionRequest.getOptions())
-                        .correctAnswerIndex(questionRequest.getCorrectAnswerIndex())
-                        .points(questionRequest.getPoints())
-                        .sortOrder(questionRequest.getSortOrder())
-                        .createdAt(OffsetDateTime.now())
-                        .build())
-                .collect(Collectors.toList());
-
-        List<QuizQuestionAnswer> savedEntities = repository.saveAll(entities);
-        return savedEntities.stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
-    }    @Override
-    public List<QuizQuestionAnswerResponse> getAllByQuizId(UUID quizId) {
-        return repository.findByQuiz_Id(quizId)
-                .stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
-    }
-
-    @Override
     public QuizQuestionAnswerResponse getById(UUID id) {
         return repository.findById(id)
                 .map(this::mapToResponse)
@@ -91,7 +37,7 @@ public class QuizQuestionAnswerServiceImpl implements QuizQuestionAnswerService 
     }
 
     @Override
-    public QuizQuestionAnswerResponse updateQuizQuestionAnswer(UUID id, QuizQuestionAnswerRequest request) {
+    public QuizQuestionAnswerResponse updateQuizQuestionAnswer(UUID id, QuestionCreateRequest request) {
         QuizQuestionAnswer entity = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("QuizQuestionAnswer not found with id: " + id));
 
@@ -108,5 +54,11 @@ public class QuizQuestionAnswerServiceImpl implements QuizQuestionAnswerService 
     @Override
     public void deleteQuizQuestionAnswer(UUID id) {
         repository.deleteById(id);
+    }
+
+    @Override
+    public List<QuizQuestionAnswerResponse> getAllByQuizId(UUID quizId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getAllByQuizId'");
     }
 }
