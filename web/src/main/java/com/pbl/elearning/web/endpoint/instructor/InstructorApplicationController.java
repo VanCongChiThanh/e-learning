@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.UUID;
 
 @RequestMapping("/v1/instructor/applications")
@@ -45,7 +46,7 @@ public class InstructorApplicationController {
     @ApiOperation("Apply for instructor role")
     @PreAuthorize("hasRole('LEARNER')")
     ResponseEntity<ResponseDataAPI> applyForInstructor(
-            @RequestBody ApplyInstructorRequest applyInstructorRequest,
+            @Valid @RequestBody ApplyInstructorRequest applyInstructorRequest,
             @CurrentUser UserPrincipal userPrincipal
             ) {
         return ResponseEntity.ok(ResponseDataAPI.successWithoutMeta(
@@ -64,7 +65,7 @@ public class InstructorApplicationController {
     @ApiOperation("Review instructor application")
     ResponseEntity<ResponseDataAPI> reviewApplication(
             @PathVariable("applicationId") UUID applicationId,
-            @RequestBody ReviewApplicationRequest reviewRequest
+            @Valid @RequestBody ReviewApplicationRequest reviewRequest
     ) {
         return ResponseEntity.ok(ResponseDataAPI.successWithoutMeta(
                 instructorApplicationService.reviewApplication(applicationId, reviewRequest)));

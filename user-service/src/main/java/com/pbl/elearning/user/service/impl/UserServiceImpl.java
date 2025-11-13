@@ -99,7 +99,6 @@ public class UserServiceImpl implements UserService {
     } catch (RuntimeException ex) {
       throw new InternalServerException(MessageConstant.CHANGE_CREDENTIAL_FAIL);
     }
-
     return ResponseDataAPI.success(null, null);
   }
 
