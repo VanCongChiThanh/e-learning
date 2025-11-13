@@ -13,14 +13,10 @@ import javax.validation.constraints.NotBlank;
 @Setter
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class ApplyInstructorRequest {
-    @NotBlank
-    private String cvUrl;
+    @NotBlank @URL private String cvUrl;
 
-    @NotBlank
-    @URL(message = "portfolio_link must be a valid URL")
-    private String portfolioLink;
+    @NotBlank @URL private String portfolioLink;
 
-    @NotBlank
     private String motivation;
 
     private JsonNode extraInfo;

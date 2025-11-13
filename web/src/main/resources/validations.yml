@@ -212,15 +212,6 @@ conversation_request:
     size:
       code: VAL.CON0102
       message: Name size must be between 1 and 100
-#ConversationFullRequest
-conversation_full_request:
-  name:
-    not_blank:
-      code: VAL.CON0101
-      message: Name must not be blank
-    size:
-      code: VAL.CON0102
-      message: Name size must be between 1 and 100
   construction_id:
     not_null:
       code: VAL.CON0201
@@ -237,3 +228,19 @@ add_user_request:
     not_null:
       code: VAL.ACR0101
       message: User Ids not be null
+#ApplicationInstructorRequest
+apply_instructor_request:
+  cv_url:
+    not_blank:
+      code: VAL.AIR0101
+      message: CV URL must not be blank
+    url:
+      code: VAL.AIR0102
+      message: CV URL must be a well-formed URL
+  portfolio_link:
+    not_blank:
+      code: VAL.AIR0201
+      message: Portfolio link must not be blank
+    url:
+      code: VAL.AIR0202
+      message: Portfolio link must be a well-formed URL
