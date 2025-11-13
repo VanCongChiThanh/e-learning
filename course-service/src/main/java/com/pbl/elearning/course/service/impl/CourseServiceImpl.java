@@ -78,6 +78,7 @@ public class CourseServiceImpl implements CourseService {
 
         Course savedCourse = courseRepository.save(course);
         return CourseResponse.builder()
+                .courseId(savedCourse.getCourseId())
                 .title(savedCourse.getTitle())
                 .description(savedCourse.getDescription())
                 .price(savedCourse.getPrice())
