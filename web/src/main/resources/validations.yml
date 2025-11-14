@@ -244,3 +244,13 @@ apply_instructor_request:
     url:
       code: VAL.AIR0202
       message: Portfolio link must be a well-formed URL
+#CourseRequest
+course_request:
+  title:
+    not_blank:
+      code: VAL.CR0101
+      message: Title must not be blank
+  category:
+    not_null:
+      code: VAL.CR0102
+      message: Category must not be null
