@@ -1,6 +1,7 @@
 package com.pbl.elearning.enrollment.repository;
 
 import com.pbl.elearning.enrollment.models.Enrollment;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -11,8 +12,7 @@ import java.util.UUID;
 
 public interface EnrollmentRepository extends JpaRepository<Enrollment, UUID> {
     
-    @Query("SELECT e FROM Enrollment e WHERE e.user.id = :userId")
-    List<Enrollment> findByUserId(@Param("userId") UUID userId);
+    List<Enrollment> findByUser_UserId(UUID userId);
     
     @Query("SELECT e FROM Enrollment e WHERE e.course.courseId = :courseId")
     List<Enrollment> findByCourseId(@Param("courseId") UUID courseId);

@@ -6,6 +6,7 @@ import com.pbl.elearning.common.payload.general.PageInfo;
 import com.pbl.elearning.common.payload.general.ResponseDataAPI;
 import com.pbl.elearning.course.domain.Course;
 import com.pbl.elearning.course.payload.request.CourseRequest;
+import com.pbl.elearning.course.payload.response.CourseResponeInstructor;
 import com.pbl.elearning.course.payload.response.CourseResponse;
 import com.pbl.elearning.course.service.CourseService;
 import com.pbl.elearning.security.annotation.CurrentUser;
@@ -217,4 +218,15 @@ public class CourseController {
                                 .data(courseService.getCoursesByInstructorId(instructorId))
                                 .build());
         }
+
+        @GetMapping("/with-instructor-info/{courseId}")
+                public ResponseEntity<ResponseDataAPI> getCourseInstructorById(
+                                @PathVariable("courseId") UUID courseId) {
+                        CourseResponeInstructor courseResponse = courseService.getCourseInstructorById(courseId);
+
+                        return ResponseEntity.ok(ResponseDataAPI.builder()
+                                        .status(CommonConstant.SUCCESS)
+                                        .data(courseResponse)
+                                        .build());
+                }
 }

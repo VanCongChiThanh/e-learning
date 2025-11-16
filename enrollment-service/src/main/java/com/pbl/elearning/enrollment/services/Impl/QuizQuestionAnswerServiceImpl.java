@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -58,7 +59,10 @@ public class QuizQuestionAnswerServiceImpl implements QuizQuestionAnswerService 
 
     @Override
     public List<QuizQuestionAnswerResponse> getAllByQuizId(UUID quizId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAllByQuizId'");
+        List<QuizQuestionAnswer> entities = repository.findAllByQuizId(quizId);
+
+        return entities.stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
     }
 }

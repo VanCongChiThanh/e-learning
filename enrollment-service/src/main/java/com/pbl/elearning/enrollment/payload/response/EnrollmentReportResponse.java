@@ -12,6 +12,8 @@ public class EnrollmentReportResponse {
     private UUID enrollmentId;
     private UUID userId;
     private String userEmail;
+    private String userFullName;
+    private String avatar;
     private UUID courseId;
     private String courseTitle;
     private String enrollmentStatus;

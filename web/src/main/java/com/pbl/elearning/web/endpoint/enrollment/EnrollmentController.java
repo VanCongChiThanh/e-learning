@@ -6,6 +6,9 @@ import com.pbl.elearning.enrollment.payload.request.UpdateEnrollmentRequest;
 import com.pbl.elearning.enrollment.payload.response.EnrollmentResponse;
 import com.pbl.elearning.enrollment.payload.response.EnrollmentReportResponse;
 import com.pbl.elearning.enrollment.services.EnrollmentService;
+import com.pbl.elearning.user.payload.response.UserInfoResponse;
+import com.pbl.elearning.course.payload.response.CourseResponse;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,11 +28,12 @@ public class EnrollmentController {
     public EnrollmentController(EnrollmentService enrollmentService) {
         this.enrollmentService = enrollmentService;
     }
+    
     private EnrollmentResponse toResponse(Enrollment enrollment) {
         return EnrollmentResponse.builder()
                 .id(enrollment.getId())
-                .userId(enrollment.getUser() != null ? enrollment.getUser().getId() : null)
-                .courseId(enrollment.getCourse() != null ? enrollment.getCourse().getCourseId() : null)
+                .user(enrollment.getUser() != null ? UserInfoResponse.toResponse(enrollment.getUser()) : null)
+                .course(enrollment.getCourse() != null ? CourseResponse.toCourseResponse(enrollment.getCourse()) : null)
                 .enrollmentDate(enrollment.getEnrollmentDate())
                 .completionDate(enrollment.getCompletionDate())
                 .progressPercentage(enrollment.getProgressPercentage())
@@ -38,7 +42,7 @@ public class EnrollmentController {
                 .lastAccessedAt(enrollment.getLastAccessedAt())
                 .build();
     }
-
+    
     @PostMapping
     public ResponseEntity<EnrollmentResponse> createEnrollment(@RequestBody EnrollmentRequest request) {
         Enrollment enrollment = enrollmentService.createEnrollment(request);
@@ -80,7 +84,6 @@ public class EnrollmentController {
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<EnrollmentResponse>> getEnrollmentsByUserId(@PathVariable UUID userId) {
-        System.out.println("Fetching enrollments for userId: " + userId);
         List<EnrollmentResponse> responses = enrollmentService.getEnrollmentsByUserId(userId)
                 .stream()
                 .map(this::toResponse)
