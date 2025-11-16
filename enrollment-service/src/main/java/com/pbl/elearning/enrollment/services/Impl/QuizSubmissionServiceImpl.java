@@ -71,6 +71,7 @@ public class QuizSubmissionServiceImpl implements QuizSubmissionService {
 
         int totalScore = 0;
         int maxPossibleScore = 0;
+        double percent = 0.0F;
         List<QuizAnswer> studentAnswers = new ArrayList<>();
 
         for (QuizAnswerRequest ansDto : dto.getAnswers()) {
@@ -99,11 +100,11 @@ public class QuizSubmissionServiceImpl implements QuizSubmissionService {
             
             studentAnswers.add(studentAnswer);
         }
-
+        percent = maxPossibleScore > 0 ? (((double) totalScore / maxPossibleScore) * 100) : 0;
         submission.setTotalScore(totalScore);
         submission.setMaxPossibleScore(maxPossibleScore);
-        submission.setScorePercentage(maxPossibleScore > 0 ? ((double) totalScore / maxPossibleScore) * 100 : 0);
-        submission.setIsPassed(totalScore >= quiz.getPassingScore());
+        submission.setScorePercentage(percent);
+        submission.setIsPassed(percent >= quiz.getPassingScore());
         submission.setIsCompleted(true);
         submission.setAnswers(studentAnswers); 
         QuizSubmission savedSubmission = quizSubmissionRepository.save(submission);

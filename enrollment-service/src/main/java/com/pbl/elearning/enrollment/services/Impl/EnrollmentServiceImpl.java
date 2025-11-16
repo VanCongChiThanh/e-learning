@@ -7,20 +7,23 @@ import com.pbl.elearning.enrollment.payload.request.UpdateEnrollmentRequest;
 import com.pbl.elearning.enrollment.payload.response.EnrollmentReportResponse;
 import com.pbl.elearning.enrollment.repository.*;
 import com.pbl.elearning.enrollment.services.EnrollmentService;
-import com.pbl.elearning.security.domain.User;
+import com.pbl.elearning.user.domain.UserInfo;
 import com.pbl.elearning.course.domain.Course;
+import com.pbl.elearning.course.domain.Lecture;
+import com.pbl.elearning.course.repository.LectureRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import com.pbl.elearning.enrollment.models.EnrollmentCompletedEvent;
+
 import org.springframework.context.ApplicationEventPublisher;  // để inject eventPublisher
-import org.springframework.beans.factory.annotation.Autowired;
 @Service
 public class EnrollmentServiceImpl implements EnrollmentService {
 
@@ -30,6 +33,8 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     private final CertificateRepository certificateRepository;
     private final QuizRepository quizRepository;
     private final AssignmentRepository assignmentRepository;
+    private final LectureRepository lectureRepository;
+    private final ProgressRepository progressRepository;
 
     @Autowired
     private ApplicationEventPublisher eventPublisher;
@@ -40,19 +45,25 @@ public class EnrollmentServiceImpl implements EnrollmentService {
             AssignmentSubmissionRepository assignmentSubmissionRepository,
             CertificateRepository certificateRepository,
             QuizRepository quizRepository,
-            AssignmentRepository assignmentRepository) {
+            AssignmentRepository assignmentRepository,
+            LectureRepository lectureRepository, 
+                    ProgressRepository progressRepository) {
         this.enrollmentRepository = enrollmentRepository;
         this.quizSubmissionRepository = quizSubmissionRepository;
         this.assignmentSubmissionRepository = assignmentSubmissionRepository;
         this.certificateRepository = certificateRepository;
         this.quizRepository = quizRepository;
         this.assignmentRepository = assignmentRepository;
+        this.lectureRepository = lectureRepository;
+        this.progressRepository = progressRepository;
     }
 
+    @Transactional 
     @Override
     public Enrollment createEnrollment(EnrollmentRequest request) {
-        User user = new User();
-        user.setId(request.getUserId());
+        // User user = new User();
+        UserInfo user = new UserInfo();
+        user.setUserId(request.getUserId());
         
         Course course = Course.builder()
                 .courseId(request.getCourseId())
@@ -67,9 +78,31 @@ public class EnrollmentServiceImpl implements EnrollmentService {
                 .totalWatchTimeMinutes(0)
                 .build();
         
-        return enrollmentRepository.save(enrollment);
+        Enrollment savedEnrollment = enrollmentRepository.save(enrollment);
+        
+        List<Lecture> lecturesOfCourse = lectureRepository.findBySection_Course_CourseId(request.getCourseId());
+        
+        if (lecturesOfCourse != null && !lecturesOfCourse.isEmpty()) {
+            List<Progress> newProgresses = new ArrayList<>();
+            OffsetDateTime now = OffsetDateTime.now();
+            
+            for (Lecture lecture : lecturesOfCourse) {
+                Progress progress = Progress.builder()
+                        .enrollment(savedEnrollment) 
+                        .lecture(lecture)            
+                        .isCompleted(false)
+                        .watchTimeMinutes(0)
+                        .createdAt(now)
+                        .updatedAt(now)
+                        .build();
+                newProgresses.add(progress);
+            }
+            
+            progressRepository.saveAll(newProgresses);
+        }
+        
+        return savedEnrollment;
     }
-
 @Override
 public Enrollment updateEnrollment(UUID id, UpdateEnrollmentRequest request) {
     Optional<Enrollment> optionalEnrollment = enrollmentRepository.findById(id);
@@ -127,7 +160,7 @@ public Enrollment updateEnrollment(UUID id, UpdateEnrollmentRequest request) {
 
     @Override
     public List<Enrollment> getEnrollmentsByUserId(UUID userId) {
-        return enrollmentRepository.findByUserId(userId);
+        return enrollmentRepository.findByUser_UserId(userId);
     }
 
     @Override
@@ -153,7 +186,7 @@ public Enrollment updateEnrollment(UUID id, UpdateEnrollmentRequest request) {
 
     @Override
     public List<EnrollmentReportResponse> getEnrollmentReportsByUser(UUID userId) {
-        List<Enrollment> enrollments = enrollmentRepository.findByUserId(userId);
+        List<Enrollment> enrollments = enrollmentRepository.findByUser_UserId(userId);
         return enrollments.stream()
                 .map(this::buildEnrollmentReport)
                 .collect(Collectors.toList());
@@ -161,7 +194,7 @@ public Enrollment updateEnrollment(UUID id, UpdateEnrollmentRequest request) {
 
     private EnrollmentReportResponse buildEnrollmentReport(Enrollment enrollment) {
         UUID courseId = enrollment.getCourse() != null ? enrollment.getCourse().getCourseId() : null;
-        UUID userId = enrollment.getUser() != null ? enrollment.getUser().getId() : null;
+        UUID userId = enrollment.getUser() != null ? enrollment.getUser().getUserId() : null;
         
         List<QuizSubmission> userQuizSubmissions = quizSubmissionRepository.findByEnrollment(enrollment);
         
@@ -198,6 +231,8 @@ public Enrollment updateEnrollment(UUID id, UpdateEnrollmentRequest request) {
                 .enrollmentId(enrollment.getId())
                 .userId(userId)
                 .userEmail(enrollment.getUser() != null ? enrollment.getUser().getEmail() : null)
+                .userFullName(enrollment.getUser().getFirstName() + " " + enrollment.getUser().getLastName())
+                .avatar(enrollment.getUser().getAvatar())
                 .courseId(courseId)
                 .courseTitle(enrollment.getCourse() != null ? enrollment.getCourse().getTitle() : null)
                 .enrollmentStatus(enrollment.getStatus() != null ? enrollment.getStatus().toString() : null)
