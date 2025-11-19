@@ -7,9 +7,8 @@ import com.pbl.elearning.enrollment.payload.response.EnrollmentResponse;
 import com.pbl.elearning.enrollment.payload.response.EnrollmentReportResponse;
 import com.pbl.elearning.enrollment.services.EnrollmentService;
 import com.pbl.elearning.user.payload.response.UserInfoResponse;
-import com.pbl.elearning.course.payload.response.CourseResponse;
+import com.pbl.elearning.course.service.impl.CourseServiceImpl;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,17 +22,20 @@ import java.util.stream.Collectors;
 public class EnrollmentController {
 
     private final EnrollmentService enrollmentService;
+    private final CourseServiceImpl courseService;
 
-    @Autowired
-    public EnrollmentController(EnrollmentService enrollmentService) {
+    public EnrollmentController(EnrollmentService enrollmentService, CourseServiceImpl courseService) {
         this.enrollmentService = enrollmentService;
+        this.courseService = courseService;
     }
-    
+
     private EnrollmentResponse toResponse(Enrollment enrollment) {
         return EnrollmentResponse.builder()
                 .id(enrollment.getId())
                 .user(enrollment.getUser() != null ? UserInfoResponse.toResponse(enrollment.getUser()) : null)
-                .course(enrollment.getCourse() != null ? CourseResponse.toCourseResponse(enrollment.getCourse()) : null)
+                .course(enrollment.getCourse() != null
+                        ? courseService.getCourseInstructorById(enrollment.getCourse().getCourseId())
+                        : null)
                 .enrollmentDate(enrollment.getEnrollmentDate())
                 .completionDate(enrollment.getCompletionDate())
                 .progressPercentage(enrollment.getProgressPercentage())
@@ -42,7 +44,7 @@ public class EnrollmentController {
                 .lastAccessedAt(enrollment.getLastAccessedAt())
                 .build();
     }
-    
+
     @PostMapping
     public ResponseEntity<EnrollmentResponse> createEnrollment(@RequestBody EnrollmentRequest request) {
         Enrollment enrollment = enrollmentService.createEnrollment(request);
@@ -98,9 +100,10 @@ public class EnrollmentController {
                 .stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
-        System.err.println("Found " + responses );
+        System.err.println("Found " + responses);
         return ResponseEntity.ok(responses);
-    }    
+    }
+
     @GetMapping("/{enrollmentId}/report")
     public ResponseEntity<EnrollmentReportResponse> getEnrollmentReport(@PathVariable UUID enrollmentId) {
         EnrollmentReportResponse report = enrollmentService.getEnrollmentReport(enrollmentId);
