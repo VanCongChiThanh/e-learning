@@ -1,9 +1,13 @@
 package com.pbl.elearning.web.endpoint.enrollment;
 
 import com.pbl.elearning.enrollment.models.Quiz;
+import com.pbl.elearning.enrollment.models.QuizQuestionAnswer;
 import com.pbl.elearning.enrollment.payload.request.QuizCreateRequestDTO;
+import com.pbl.elearning.enrollment.payload.response.QuizQuestionAnswerResponse;
 import com.pbl.elearning.enrollment.payload.response.QuizResponse;
+import com.pbl.elearning.enrollment.repository.QuizQuestionAnswerRepository;
 import com.pbl.elearning.enrollment.services.QuizService;
+import com.pbl.elearning.enrollment.services.Impl.QuizQuestionAnswerServiceImpl;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,12 +25,17 @@ import javax.validation.Valid;
 public class QuizController {
 
     private final QuizService quizService;
-
-    public QuizController(QuizService quizService) {
+    private final QuizQuestionAnswerRepository quizQuestionAnswerRepository;
+    public QuizController(QuizService quizService, QuizQuestionAnswerRepository quizQuestionAnswerRepository) {
         this.quizService = quizService;
+        this.quizQuestionAnswerRepository = quizQuestionAnswerRepository;
     }
 
     private QuizResponse toResponse(Quiz quiz) {
+        List<QuizQuestionAnswer> questionAnswer = quizQuestionAnswerRepository.findByQuiz(quiz);
+        List<QuizQuestionAnswerResponse> questionAnswerResponse = questionAnswer.stream()
+                .map(QuizQuestionAnswerServiceImpl::mapToResponse)
+                .collect(Collectors.toList());
         return QuizResponse.builder()
                 .id(quiz.getId())
                 .lectureId(quiz.getLecture() != null ? quiz.getLecture().getLectureId() : null)
@@ -38,6 +47,7 @@ public class QuizController {
                 .isActive(quiz.getIsActive())
                 .numberQuestions(quiz.getNumberQuestions())
                 .createdAt(quiz.getCreatedAt())
+                .questions(questionAnswerResponse)
                 .build();
     }
 
