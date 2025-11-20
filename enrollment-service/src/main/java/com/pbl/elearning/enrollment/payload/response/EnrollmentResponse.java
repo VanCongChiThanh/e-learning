@@ -6,7 +6,7 @@ import com.pbl.elearning.user.payload.response.UserInfoResponse;
 
 import lombok.*;
 
-import java.time.OffsetDateTime;
+import java.sql.Timestamp;
 import java.util.UUID;
 
 @Data
@@ -17,10 +17,10 @@ public class EnrollmentResponse {
     private UUID id;
     private UserInfoResponse user;
     private CourseResponeInstructor course;
-    private OffsetDateTime enrollmentDate;
-    private OffsetDateTime completionDate;
+    private Timestamp enrollmentDate;
+    private Timestamp completionDate;
     private Double progressPercentage;
     private EnrollmentStatus status;
     private Integer totalWatchTimeMinutes;
-    private OffsetDateTime lastAccessedAt;
+    private Timestamp lastAccessedAt;
 }

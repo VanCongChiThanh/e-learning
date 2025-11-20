@@ -12,6 +12,7 @@ import com.pbl.elearning.course.service.impl.CourseServiceImpl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -36,13 +37,18 @@ public class EnrollmentController {
                 .course(enrollment.getCourse() != null
                         ? courseService.getCourseInstructorById(enrollment.getCourse().getCourseId())
                         : null)
-                .enrollmentDate(enrollment.getEnrollmentDate())
-                .completionDate(enrollment.getCompletionDate())
+                // convert LocalDateTime to Timestamp safely (fields may be null)
+                .enrollmentDate(toTimestamp(enrollment.getEnrollmentDate()))
+                .completionDate(toTimestamp(enrollment.getCompletionDate()))
                 .progressPercentage(enrollment.getProgressPercentage())
                 .status(enrollment.getStatus())
                 .totalWatchTimeMinutes(enrollment.getTotalWatchTimeMinutes())
-                .lastAccessedAt(enrollment.getLastAccessedAt())
+                .lastAccessedAt(toTimestamp(enrollment.getLastAccessedAt()))
                 .build();
+    }
+
+    private Timestamp toTimestamp(java.time.LocalDateTime dateTime) {
+        return dateTime != null ? Timestamp.valueOf(dateTime) : null;
     }
 
     @PostMapping
