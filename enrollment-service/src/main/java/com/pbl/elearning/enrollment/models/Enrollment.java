@@ -6,7 +6,7 @@ import com.pbl.elearning.course.domain.Course;
 import lombok.*;
 
 import javax.persistence.*;
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Data
@@ -15,7 +15,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Entity
 @Table(name = "enrollments", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"userId", "courseId"})
+        @UniqueConstraint(columnNames = { "userId", "courseId" })
 })
 public class Enrollment {
     @Id
@@ -23,19 +23,15 @@ public class Enrollment {
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(
-        name = "userId", 
-        referencedColumnName = "user_id", 
-        nullable = false
-    )
+    @JoinColumn(name = "userId", referencedColumnName = "user_id", nullable = false)
     private UserInfo user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "courseId", nullable = false)
     private Course course;
 
-    private OffsetDateTime enrollmentDate;
-    private OffsetDateTime completionDate;
+    private LocalDateTime enrollmentDate;
+    private LocalDateTime completionDate;
 
     @Column(precision = 5, scale = 2)
     private Double progressPercentage;
@@ -44,5 +40,5 @@ public class Enrollment {
     private EnrollmentStatus status;
 
     private Integer totalWatchTimeMinutes;
-    private OffsetDateTime lastAccessedAt;
+    private LocalDateTime lastAccessedAt;
 }

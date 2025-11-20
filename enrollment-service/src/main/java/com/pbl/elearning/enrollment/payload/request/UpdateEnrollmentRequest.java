@@ -3,16 +3,16 @@ package com.pbl.elearning.enrollment.payload.request;
 import com.pbl.elearning.enrollment.Enum.EnrollmentStatus;
 import lombok.*;
 
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateEnrollmentRequest {
-    private Double progressPercentage;      
-    private EnrollmentStatus status;         
-    private OffsetDateTime completionDate;  
-    private Integer totalWatchTimeMinutes;   
-    private OffsetDateTime lastAccessedAt;   
+    private Double progressPercentage;
+    private EnrollmentStatus status;
+    private LocalDateTime completionDate;
+    private Integer totalWatchTimeMinutes;
+    private LocalDateTime lastAccessedAt;
 }
