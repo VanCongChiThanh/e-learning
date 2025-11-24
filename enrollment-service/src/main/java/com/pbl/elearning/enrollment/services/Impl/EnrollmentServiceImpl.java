@@ -1,6 +1,6 @@
 package com.pbl.elearning.enrollment.services.Impl;
 
-import com.pbl.elearning.enrollment.Enum.EnrollmentStatus;
+import com.pbl.elearning.enrollment.enums.EnrollmentStatus;
 import com.pbl.elearning.enrollment.models.*;
 import com.pbl.elearning.enrollment.payload.request.EnrollmentRequest;
 import com.pbl.elearning.enrollment.payload.request.UpdateEnrollmentRequest;

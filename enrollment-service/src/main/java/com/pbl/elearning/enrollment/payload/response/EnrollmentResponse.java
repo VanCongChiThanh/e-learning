@@ -1,7 +1,7 @@
 package com.pbl.elearning.enrollment.payload.response;
 
 import com.pbl.elearning.course.payload.response.CourseResponeInstructor;
-import com.pbl.elearning.enrollment.Enum.EnrollmentStatus;
+import com.pbl.elearning.enrollment.enums.EnrollmentStatus;
 import com.pbl.elearning.user.payload.response.UserInfoResponse;
 
 import lombok.*;

@@ -1,6 +1,6 @@
 package com.pbl.elearning.enrollment.models;
 
-import com.pbl.elearning.enrollment.Enum.EnrollmentStatus;
+import com.pbl.elearning.enrollment.enums.EnrollmentStatus;
 import com.pbl.elearning.user.domain.UserInfo;
 import com.pbl.elearning.course.domain.Course;
 import lombok.*;

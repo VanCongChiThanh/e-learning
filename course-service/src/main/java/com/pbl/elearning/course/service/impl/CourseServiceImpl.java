@@ -111,37 +111,6 @@ public class CourseServiceImpl implements CourseService {
         }
 
         @Override
-        public Page<CourseResponeInstructor> courseUserNotPurchasesResponse(
-                        UUID userId, Pageable pageable, Specification<Course> spec) {
-
-                Specification<Course> finalSpec = Specification
-                                .where(CourseSpec.userNotPurchased(userId))
-                                .and(spec);
-
-                Page<Course> coursePage = courseRepository.findAll(finalSpec, pageable);
-
-                return coursePage.map(course -> {
-                        UserInfo userInfo = userInfoService.getUserInfoByUserId(course.getInstructorId());
-                        UserInfoResponse instructorResponse = UserInfoResponse.toResponse(userInfo);
-
-                        return CourseResponeInstructor.builder()
-                                        .courseId(course.getCourseId())
-                                        .title(course.getTitle())
-                                        .slug(course.getSlug())
-                                        .description(course.getDescription())
-                                        .price(course.getPrice())
-                                        .status(course.getCourseStatus())
-                                        .level(course.getLevel())
-                                        .instructor(instructorResponse)
-                                        .category(course.getCategory())
-                                        .image(course.getImage())
-                                        .createdAt(course.getCreatedAt())
-                                        .deletedAt(course.getDeletedAt())
-                                        .build();
-                });
-        }
-
-        @Override
         public CourseResponse getCourseById(UUID courseId) {
                 Course course = courseRepository.findById(courseId).orElseThrow(
                                 () -> new EntityNotFoundException("Course not found with id: " + courseId));

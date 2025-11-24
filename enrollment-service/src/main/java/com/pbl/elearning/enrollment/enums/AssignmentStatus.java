@@ -1,4 +1,4 @@
-package com.pbl.elearning.enrollment.Enum;
+package com.pbl.elearning.enrollment.enums;
 
 public enum AssignmentStatus {
     ACTIVE, INACTIVE, CLOSED

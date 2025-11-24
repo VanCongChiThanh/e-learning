@@ -2,7 +2,7 @@ package com.pbl.elearning.enrollment.models;
 
 import javax.persistence.*;
 
-import com.pbl.elearning.enrollment.Enum.AssignmentStatus;
+import com.pbl.elearning.enrollment.enums.AssignmentStatus;
 import com.pbl.elearning.course.domain.Course;
 import lombok.*;
 import java.time.OffsetDateTime;

@@ -55,7 +55,7 @@ public class AssignmentSubmissionServiceImpl implements AssignmentSubmissionServ
                 .enrollment(enrollment)
                 .submissionText(request.getSubmissionText())
                 .fileId(request.getFileId())
-                .status(request.getStatus() != null ? request.getStatus() : com.pbl.elearning.enrollment.Enum.SubmissionStatus.SUBMITTED)
+                .status(request.getStatus() != null ? request.getStatus() : com.pbl.elearning.enrollment.enums.SubmissionStatus.SUBMITTED)
                 .submittedAt(OffsetDateTime.now())
                 .build();
 
@@ -98,7 +98,7 @@ public class AssignmentSubmissionServiceImpl implements AssignmentSubmissionServ
         submission.setFeedback(feedback);
         submission.setGradedBy(gradedByUser);
         submission.setGradedAt(OffsetDateTime.now());
-        submission.setStatus(com.pbl.elearning.enrollment.Enum.SubmissionStatus.GRADED);
+        submission.setStatus(com.pbl.elearning.enrollment.enums.SubmissionStatus.GRADED);
 
         AssignmentSubmission updated = repository.save(submission);
         return mapToResponse(updated);

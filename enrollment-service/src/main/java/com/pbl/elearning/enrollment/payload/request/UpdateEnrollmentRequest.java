@@ -1,6 +1,6 @@
 package com.pbl.elearning.enrollment.payload.request;
 
-import com.pbl.elearning.enrollment.Enum.EnrollmentStatus;
+import com.pbl.elearning.enrollment.enums.EnrollmentStatus;
 import lombok.*;
 
 import java.time.LocalDateTime;

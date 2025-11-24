@@ -1,6 +1,6 @@
 package com.pbl.elearning.enrollment.services.Impl;
 
-import com.pbl.elearning.enrollment.Enum.AssignmentStatus;
+import com.pbl.elearning.enrollment.enums.AssignmentStatus;
 import com.pbl.elearning.enrollment.models.Assignment;
 import com.pbl.elearning.enrollment.payload.request.AssignmentRequest;
 import com.pbl.elearning.enrollment.payload.response.AssignmentResponse;
@@ -35,11 +35,11 @@ public class AssignmentServiceImpl implements AssignmentService {
     @Override
     public AssignmentResponse createAssignment(AssignmentRequest request) {
         System.out.println("request " + request);
-        
+
         Course course = Course.builder()
                 .courseId(request.getCourseId())
                 .build();
-        
+
         Assignment assignment = Assignment.builder()
                 .course(course)
                 .title(request.getTitle())
