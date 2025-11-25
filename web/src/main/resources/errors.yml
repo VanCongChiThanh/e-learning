@@ -266,8 +266,28 @@ motivation_too_short:
   code: ERR.MTS
   message: Motivation is too short
 application_cooldown:
-    code: ERR.AC
-    message: You have recently applied for instructor role. Please wait before applying again
+  code: ERR.AC
+  message: You have recently applied for instructor role. Please wait before applying again
 invalid_status_for_review_application:
-    code: ERR.ISRAA
-    message: Invalid status for reviewing application
+  code: ERR.ISRAA
+  message: Invalid status for reviewing application
+
+#Quiz
+quiz_not_found:
+  code: ERR.QZ0101
+  message: Quiz not found!
+max_attempts_exceeded:
+  code: ERR.QZ0201
+  message: You have exceeded the maximum number of attempts for this quiz!
+enrollment_not_found:
+  code: ERR.EL0101
+  message: Enrollment not found!
+quiz_submission_not_found:
+  code: ERR.QSZ0101
+  message: Quiz submission not found!
+illegal_quiz_submission_state:
+  code: ERR.QSZ0201
+  message: Illegal quiz submission state!
+question_not_found:
+  code: ERR.QS0101
+  message: Question not found!

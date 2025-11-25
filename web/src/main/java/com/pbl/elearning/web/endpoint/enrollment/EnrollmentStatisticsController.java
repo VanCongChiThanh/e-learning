@@ -35,7 +35,7 @@ public class EnrollmentStatisticsController {
                 .average()
                 .orElse(0.0),
             "totalWatchTime", reports.stream()
-                .mapToInt(r -> r.getTotalWatchTimeMinutes() != null ? r.getTotalWatchTimeMinutes() : 0)
+                .mapToDouble(r -> r.getTotalWatchTimeMinutes() != null ? r.getTotalWatchTimeMinutes() : 0.0)
                 .sum(),
             "averageQuizScore", reports.stream()
                 .mapToDouble(r -> r.getAverageQuizScore() != null ? r.getAverageQuizScore() : 0.0)
@@ -69,7 +69,7 @@ public class EnrollmentStatisticsController {
                 .mapToLong(r -> "ACTIVE".equals(r.getEnrollmentStatus()) ? 1 : 0)
                 .sum(),
             "totalWatchTime", reports.stream()
-                .mapToInt(r -> r.getTotalWatchTimeMinutes() != null ? r.getTotalWatchTimeMinutes() : 0)
+                .mapToDouble(r -> r.getTotalWatchTimeMinutes() != null ? r.getTotalWatchTimeMinutes() : 0.0)
                 .sum(),
             "totalQuizzesCompleted", reports.stream()
                 .mapToInt(r -> r.getCompletedQuizzes() != null ? r.getCompletedQuizzes() : 0)

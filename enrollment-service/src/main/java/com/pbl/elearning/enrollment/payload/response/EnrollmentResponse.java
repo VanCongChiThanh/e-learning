@@ -21,6 +21,6 @@ public class EnrollmentResponse {
     private Timestamp completionDate;
     private Double progressPercentage;
     private EnrollmentStatus status;
-    private Integer totalWatchTimeMinutes;
+    private Double totalWatchTimeMinutes;
     private Timestamp lastAccessedAt;
 }

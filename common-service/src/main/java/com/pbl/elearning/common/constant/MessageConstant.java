@@ -1,5 +1,7 @@
 package com.pbl.elearning.common.constant;
 
+import org.aspectj.weaver.patterns.TypePatternQuestions.Question;
+
 public final class MessageConstant {
 
   public static final String USER_NOT_FOUND = "user_not_found";
@@ -67,5 +69,15 @@ public final class MessageConstant {
   public static final String APPLICATION_COOLDOWN = "application_cooldown";
   public static final String INVALID_STATUS_REVIEW_APPLICATION = "invalid_status_for_review_application";
   public static final String APPLICATION_NOT_FOUND = "application_not_found";
+
+  // Quiz
+  public static final String QUIZ_NOT_FOUND = "quiz_not_found";
+  public static final String QUIZ_SUBMISSION_NOT_FOUND = "quiz_submission_not_found";
+  public static final String QUIZ_ATTEMPT_EXCEEDED = "max_attempts_exceeded";
+  public static final String ENROLLMENT_NOT_FOUND = "enrollment_not_found";
+  public static final String ILLEGAL_QUIZ_SUBMISSION_STATE = "illegal_quiz_submission_state";
+  public static final String QUESTION_NOT_FOUND = "question_not_found";
+
+
   private MessageConstant() {}
 }

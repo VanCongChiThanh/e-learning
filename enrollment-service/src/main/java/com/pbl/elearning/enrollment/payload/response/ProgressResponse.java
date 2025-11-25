@@ -2,6 +2,7 @@ package com.pbl.elearning.enrollment.payload.response;
 
 import lombok.*;
 
+import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -14,7 +15,7 @@ public class ProgressResponse {
     private UUID enrollmentId;        
     private UUID lectureId;            
     private Boolean isCompleted;      
-    private Integer watchTimeMinutes;  
+    private LocalTime lastViewedAt;  
     private OffsetDateTime completionDate; 
     private OffsetDateTime createdAt;  
     private OffsetDateTime updatedAt; 
