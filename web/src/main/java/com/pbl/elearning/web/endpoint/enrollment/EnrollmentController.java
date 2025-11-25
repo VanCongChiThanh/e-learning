@@ -1,5 +1,6 @@
 package com.pbl.elearning.web.endpoint.enrollment;
 
+import com.pbl.elearning.common.payload.general.ResponseDataAPI;
 import com.pbl.elearning.enrollment.models.Enrollment;
 import com.pbl.elearning.enrollment.payload.request.EnrollmentRequest;
 import com.pbl.elearning.enrollment.payload.request.UpdateEnrollmentRequest;
@@ -9,6 +10,11 @@ import com.pbl.elearning.enrollment.services.EnrollmentService;
 import com.pbl.elearning.user.payload.response.UserInfoResponse;
 import com.pbl.elearning.course.service.impl.CourseServiceImpl;
 
+import com.pbl.elearning.security.annotation.CurrentUser;
+import com.pbl.elearning.security.domain.UserPrincipal;
+import com.pbl.elearning.security.annotation.CurrentUser;
+import com.pbl.elearning.security.domain.UserPrincipal;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -126,5 +132,14 @@ public class EnrollmentController {
     public ResponseEntity<List<EnrollmentReportResponse>> getEnrollmentReportsByUser(@PathVariable UUID userId) {
         List<EnrollmentReportResponse> reports = enrollmentService.getEnrollmentReportsByUser(userId);
         return ResponseEntity.ok(reports);
+    }
+
+    @GetMapping("/courses/{courseId}/check-exists-enrollment")
+    public ResponseEntity<ResponseDataAPI> checkExistsEnrollment(@PathVariable("courseId") UUID courseId,
+                                                                 @CurrentUser UserPrincipal userPrincipal){
+        UUID userId = userPrincipal.getId();
+        Boolean check = enrollmentService.checkExistsByUserId(userId, courseId);
+        return ResponseEntity.ok(ResponseDataAPI.successWithoutMeta(check));
+
     }
 }
