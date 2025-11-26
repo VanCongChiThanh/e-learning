@@ -275,4 +275,12 @@ public class CourseServiceImpl implements CourseService {
                                 .build();
         }
 
+        @Override
+        public List<CourseResponse> getCoursesByListIds(List<UUID> courseIds) {
+                List<Course> courses = courseRepository.findAllById(courseIds);
+                return courses.stream()
+                                .map(CourseResponse::toCourseResponse)
+                                .toList();
+        }
+
 }

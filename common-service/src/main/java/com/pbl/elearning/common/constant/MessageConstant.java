@@ -67,5 +67,6 @@ public final class MessageConstant {
   public static final String APPLICATION_COOLDOWN = "application_cooldown";
   public static final String INVALID_STATUS_REVIEW_APPLICATION = "invalid_status_for_review_application";
   public static final String APPLICATION_NOT_FOUND = "application_not_found";
+    public static final String BAD_REQUEST = "bad_request";
   private MessageConstant() {}
 }
