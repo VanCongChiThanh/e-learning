@@ -271,3 +271,8 @@ application_cooldown:
 invalid_status_for_review_application:
     code: ERR.ISRAA
     message: Invalid status for reviewing application
+
+#common
+bad_request:
+  code: ERR.BR
+  message: Bad request
