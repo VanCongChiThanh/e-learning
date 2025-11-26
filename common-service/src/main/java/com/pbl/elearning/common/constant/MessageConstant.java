@@ -79,5 +79,6 @@ public final class MessageConstant {
   public static final String QUESTION_NOT_FOUND = "question_not_found";
 
 
+    public static final String BAD_REQUEST = "bad_request";
   private MessageConstant() {}
 }
