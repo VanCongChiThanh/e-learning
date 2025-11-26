@@ -2,6 +2,7 @@ package com.pbl.elearning.enrollment.payload.request;
 
 import lombok.*;
 
+import java.time.LocalTime;
 import java.time.OffsetDateTime;
 
 @Data
@@ -10,6 +11,6 @@ import java.time.OffsetDateTime;
 @AllArgsConstructor
 public class UpdateProgressRequest {
     private Boolean isCompleted;       
-    private Integer watchTimeMinutes; 
+    private LocalTime lastViewedAt; 
     private OffsetDateTime completionDate;
 }

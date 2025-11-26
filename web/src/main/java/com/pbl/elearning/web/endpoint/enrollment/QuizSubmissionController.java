@@ -23,13 +23,8 @@ public class QuizSubmissionController {
 
     @PostMapping("/submit")
     public ResponseEntity<QuizSubmissionResponse> submitQuiz(@RequestBody QuizSubmissionRequest request, @CurrentUser UserPrincipal userPrincipal) {
-        UUID currentUserId = userPrincipal.getId();
-        try {
-            QuizSubmissionResponse result = quizSubmissionService.submitQuiz(request, currentUserId);
+            QuizSubmissionResponse result = quizSubmissionService.submitQuiz(request, userPrincipal);
             return ResponseEntity.ok(result);
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        } 
     }
 
     @GetMapping("/{id}")

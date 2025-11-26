@@ -2,12 +2,17 @@ package com.pbl.elearning.web.endpoint.enrollment;
 
 import com.pbl.elearning.enrollment.models.Progress;
 import com.pbl.elearning.enrollment.payload.request.CreateProgressRequest;
-import com.pbl.elearning.enrollment.payload.request.UpdateProgressRequest;
+import com.pbl.elearning.enrollment.payload.request.UpdateLectureProgressRequest;
 import com.pbl.elearning.enrollment.payload.response.ProgressResponse;
+import com.pbl.elearning.enrollment.payload.response.RecentLearningResponse;
+import com.pbl.elearning.enrollment.payload.response.LectureProgressUpdateResponse;
+import com.pbl.elearning.enrollment.payload.response.EnrollmentProgressSummaryResponse;
 import com.pbl.elearning.enrollment.services.ProgressService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 import java.util.List;
 import java.util.Optional;
@@ -29,7 +34,7 @@ public class ProgressController {
                 .enrollmentId(progress.getEnrollment().getId())
                 .lectureId(progress.getLecture() != null ? progress.getLecture().getLectureId() : null)
                 .isCompleted(progress.getIsCompleted())
-                .watchTimeMinutes(progress.getWatchTimeMinutes())
+                .lastViewedAt(progress.getLastViewedAt())
                 .completionDate(progress.getCompletionDate())
                 .createdAt(progress.getCreatedAt())
                 .updatedAt(progress.getUpdatedAt())
@@ -40,15 +45,6 @@ public class ProgressController {
     public ResponseEntity<ProgressResponse> createProgress(@RequestBody CreateProgressRequest request){
         Progress progress = progressService.createProgress(request);
         return ResponseEntity.ok(toResponse(progress));
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<ProgressResponse> updateProgress(@PathVariable UUID id, @RequestBody UpdateProgressRequest request){
-        Progress progress = progressService.updateProgress(id, request);
-        if (progress != null) {
-            return ResponseEntity.ok(toResponse(progress));
-        }
-        return ResponseEntity.notFound().build();
     }
 
     @GetMapping("/{id}")
@@ -95,5 +91,52 @@ public class ProgressController {
     public ResponseEntity<List<ProgressResponse>> getProgressResponsesByEnrollmentId(@PathVariable UUID id) {
         List<ProgressResponse> responses = progressService.getProgressResponsesByEnrollmentId(id);
         return ResponseEntity.ok(responses);
+    }
+    @PutMapping("/lecture-progress")
+    public ResponseEntity<LectureProgressUpdateResponse> updateLectureProgress(
+            @Valid @RequestBody UpdateLectureProgressRequest request) {
+            LectureProgressUpdateResponse response = progressService.updateLectureProgress(request);
+            return ResponseEntity.ok(response);
+    }
+    
+    @PutMapping("/enrollment/{enrollmentId}/recalculate")
+    public ResponseEntity<Void> recalculateEnrollmentProgress(@PathVariable UUID enrollmentId) {
+        try {
+            progressService.updateEnrollmentProgress(enrollmentId);
+            return ResponseEntity.ok().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+    
+    @PutMapping("/enrollment/batch-recalculate")
+    public ResponseEntity<Void> recalculateEnrollmentProgressBatch(@RequestBody List<UUID> enrollmentIds) {
+        try {
+            progressService.updateEnrollmentProgressBatch(enrollmentIds);
+            return ResponseEntity.ok().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+    
+    @GetMapping("/enrollment/{enrollmentId}/summary")
+    public ResponseEntity<EnrollmentProgressSummaryResponse> getEnrollmentProgressSummary(
+            @PathVariable UUID enrollmentId) {
+        try {
+            EnrollmentProgressSummaryResponse response = progressService.getEnrollmentProgressSummary(enrollmentId);
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+    
+    @GetMapping("/enrollment/{enrollmentId}/recent-learning")
+    public ResponseEntity<RecentLearningResponse> getRecentLearning(@PathVariable UUID enrollmentId) {
+        try {
+            RecentLearningResponse response = progressService.getRecentLearningByEnrollmentId(enrollmentId);
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 }

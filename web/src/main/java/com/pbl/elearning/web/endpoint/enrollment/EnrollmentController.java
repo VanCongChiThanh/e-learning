@@ -2,7 +2,6 @@ package com.pbl.elearning.web.endpoint.enrollment;
 
 import com.pbl.elearning.enrollment.models.Enrollment;
 import com.pbl.elearning.enrollment.payload.request.EnrollmentRequest;
-import com.pbl.elearning.enrollment.payload.request.UpdateEnrollmentRequest;
 import com.pbl.elearning.enrollment.payload.response.EnrollmentResponse;
 import com.pbl.elearning.enrollment.payload.response.EnrollmentReportResponse;
 import com.pbl.elearning.enrollment.services.EnrollmentService;
@@ -55,17 +54,6 @@ public class EnrollmentController {
     public ResponseEntity<EnrollmentResponse> createEnrollment(@RequestBody EnrollmentRequest request) {
         Enrollment enrollment = enrollmentService.createEnrollment(request);
         return ResponseEntity.ok(toResponse(enrollment));
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<EnrollmentResponse> updateEnrollment(
-            @PathVariable UUID id,
-            @RequestBody UpdateEnrollmentRequest request) {
-        Enrollment updated = enrollmentService.updateEnrollment(id, request);
-        if (updated != null) {
-            return ResponseEntity.ok(toResponse(updated));
-        }
-        return ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/{id}")
@@ -127,4 +115,5 @@ public class EnrollmentController {
         List<EnrollmentReportResponse> reports = enrollmentService.getEnrollmentReportsByUser(userId);
         return ResponseEntity.ok(reports);
     }
+    
 }

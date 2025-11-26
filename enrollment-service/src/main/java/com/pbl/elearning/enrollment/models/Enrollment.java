@@ -39,6 +39,6 @@ public class Enrollment {
     @Enumerated(EnumType.STRING)
     private EnrollmentStatus status;
 
-    private Integer totalWatchTimeMinutes;
+    private Double totalWatchTimeMinutes;
     private LocalDateTime lastAccessedAt;
 }
