@@ -36,7 +36,7 @@ public class RecentLearningResponse {
     private UUID lectureId;
     private String lectureTitle;
     private String lectureVideoUrl;
-    private Integer lectureDurationMinutes;
+    private Integer lectureDuration;
     private Integer lectureOrder;
     
     // Progress info

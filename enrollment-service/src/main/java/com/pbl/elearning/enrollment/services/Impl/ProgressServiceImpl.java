@@ -66,7 +66,8 @@ public class ProgressServiceImpl implements ProgressService {
         }
         if (progress.getLecture() != null && progress.getLecture().getDuration() != null && 
             progress.getLastViewedAt() != null) {
-            Double totalDurationMinutes = progress.getLecture().getDuration().doubleValue() / 60.0;
+            Double totalDurationMinutes = progress.getLecture().getDuration().doubleValue();
+            System.out.println("Total Duration Minutes: " + progress.getLastViewedAt().toSecondOfDay());
             return Math.min(100.0, (progress.getLastViewedAt().toSecondOfDay() / totalDurationMinutes) * 100.0);
         }
         return 0.0;
@@ -344,7 +345,7 @@ public class ProgressServiceImpl implements ProgressService {
                 .lectureId(lecture.getLectureId())
                 .lectureTitle(lecture.getTitle())
                 .lectureVideoUrl(lecture.getSourceUrl())
-                .lectureDurationMinutes(lecture.getDuration())
+                .lectureDuration(lecture.getDuration())
                 .lectureOrder(lecture.getPosition())
                 
                 // Progress info
@@ -404,7 +405,7 @@ public class ProgressServiceImpl implements ProgressService {
                 .lectureId(lecture.getLectureId())
                 .lectureTitle(lecture.getTitle())
                 .lectureVideoUrl(lecture.getSourceUrl())
-                .lectureDurationMinutes(lecture.getDuration())
+                .lectureDuration(lecture.getDuration())
                 .lectureOrder(lecture.getPosition())
                 
                 // Progress info (empty for first lecture)
