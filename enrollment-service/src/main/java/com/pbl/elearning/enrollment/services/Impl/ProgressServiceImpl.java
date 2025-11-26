@@ -11,7 +11,7 @@ import com.pbl.elearning.enrollment.payload.response.LectureProgressUpdateRespon
 import com.pbl.elearning.enrollment.repository.EnrollmentRepository;
 import com.pbl.elearning.enrollment.repository.ProgressRepository;
 import com.pbl.elearning.enrollment.services.ProgressService;
-import com.pbl.elearning.enrollment.Enum.EnrollmentStatus;
+import com.pbl.elearning.enrollment.enums.EnrollmentStatus;
 import com.pbl.elearning.course.domain.Course;
 import com.pbl.elearning.course.domain.Lecture;
 import com.pbl.elearning.course.domain.Section;
