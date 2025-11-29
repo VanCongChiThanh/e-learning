@@ -4,6 +4,9 @@ import com.pbl.elearning.course.domain.Lecture;
 import lombok.*;
 
 import javax.persistence.*;
+
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -29,7 +32,7 @@ public class Progress {
     private Lecture lecture;
 
     private Boolean isCompleted;
-    private Integer watchTimeMinutes;
+    private LocalTime lastViewedAt;
     private OffsetDateTime completionDate;
     private OffsetDateTime createdAt;
     private OffsetDateTime updatedAt;

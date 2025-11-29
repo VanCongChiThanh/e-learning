@@ -2,7 +2,6 @@ package com.pbl.elearning.enrollment.services;
 
 import com.pbl.elearning.enrollment.models.Enrollment;
 import com.pbl.elearning.enrollment.payload.request.EnrollmentRequest;
-import com.pbl.elearning.enrollment.payload.request.UpdateEnrollmentRequest;
 import com.pbl.elearning.enrollment.payload.response.EnrollmentReportResponse;
 
 import java.util.List;
@@ -18,15 +17,6 @@ public interface EnrollmentService {
      * @return Enrollment
      */
     Enrollment createEnrollment(EnrollmentRequest request);
-
-    /**
-     * Update enrollment
-     *
-     * @param id Enrollment id
-     * @param request EnrollmentRequest
-     * @return Enrollment
-     */
-    Enrollment updateEnrollment(UUID id, UpdateEnrollmentRequest request);
 
     /**
      * Delete enrollment

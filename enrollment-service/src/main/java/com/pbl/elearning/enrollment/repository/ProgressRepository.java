@@ -15,4 +15,9 @@ public interface ProgressRepository extends JpaRepository<Progress, UUID> {
     List<Progress> findByLecture(Lecture lecture);
     List<Progress> findByLecture_LectureId(UUID lectureId);
     Optional<Progress> findByEnrollmentAndLecture(Enrollment enrollment, Lecture lecture);
+    
+    // New methods for progress tracking
+    Optional<Progress> findByEnrollment_User_UserIdAndLecture_LectureId(UUID userId, UUID lectureId);
+    List<Progress> findByEnrollment_Course_CourseIdAndIsCompleted(UUID courseId, Boolean isCompleted);
+    Long countByEnrollment_Course_CourseIdAndIsCompleted(UUID courseId, Boolean isCompleted);
 }
