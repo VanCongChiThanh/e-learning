@@ -234,4 +234,11 @@ public class CourseController {
                                 .data(courseResponse)
                                 .build());
         }
+        //get courses by list ids
+        @PostMapping("/list-ids")
+        public ResponseEntity<ResponseDataAPI> getCoursesByListIds(
+                        @RequestBody Set<UUID> courseIds) {
+                return ResponseEntity.ok(ResponseDataAPI.successWithoutMeta(
+                                courseService.getCoursesByListIds(courseIds.stream().toList())));
+        }
 }
