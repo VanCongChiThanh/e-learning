@@ -111,6 +111,14 @@ public class CourseServiceImpl implements CourseService {
         }
 
         @Override
+        public Page<CourseResponeInstructor> coursePageResponseV2(Pageable pageable, Specification<Course> spec) {
+                Page<Course> coursePage;
+
+                coursePage = courseRepository.findAll(spec, pageable);
+                return coursePage.map(course -> getCourseInstructorById(course.getCourseId()));
+        }
+
+        @Override
         public CourseResponse getCourseById(UUID courseId) {
                 Course course = courseRepository.findById(courseId).orElseThrow(
                                 () -> new EntityNotFoundException("Course not found with id: " + courseId));

@@ -21,6 +21,8 @@ public interface CourseService {
 
     Page<CourseResponse> coursePageResponse(Pageable pageable, Specification<Course> spec);
 
+    Page<CourseResponeInstructor> coursePageResponseV2(Pageable pageable, Specification<Course> spec);
+
     CourseResponse getCourseById(UUID courseId);
 
     String uploadCourseImage(UUID courseId, String urlfile);
