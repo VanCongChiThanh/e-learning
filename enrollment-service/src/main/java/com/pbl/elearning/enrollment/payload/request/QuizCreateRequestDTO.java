@@ -1,6 +1,5 @@
 package com.pbl.elearning.enrollment.payload.request;
 
-import com.pbl.elearning.enrollment.payload.request.QuestionCreateRequest;
 import java.util.List;
 import java.util.UUID;
 import javax.validation.constraints.NotNull;

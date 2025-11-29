@@ -1,6 +1,6 @@
 package com.pbl.elearning.enrollment.payload.response;
 
-import com.pbl.elearning.enrollment.Enum.SubmissionStatus;
+import com.pbl.elearning.enrollment.enums.SubmissionStatus;
 import lombok.*;
 import java.time.OffsetDateTime;
 import java.util.UUID;

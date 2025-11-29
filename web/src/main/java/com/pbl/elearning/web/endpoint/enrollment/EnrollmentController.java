@@ -2,14 +2,16 @@ package com.pbl.elearning.web.endpoint.enrollment;
 
 import com.pbl.elearning.enrollment.models.Enrollment;
 import com.pbl.elearning.enrollment.payload.request.EnrollmentRequest;
-import com.pbl.elearning.enrollment.payload.request.UpdateEnrollmentRequest;
 import com.pbl.elearning.enrollment.payload.response.EnrollmentResponse;
 import com.pbl.elearning.enrollment.payload.response.EnrollmentReportResponse;
 import com.pbl.elearning.enrollment.services.EnrollmentService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.pbl.elearning.user.payload.response.UserInfoResponse;
+import com.pbl.elearning.course.service.impl.CourseServiceImpl;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -20,40 +22,38 @@ import java.util.stream.Collectors;
 public class EnrollmentController {
 
     private final EnrollmentService enrollmentService;
+    private final CourseServiceImpl courseService;
 
-    @Autowired
-    public EnrollmentController(EnrollmentService enrollmentService) {
+    public EnrollmentController(EnrollmentService enrollmentService, CourseServiceImpl courseService) {
         this.enrollmentService = enrollmentService;
+        this.courseService = courseService;
     }
+
     private EnrollmentResponse toResponse(Enrollment enrollment) {
         return EnrollmentResponse.builder()
                 .id(enrollment.getId())
-                .userId(enrollment.getUser() != null ? enrollment.getUser().getId() : null)
-                .courseId(enrollment.getCourse() != null ? enrollment.getCourse().getCourseId() : null)
-                .enrollmentDate(enrollment.getEnrollmentDate())
-                .completionDate(enrollment.getCompletionDate())
+                .user(enrollment.getUser() != null ? UserInfoResponse.toResponse(enrollment.getUser()) : null)
+                .course(enrollment.getCourse() != null
+                        ? courseService.getCourseInstructorById(enrollment.getCourse().getCourseId())
+                        : null)
+                // convert LocalDateTime to Timestamp safely (fields may be null)
+                .enrollmentDate(toTimestamp(enrollment.getEnrollmentDate()))
+                .completionDate(toTimestamp(enrollment.getCompletionDate()))
                 .progressPercentage(enrollment.getProgressPercentage())
                 .status(enrollment.getStatus())
                 .totalWatchTimeMinutes(enrollment.getTotalWatchTimeMinutes())
-                .lastAccessedAt(enrollment.getLastAccessedAt())
+                .lastAccessedAt(toTimestamp(enrollment.getLastAccessedAt()))
                 .build();
+    }
+
+    private Timestamp toTimestamp(java.time.LocalDateTime dateTime) {
+        return dateTime != null ? Timestamp.valueOf(dateTime) : null;
     }
 
     @PostMapping
     public ResponseEntity<EnrollmentResponse> createEnrollment(@RequestBody EnrollmentRequest request) {
         Enrollment enrollment = enrollmentService.createEnrollment(request);
         return ResponseEntity.ok(toResponse(enrollment));
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<EnrollmentResponse> updateEnrollment(
-            @PathVariable UUID id,
-            @RequestBody UpdateEnrollmentRequest request) {
-        Enrollment updated = enrollmentService.updateEnrollment(id, request);
-        if (updated != null) {
-            return ResponseEntity.ok(toResponse(updated));
-        }
-        return ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/{id}")
@@ -80,7 +80,6 @@ public class EnrollmentController {
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<EnrollmentResponse>> getEnrollmentsByUserId(@PathVariable UUID userId) {
-        System.out.println("Fetching enrollments for userId: " + userId);
         List<EnrollmentResponse> responses = enrollmentService.getEnrollmentsByUserId(userId)
                 .stream()
                 .map(this::toResponse)
@@ -95,9 +94,10 @@ public class EnrollmentController {
                 .stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
-        System.err.println("Found " + responses );
+        System.err.println("Found " + responses);
         return ResponseEntity.ok(responses);
-    }    
+    }
+
     @GetMapping("/{enrollmentId}/report")
     public ResponseEntity<EnrollmentReportResponse> getEnrollmentReport(@PathVariable UUID enrollmentId) {
         EnrollmentReportResponse report = enrollmentService.getEnrollmentReport(enrollmentId);
@@ -115,4 +115,5 @@ public class EnrollmentController {
         List<EnrollmentReportResponse> reports = enrollmentService.getEnrollmentReportsByUser(userId);
         return ResponseEntity.ok(reports);
     }
+    
 }

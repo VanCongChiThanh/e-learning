@@ -2,7 +2,7 @@ package com.pbl.elearning.enrollment.models;
 
 import javax.persistence.*;
 
-import com.pbl.elearning.enrollment.Enum.SubmissionStatus;
+import com.pbl.elearning.enrollment.enums.SubmissionStatus;
 import com.pbl.elearning.security.domain.User;
 import lombok.*;
 import java.time.OffsetDateTime;
@@ -38,7 +38,7 @@ public class AssignmentSubmission {
 
     private OffsetDateTime submittedAt;
     private OffsetDateTime gradedAt;
-    
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "gradedBy")
     private User gradedBy;

@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -16,10 +17,9 @@ public class QuizQuestionAnswerServiceImpl implements QuizQuestionAnswerService 
 
     private final QuizQuestionAnswerRepository repository;
 
-    private QuizQuestionAnswerResponse mapToResponse(QuizQuestionAnswer entity) {
+    public static QuizQuestionAnswerResponse mapToResponse(QuizQuestionAnswer entity) {
         return QuizQuestionAnswerResponse.builder()
                 .id(entity.getId())
-                // .quizId(entity.getQuiz() != null ? entity.getQuiz().getId() : null)
                 .questionText(entity.getQuestionText())
                 .options(entity.getOptions())
                 .correctAnswerIndex(entity.getCorrectAnswerIndex())
@@ -32,7 +32,7 @@ public class QuizQuestionAnswerServiceImpl implements QuizQuestionAnswerService 
     @Override
     public QuizQuestionAnswerResponse getById(UUID id) {
         return repository.findById(id)
-                .map(this::mapToResponse)
+                .map(QuizQuestionAnswerServiceImpl::mapToResponse)
                 .orElseThrow(() -> new RuntimeException("QuizQuestionAnswer not found with id: " + id));
     }
 
@@ -58,7 +58,10 @@ public class QuizQuestionAnswerServiceImpl implements QuizQuestionAnswerService 
 
     @Override
     public List<QuizQuestionAnswerResponse> getAllByQuizId(UUID quizId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAllByQuizId'");
+        List<QuizQuestionAnswer> entities = repository.findAllByQuizId(quizId);
+
+        return entities.stream()
+                .map(QuizQuestionAnswerServiceImpl::mapToResponse)
+                .collect(Collectors.toList());
     }
 }

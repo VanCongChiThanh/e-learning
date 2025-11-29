@@ -9,5 +9,7 @@ import java.util.UUID;
 @Repository
 public interface LectureRepository extends JpaRepository<Lecture, UUID> {
     List<Lecture> findBySection_SectionId(UUID sectionId);
+
     Integer countBySection_Course_CourseId(UUID courseId);
+    List<Lecture> findBySection_Course_CourseId(UUID courseId);
 }
