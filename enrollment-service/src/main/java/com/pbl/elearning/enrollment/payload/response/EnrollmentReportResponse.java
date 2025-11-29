@@ -19,7 +19,7 @@ public class EnrollmentReportResponse {
     private String courseTitle;
     private String enrollmentStatus;
     private Double progressPercentage;
-    private Integer totalWatchTimeMinutes;
+    private Double totalWatchTimeMinutes;
     private LocalDateTime enrollmentDate;
     private LocalDateTime completionDate;
     private LocalDateTime lastAccessedAt;
