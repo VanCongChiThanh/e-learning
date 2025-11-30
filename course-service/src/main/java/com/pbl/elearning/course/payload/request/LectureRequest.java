@@ -1,6 +1,7 @@
 package com.pbl.elearning.course.payload.request;
 
 import com.pbl.elearning.course.domain.Resource;
+import com.pbl.elearning.course.domain.enums.LectureType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,6 +25,10 @@ public class LectureRequest {
     private String videoUrl;
 
     private Integer duration;
+
+    private LectureType type;
+
+    private String sourceUrl;
 
     Set<Resource> resources;
 }

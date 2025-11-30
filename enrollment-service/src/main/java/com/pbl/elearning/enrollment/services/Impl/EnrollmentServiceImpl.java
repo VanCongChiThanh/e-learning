@@ -215,7 +215,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
 
     @Override
     public Boolean checkExistsByUserId(UUID userId, UUID courseId) {
-        return enrollmentRepository.existsByUserIdAndCourse_CourseId(userId, courseId);
+        return enrollmentRepository.existsByUser_UserIdAndCourse_CourseId(userId, courseId);
     }
 
 
