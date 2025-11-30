@@ -35,6 +35,9 @@ public class LectureServiceImpl implements LectureService {
                 .title(lectureRequest.getTitle())
                 .position(lectureRequest.getPosition())
                 .section(section)
+                .type(lectureRequest.getType())          // Bắt buộc vì DB not null
+                .sourceUrl(lectureRequest.getSourceUrl()) // Map url video/tài liệu
+                .duration(lectureRequest.getDuration())
                 .build();
         Lecture savedLecture = lectureRepository.save(lecture);
         return LectureResponse.fromEntity(savedLecture);

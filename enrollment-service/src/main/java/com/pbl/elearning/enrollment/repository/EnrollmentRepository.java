@@ -25,6 +25,8 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, UUID> {
     
     @Query("SELECT e FROM Enrollment e WHERE e.user.id = :userId AND e.status = :status")
     List<Enrollment> findByUserIdAndStatus(@Param("userId") UUID userId, @Param("status") String status);
-    
+
+    boolean existsByUser_UserIdAndCourse_CourseId(UUID userId, UUID courseId);
+
     Optional<Enrollment> findByUser_UserIdAndCourse_CourseId(UUID userId, UUID courseId);
 }
