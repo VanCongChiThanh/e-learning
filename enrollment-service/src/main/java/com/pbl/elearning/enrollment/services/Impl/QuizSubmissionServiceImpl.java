@@ -1,5 +1,8 @@
 package com.pbl.elearning.enrollment.services.Impl;
 
+import com.pbl.elearning.common.constant.MessageConstant;
+import com.pbl.elearning.common.exception.BadRequestException;
+import com.pbl.elearning.common.exception.NotFoundException;
 import com.pbl.elearning.enrollment.models.*;
 import com.pbl.elearning.enrollment.payload.request.QuizSubmissionRequest;
 import com.pbl.elearning.enrollment.payload.request.QuizSubmissionRequest.QuizAnswerRequest;
@@ -8,6 +11,7 @@ import com.pbl.elearning.enrollment.payload.response.QuizStatisticsResponse;
 import com.pbl.elearning.enrollment.repository.*;
 import com.pbl.elearning.enrollment.services.QuizSubmissionService;
 import com.pbl.elearning.security.domain.User;
+import com.pbl.elearning.security.domain.UserPrincipal;
 import com.pbl.elearning.security.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -22,7 +26,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import javax.persistence.EntityNotFoundException;
 
 @Service
 @RequiredArgsConstructor
@@ -36,20 +39,20 @@ public class QuizSubmissionServiceImpl implements QuizSubmissionService {
     private final UserRepository userRepository;
         
     @Override
-    public QuizSubmissionResponse submitQuiz(QuizSubmissionRequest dto, UUID userId) {
-
+    public QuizSubmissionResponse submitQuiz(QuizSubmissionRequest dto, UserPrincipal userPrincipal) {
+        User user = userRepository.findById(userPrincipal.getId())
+                .orElseThrow(() -> new NotFoundException(MessageConstant.USER_NOT_FOUND));
         Quiz quiz = quizRepository.findById(dto.getQuizId())
-                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy Quiz: " + dto.getQuizId()));
+                .orElseThrow(() -> new NotFoundException(MessageConstant.QUIZ_NOT_FOUND)
+                );
         
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy User: " + userId));
-
         Enrollment enrollment = enrollmentRepository.findById(dto.getEnrollmentId())
-                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy Enrollment: " + dto.getEnrollmentId()));
+                .orElseThrow(() -> new NotFoundException(MessageConstant.ENROLLMENT_NOT_FOUND)
+                );
 
         int attempts = quizSubmissionRepository.countByQuizAndUser(quiz, user);
         if (quiz.getMaxAttempts() != null && attempts >= quiz.getMaxAttempts()) {
-                throw new IllegalStateException("Bạn đã hết số lần làm bài cho quiz này.");
+                throw new BadRequestException(MessageConstant.QUIZ_ATTEMPT_EXCEEDED);
         }
         
         QuizSubmission submission = new QuizSubmission();
@@ -131,14 +134,14 @@ public class QuizSubmissionServiceImpl implements QuizSubmissionService {
     @Override
     public QuizSubmissionResponse getQuizSubmission(UUID submissionId) {
         QuizSubmission submission = quizSubmissionRepository.findById(submissionId)
-                .orElseThrow(() -> new RuntimeException("Quiz submission not found"));
+                .orElseThrow(() -> new NotFoundException("Quiz submission not found"));
         return convertToResponse(submission);
     }
 
     @Override
     public Boolean canUserAttemptQuiz(UUID quizId, UUID userId) {
         Quiz quiz = quizRepository.findById(quizId)
-                .orElseThrow(() -> new RuntimeException("Quiz not found"));
+                .orElseThrow(() -> new NotFoundException(MessageConstant.QUIZ_NOT_FOUND));
 
         Integer currentAttempts = quizSubmissionRepository.countAttemptsByQuizAndUser(quizId, userId);
         return quiz.getMaxAttempts() == null || currentAttempts < quiz.getMaxAttempts();

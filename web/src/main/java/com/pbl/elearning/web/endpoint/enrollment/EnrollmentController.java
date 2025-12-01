@@ -1,14 +1,19 @@
 package com.pbl.elearning.web.endpoint.enrollment;
 
+import com.pbl.elearning.common.payload.general.ResponseDataAPI;
 import com.pbl.elearning.enrollment.models.Enrollment;
 import com.pbl.elearning.enrollment.payload.request.EnrollmentRequest;
-import com.pbl.elearning.enrollment.payload.request.UpdateEnrollmentRequest;
 import com.pbl.elearning.enrollment.payload.response.EnrollmentResponse;
 import com.pbl.elearning.enrollment.payload.response.EnrollmentReportResponse;
 import com.pbl.elearning.enrollment.services.EnrollmentService;
 import com.pbl.elearning.user.payload.response.UserInfoResponse;
 import com.pbl.elearning.course.service.impl.CourseServiceImpl;
 
+import com.pbl.elearning.security.annotation.CurrentUser;
+import com.pbl.elearning.security.domain.UserPrincipal;
+import com.pbl.elearning.security.annotation.CurrentUser;
+import com.pbl.elearning.security.domain.UserPrincipal;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -55,17 +60,6 @@ public class EnrollmentController {
     public ResponseEntity<EnrollmentResponse> createEnrollment(@RequestBody EnrollmentRequest request) {
         Enrollment enrollment = enrollmentService.createEnrollment(request);
         return ResponseEntity.ok(toResponse(enrollment));
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<EnrollmentResponse> updateEnrollment(
-            @PathVariable UUID id,
-            @RequestBody UpdateEnrollmentRequest request) {
-        Enrollment updated = enrollmentService.updateEnrollment(id, request);
-        if (updated != null) {
-            return ResponseEntity.ok(toResponse(updated));
-        }
-        return ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/{id}")
@@ -127,4 +121,14 @@ public class EnrollmentController {
         List<EnrollmentReportResponse> reports = enrollmentService.getEnrollmentReportsByUser(userId);
         return ResponseEntity.ok(reports);
     }
+
+    @GetMapping("/courses/{courseId}/check-exists-enrollment")
+    public ResponseEntity<ResponseDataAPI> checkExistsEnrollment(@PathVariable("courseId") UUID courseId,
+                                                                 @CurrentUser UserPrincipal userPrincipal){
+        UUID userId = userPrincipal.getId();
+        Boolean check = enrollmentService.checkExistsByUserId(userId, courseId);
+        return ResponseEntity.ok(ResponseDataAPI.successWithoutMeta(check));
+
+    }
+
 }

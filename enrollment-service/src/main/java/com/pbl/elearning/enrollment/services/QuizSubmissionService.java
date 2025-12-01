@@ -3,6 +3,7 @@ package com.pbl.elearning.enrollment.services;
 import com.pbl.elearning.enrollment.payload.request.QuizSubmissionRequest;
 import com.pbl.elearning.enrollment.payload.response.QuizStatisticsResponse;
 import com.pbl.elearning.enrollment.payload.response.QuizSubmissionResponse;
+import com.pbl.elearning.security.domain.UserPrincipal;
 
 import java.util.List;
 import java.util.UUID;
@@ -12,7 +13,7 @@ public interface QuizSubmissionService {
     /**
      * Submit quiz answers and calculate score
      */
-    QuizSubmissionResponse submitQuiz(QuizSubmissionRequest request, UUID userId);
+    QuizSubmissionResponse submitQuiz(QuizSubmissionRequest request, UserPrincipal userPrincipal);
     
     /**
      * Get all attempts for a quiz by user

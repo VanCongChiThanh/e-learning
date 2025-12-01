@@ -9,6 +9,8 @@ import com.pbl.elearning.commerce.repository.CartRepository;
 import com.pbl.elearning.commerce.repository.OrderItemRepository;
 import com.pbl.elearning.commerce.repository.OrderRepository;
 import com.pbl.elearning.enrollment.payload.request.EnrollmentRequest;
+import com.pbl.elearning.enrollment.services.EnrollmentService;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -34,7 +36,8 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
     private final CartRepository cartRepository;
-    private final EnrollmentClient enrollmentClient;
+    // private final EnrollmentClient enrollmentClient;
+    private final EnrollmentService enrollmentService;
     private final CourseClient courseClient;
 
     @Transactional
@@ -173,20 +176,14 @@ public class OrderService {
 
             // Integrate with enrollment service to actually grant course access
             for (OrderItem item : order.getItems()) {
-                EnrollmentRequest enrollmentRequest = EnrollmentRequest.builder()
+                // user enrollment service
+                EnrollmentRequest request = EnrollmentRequest.builder()
                         .userId(order.getUserId())
                         .courseId(item.getCourseId())
                         .enrollmentDate(OffsetDateTime.now())
                         .build();
 
-                enrollmentClient.grantAccessToCourse(enrollmentRequest)
-                        .doOnSuccess(enrollment -> log.info(
-                                "Successfully granted access to course {} for user {} via enrollment {}",
-                                item.getCourseId(), order.getUserId(), enrollment.getId()))
-                        .doOnError(error -> log.error("Failed to grant access to course {} for user {}: {}",
-                                item.getCourseId(), order.getUserId(), error.getMessage()))
-                        .subscribe(); // Fire and forget for async processing
-
+                enrollmentService.createEnrollment(request);
             }
 
             // Send notification email
