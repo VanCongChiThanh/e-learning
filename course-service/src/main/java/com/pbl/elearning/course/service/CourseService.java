@@ -54,7 +54,6 @@ public interface CourseService {
     List<CourseResponse> getCoursesByInstructorId(UUID instructorId);
 
     CourseResponeInstructor getCourseInstructorById(UUID courseId);
-    // CourseResponse updateCourseStatus(UUID courseId, CourseStatus status, UUID
-    // instructorId);
+    // CourseResponse updateCourseStatus(UUID courseId, CourseStatus status, UUID instructorId);
     List<CourseResponse> getCoursesByListIds(List<UUID> courseIds);
 }
