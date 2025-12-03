@@ -275,6 +275,9 @@ invalid_status_for_review_application:
 bad_request:
   code: ERR.BR
   message: Bad request
+not_found:
+  code: ERR.NF
+  message: Not found with given id
 #Quiz
 quiz_not_found:
   code: ERR.QZ0101
