@@ -44,7 +44,15 @@ public class BankAccountResponse {
                     .expiredAt(e.getTokenExpiredAt())
                     .build();
         }
-
+        public static BankItem fromNotMask(UserBankAccount e) {
+            return BankItem.builder()
+                    .bankAccountId(e.getId())
+                    .bankName(e.getBankName())
+                    .accountNumberMasked(e.getAccountNumber()) // FULL
+                    .accountHolderName(e.getAccountHolderName())
+                    .expiredAt(e.getTokenExpiredAt())
+                    .build();
+        }
         private static String mask(String acc) {
             if (acc == null || acc.length() < 4) return "****";
             return "****" + acc.substring(acc.length() - 4);

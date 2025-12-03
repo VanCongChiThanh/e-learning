@@ -7,14 +7,18 @@ import com.pbl.elearning.user.payload.request.bank.BankAccountRequest;
 import com.pbl.elearning.user.service.UserBankAccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-@RequestMapping("/v1/user/bank-accounts")
+import java.util.UUID;
+
+@RequestMapping("/v1")
 @RestController
 @RequiredArgsConstructor
 public class UserBankAccountController {
     private final UserBankAccountService userBankAccountService;
-    @GetMapping
+    @GetMapping("/user/bank-accounts")
+    @PreAuthorize("hasRole('INSTRUCTOR')")
     public ResponseEntity<ResponseDataAPI> getMyBankAccount(
             @CurrentUser UserPrincipal userPrincipal
             ) {
@@ -24,7 +28,8 @@ public class UserBankAccountController {
                 )
         );
     }
-    @PostMapping
+    @PostMapping("/user/bank-accounts")
+    @PreAuthorize("hasRole('INSTRUCTOR')")
     public ResponseEntity<ResponseDataAPI> createMyBankAccount(
             @RequestBody BankAccountRequest request,
             @CurrentUser UserPrincipal userPrincipal
@@ -35,7 +40,8 @@ public class UserBankAccountController {
                 ))
         );
     }
-    @PatchMapping
+    @PatchMapping("/user/bank-accounts")
+    @PreAuthorize("hasRole('INSTRUCTOR')")
     public ResponseEntity<ResponseDataAPI> updateMyBankAccount(
             @RequestBody BankAccountRequest request,
             @CurrentUser UserPrincipal userPrincipal
@@ -46,7 +52,8 @@ public class UserBankAccountController {
                 ))
         );
     }
-    @PatchMapping("/confirm")
+    @PatchMapping("/user/bank-accounts/confirm")
+    @PreAuthorize("hasRole('INSTRUCTOR')")
     public ResponseEntity<ResponseDataAPI> confirmMyBankAccount(
             @CurrentUser UserPrincipal userPrincipal,
             @RequestParam String token
@@ -54,6 +61,17 @@ public class UserBankAccountController {
         userBankAccountService.confirmUserBankAccount(userPrincipal.getId(), token);
         return ResponseEntity.ok(
                 ResponseDataAPI.successWithoutMetaAndData()
+        );
+    }
+    @GetMapping("/user/{userId}/bank-accounts")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ResponseDataAPI> getUserBankAccountByAdmin(
+            @PathVariable("userId") UUID userId
+    ) {
+        return ResponseEntity.ok(
+                ResponseDataAPI.successWithoutMeta(
+                        userBankAccountService.getUserBankAccountByAdmin(userId)
+                )
         );
     }
 
