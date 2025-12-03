@@ -40,4 +40,5 @@ public interface EmailService {
   void sendMailDeleteAccount(String email, String code, String language);
   void sendMailConfirmInstructorApplication(String firstname, String lastname, String email, UUID applicationId, String language);
   void sendMailRejectInstructorApplication(String firstname, String lastname, String email, UUID applicationId, String reason, String language);
+  void sendMailConfirmBankAccount(String bankName, String accountNumber, String accountHolderName, String token,String email, String language);
 }
