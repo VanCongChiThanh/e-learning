@@ -10,4 +10,5 @@ public interface UserBankAccountService {
     BankAccountResponse createUserBankAccount(UUID userId, String email,BankAccountRequest request);
     BankAccountResponse updateUserBankAccount(UUID userId,String email, BankAccountRequest request);
     void confirmUserBankAccount(UUID userId, String token);
+    BankAccountResponse getUserBankAccountByAdmin(UUID userId);
 }

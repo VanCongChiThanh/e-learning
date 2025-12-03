@@ -142,6 +142,18 @@ public class UserBankAccountServiceImpl implements UserBankAccountService {
                 BankAccountStatus.PENDING
         );
     }
+
+    @Override
+    public BankAccountResponse getUserBankAccountByAdmin(UUID userId) {
+        Optional<UserBankAccount> active =
+                userBankAccountRepository.findFirstByUserIdAndStatus(userId, BankAccountStatus.VERIFIED);
+
+        return BankAccountResponse.builder()
+                .activeBank(active.map(BankAccountResponse.BankItem::fromNotMask).orElse(null))
+                .pendingBank(null)
+                .build();
+    }
+
     private String generateOtp() {
         return String.format("%06d", (int) (Math.random() * 999999));
     }
