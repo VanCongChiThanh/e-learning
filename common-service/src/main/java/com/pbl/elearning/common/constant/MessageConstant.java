@@ -78,7 +78,9 @@ public final class MessageConstant {
   public static final String ILLEGAL_QUIZ_SUBMISSION_STATE = "illegal_quiz_submission_state";
   public static final String QUESTION_NOT_FOUND = "question_not_found";
 
+  //common
+  public static final String NOT_FOUND = "not_found";
 
-    public static final String BAD_REQUEST = "bad_request";
+  public static final String BAD_REQUEST = "bad_request";
   private MessageConstant() {}
 }

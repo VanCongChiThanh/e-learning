@@ -212,4 +212,11 @@ public class EnrollmentServiceImpl implements EnrollmentService {
                 .certificateIssuedDate(certificate.map(Certificate::getIssuedDate).orElse(null))
                 .build();
     }
+
+    @Override
+    public Boolean checkExistsByUserId(UUID userId, UUID courseId) {
+        return enrollmentRepository.existsByUser_UserIdAndCourse_CourseId(userId, courseId);
+    }
+
+
 }

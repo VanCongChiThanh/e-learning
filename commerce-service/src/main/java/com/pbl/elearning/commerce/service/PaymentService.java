@@ -20,14 +20,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.payos.PayOS;
-import vn.payos.type.CheckoutResponseData;
-import vn.payos.type.ItemData;
-import vn.payos.type.PaymentData;
-
+import vn.payos.model.v2.paymentRequests.CreatePaymentLinkRequest;
+import vn.payos.model.v2.paymentRequests.CreatePaymentLinkResponse;
+import vn.payos.model.v2.paymentRequests.PaymentLinkItem;
 import javax.annotation.PostConstruct;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -88,7 +86,7 @@ public class PaymentService {
 
         // 4. Create PayOS payment link
         try {
-            CheckoutResponseData payosResponse = createPayOSPaymentLink(payment, order);
+            CreatePaymentLinkResponse payosResponse = createPayOSPaymentLink(payment, order);
             updatePaymentWithPayOSResponse(payment, payosResponse);
             payment = paymentRepository.save(payment);
 
@@ -177,7 +175,8 @@ public class PaymentService {
         try {
             // Cancel payment in PayOS
             if (payment.getPayosPaymentLinkId() != null) {
-                payOS.cancelPaymentLink(Long.parseLong(payment.getPayosPaymentLinkId()), "User cancelled");
+                // payOS.cancelPaymentLink(Long.parseLong(payment.getPayosPaymentLinkId()), "User cancelled");
+                payOS.paymentRequests().cancel(payment.getPayosPaymentLinkId(), "User cancelled");
             }
 
             // Update payment status
@@ -219,28 +218,47 @@ public class PaymentService {
         return payment;
     }
 
-    private CheckoutResponseData createPayOSPaymentLink(Payment payment, Order order) throws Exception {
-        // Create item data for PayOS
-        ItemData itemData = ItemData.builder()
+    private CreatePaymentLinkResponse createPayOSPaymentLink(Payment payment, Order order) throws Exception {
+        // // Create item data for PayOS
+        // ItemData itemData = ItemData.builder()
+        //         .name(order.getOrderNumber())
+        //         .quantity(1)
+        //         .price(payment.getAmount().intValue())
+        //         .build();
+
+        // // Create payment data
+        // PaymentData paymentData = PaymentData.builder()
+        //         .orderCode(Long.parseLong(payment.getOrderCode()))
+        //         .amount(payment.getAmount().intValue())
+        //         .description(payment.getDescription())
+        //         .items(Collections.singletonList(itemData))
+        //         .returnUrl(payOSConfig.getReturnUrl())
+        //         .cancelUrl(payOSConfig.getCancelUrl())
+        //         .build();
+
+        // return payOS.createPaymentLink(paymentData);
+
+        /* Use payos version 2.0.1
+         */
+        PaymentLinkItem item = PaymentLinkItem.builder()
                 .name(order.getOrderNumber())
                 .quantity(1)
-                .price(payment.getAmount().intValue())
+                .price(order.getTotalAmount().longValue())
                 .build();
 
-        // Create payment data
-        PaymentData paymentData = PaymentData.builder()
+        CreatePaymentLinkRequest request = CreatePaymentLinkRequest.builder()
+                .item(item)
                 .orderCode(Long.parseLong(payment.getOrderCode()))
-                .amount(payment.getAmount().intValue())
                 .description(payment.getDescription())
-                .items(Collections.singletonList(itemData))
+                .amount(payment.getAmount().longValue())
                 .returnUrl(payOSConfig.getReturnUrl())
                 .cancelUrl(payOSConfig.getCancelUrl())
                 .build();
 
-        return payOS.createPaymentLink(paymentData);
+        return payOS.paymentRequests().create(request);
     }
 
-    private void updatePaymentWithPayOSResponse(Payment payment, CheckoutResponseData response) {
+    private void updatePaymentWithPayOSResponse(Payment payment, CreatePaymentLinkResponse response) {
         payment.setPayosPaymentLinkId(response.getPaymentLinkId());
         payment.setCheckoutUrl(response.getCheckoutUrl());
         payment.setQrCode(response.getQrCode());

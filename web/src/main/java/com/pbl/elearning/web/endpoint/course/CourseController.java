@@ -19,7 +19,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -64,6 +63,22 @@ public class CourseController {
                         @Filter Specification<Course> specification) {
                 Pageable pageable = PagingUtils.makePageRequest(sort, order, page, paging);
                 Page<CourseResponse> coursesPage = courseService.coursePageResponse(pageable, specification);
+                PageInfo pageInfo = new PageInfo(
+                                pageable.getPageNumber() + 1,
+                                coursesPage.getTotalPages(),
+                                coursesPage.getTotalElements());
+                return ResponseEntity.ok(ResponseDataAPI.success(coursesPage.getContent(), pageInfo));
+        }
+
+        @GetMapping("/page-v2")
+        public ResponseEntity<ResponseDataAPI> getCoursePageV2(
+                        @RequestParam(value = "page", defaultValue = "1") int page,
+                        @RequestParam(value = "paging", defaultValue = "5") int paging,
+                        @RequestParam(value = "sort", defaultValue = "created_at") String sort,
+                        @RequestParam(value = "order", defaultValue = "desc") String order,
+                        @Filter Specification<Course> specification) {
+                Pageable pageable = PagingUtils.makePageRequest(sort, order, page, paging);
+                Page<CourseResponeInstructor> coursesPage = courseService.coursePageResponseV2(pageable, specification);
                 PageInfo pageInfo = new PageInfo(
                                 pageable.getPageNumber() + 1,
                                 coursesPage.getTotalPages(),
@@ -233,5 +248,12 @@ public class CourseController {
                                 .status(CommonConstant.SUCCESS)
                                 .data(courseResponse)
                                 .build());
+        }
+        //get courses by list ids
+        @PostMapping("/list-ids")
+        public ResponseEntity<ResponseDataAPI> getCoursesByListIds(
+                        @RequestBody Set<UUID> courseIds) {
+                return ResponseEntity.ok(ResponseDataAPI.successWithoutMeta(
+                                courseService.getCoursesByListIds(courseIds.stream().toList())));
         }
 }

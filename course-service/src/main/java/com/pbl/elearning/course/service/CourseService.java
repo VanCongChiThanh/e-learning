@@ -21,6 +21,8 @@ public interface CourseService {
 
     Page<CourseResponse> coursePageResponse(Pageable pageable, Specification<Course> spec);
 
+    Page<CourseResponeInstructor> coursePageResponseV2(Pageable pageable, Specification<Course> spec);
+
     CourseResponse getCourseById(UUID courseId);
 
     String uploadCourseImage(UUID courseId, String urlfile);
@@ -54,7 +56,6 @@ public interface CourseService {
     List<CourseResponse> getCoursesByInstructorId(UUID instructorId);
 
     CourseResponeInstructor getCourseInstructorById(UUID courseId);
-    // CourseResponse updateCourseStatus(UUID courseId, CourseStatus status, UUID
-    // instructorId);
+    // CourseResponse updateCourseStatus(UUID courseId, CourseStatus status, UUID instructorId);
     List<CourseResponse> getCoursesByListIds(List<UUID> courseIds);
 }
