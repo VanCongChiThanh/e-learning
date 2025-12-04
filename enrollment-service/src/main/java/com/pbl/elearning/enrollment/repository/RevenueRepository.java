@@ -1,6 +1,6 @@
 package com.pbl.elearning.enrollment.repository;
 
-import com.pbl.elearning.user.domain.UserInfo;
+import com.pbl.elearning.enrollment.models.Enrollment;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -9,7 +9,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 @Repository
-public interface RevenueRepository extends JpaRepository<UserInfo, UUID> {
+public interface RevenueRepository extends JpaRepository<Enrollment, UUID> {
 
     @Query(value = """
     SELECT
