@@ -9,6 +9,8 @@ import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -42,6 +44,8 @@ public class RecentLearningResponse {
     // Progress info
     private UUID progressId;
     private Boolean isLectureCompleted;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss")
     private LocalTime lastViewedAt;
     private OffsetDateTime progressUpdatedAt;
     private Double lectureProgressPercentage;
