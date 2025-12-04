@@ -5,6 +5,7 @@ import com.pbl.elearning.common.payload.general.PageInfo;
 import com.pbl.elearning.common.payload.general.ResponseDataAPI;
 import com.pbl.elearning.security.annotation.CurrentUser;
 import com.pbl.elearning.security.domain.UserPrincipal;
+import com.pbl.elearning.user.domain.enums.ApplicationStatus;
 import com.pbl.elearning.user.payload.request.instructor.ApplyInstructorRequest;
 import com.pbl.elearning.user.payload.request.instructor.ReviewApplicationRequest;
 import com.pbl.elearning.user.payload.response.instructor.InstructorCandidateResponse;
@@ -26,15 +27,17 @@ import java.util.UUID;
 public class InstructorApplicationController {
     private final InstructorApplicationService instructorApplicationService;
     @GetMapping("/all")
-    @ApiOperation("Get all instructor applications (admin only)")
-    @PreAuthorize("hasRole('ADMIN')")
     ResponseEntity<ResponseDataAPI> getAllApplications(
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "paging", defaultValue = "5") int paging,
             @RequestParam(value = "sort", defaultValue = "created_at") String sort,
-            @RequestParam(value = "order", defaultValue = "desc") String order) {
+            @RequestParam(value = "order", defaultValue = "desc") String order,
+            @RequestParam(value = "status", required = false) ApplicationStatus status,
+            @RequestParam(value = "exclude_status", required = false) ApplicationStatus excludeStatus
+    ) {
         Pageable pageable = PagingUtils.makePageRequest(sort, order, page, paging);
-        Page<InstructorCandidateResponse> applications = instructorApplicationService.getAllApplications(pageable);
+        Page<InstructorCandidateResponse> applications =
+                instructorApplicationService.getAllApplications(pageable, status, excludeStatus);
         PageInfo pageInfo = new PageInfo(
                 pageable.getPageNumber() + 1,
                 applications.getTotalPages(),
