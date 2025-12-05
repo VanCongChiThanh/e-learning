@@ -1,10 +1,10 @@
 package com.pbl.elearning.web.endpoint.instructor;
 
+import com.pbl.elearning.commerce.service.RevenueService;
 import com.pbl.elearning.common.payload.general.ResponseDataAPI;
 import com.pbl.elearning.security.annotation.CurrentUser;
 import com.pbl.elearning.security.domain.UserPrincipal;
-import com.pbl.elearning.enrollment.payload.request.InstructorRevenueRequest;
-import com.pbl.elearning.enrollment.services.RevenueService;
+import com.pbl.elearning.commerce.payload.request.InstructorRevenueRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;

@@ -1,4 +1,4 @@
-package com.pbl.elearning.enrollment.payload.response;
+package com.pbl.elearning.commerce.payload.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
