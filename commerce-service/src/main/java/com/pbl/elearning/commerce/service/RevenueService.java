@@ -1,12 +1,11 @@
-package com.pbl.elearning.enrollment.services.Impl;
+package com.pbl.elearning.commerce.service;
 
 import com.pbl.elearning.common.constant.MessageConstant;
 import com.pbl.elearning.common.exception.NotFoundException;
-import com.pbl.elearning.enrollment.repository.RevenueRepository;
-import com.pbl.elearning.enrollment.services.RevenueService;
-import com.pbl.elearning.enrollment.payload.request.InstructorRevenueRequest;
+import com.pbl.elearning.commerce.repository.RevenueRepository;
+import com.pbl.elearning.commerce.payload.request.InstructorRevenueRequest;
 import com.pbl.elearning.user.payload.response.UserInfoResponse;
-import com.pbl.elearning.enrollment.payload.response.InstructorRevenueResponse;
+import com.pbl.elearning.commerce.payload.response.InstructorRevenueResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -16,10 +15,9 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class RevenueServiceImpl implements RevenueService {
+public class RevenueService {
     private final RevenueRepository revenueRepository;
 
-    @Override
     public InstructorRevenueResponse getInstructorRevenueReport(UUID instructorId, InstructorRevenueRequest request) {
 
         List<Object[]> rows = revenueRepository.getInstructorRevenueRaw(
@@ -57,7 +55,6 @@ public class RevenueServiceImpl implements RevenueService {
                 .build();
     }
 
-    @Override
     public List<InstructorRevenueResponse> getAllInstructorRevenue(InstructorRevenueRequest request) {
         List<Object[]> rows = revenueRepository.getAllInstructorRevenueRaw(request.getStartInstant(),request.getEndInstant());
         List<InstructorRevenueResponse> results = new ArrayList<>();

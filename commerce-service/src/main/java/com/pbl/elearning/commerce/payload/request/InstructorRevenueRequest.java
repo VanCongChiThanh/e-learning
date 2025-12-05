@@ -1,4 +1,4 @@
-package com.pbl.elearning.enrollment.payload.request;
+package com.pbl.elearning.commerce.payload.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
