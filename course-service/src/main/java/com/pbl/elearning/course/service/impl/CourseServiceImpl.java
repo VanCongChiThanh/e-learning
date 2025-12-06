@@ -1,6 +1,7 @@
 package com.pbl.elearning.course.service.impl;
 
 import com.github.slugify.Slugify;
+import com.pbl.elearning.common.constant.MessageConstant;
 import com.pbl.elearning.common.exception.NotFoundException;
 import com.pbl.elearning.course.domain.Course;
 import com.pbl.elearning.course.domain.Tag;
@@ -121,14 +122,14 @@ public class CourseServiceImpl implements CourseService {
         @Override
         public CourseResponse getCourseById(UUID courseId) {
                 Course course = courseRepository.findById(courseId).orElseThrow(
-                                () -> new EntityNotFoundException("Course not found with id: " + courseId));
+                                () -> new NotFoundException(MessageConstant.NOT_FOUND));
                 return CourseResponse.toCourseResponse(course);
         }
 
         @Override
         public String uploadCourseImage(UUID courseId, String urlfile) {
                 Course course = courseRepository.findById(courseId).orElseThrow(
-                                () -> new EntityNotFoundException("Course not found with id: " + courseId));
+                                () -> new NotFoundException(MessageConstant.NOT_FOUND));
                 course.setImage(urlfile);
                 courseRepository.save(course);
                 return urlfile;
@@ -137,7 +138,7 @@ public class CourseServiceImpl implements CourseService {
         @Override
         public CourseResponse updateCourse(UUID courseId, CourseRequest courseRequest) {
                 Course course = courseRepository.findById(courseId).orElseThrow(
-                                () -> new EntityNotFoundException("Course not found with id: " + courseId));
+                                () -> new NotFoundException(MessageConstant.NOT_FOUND));
                 course.setTitle(courseRequest.getTitle());
                 course.setDescription(courseRequest.getDescription());
                 course.setPrice(courseRequest.getPrice());
@@ -150,7 +151,7 @@ public class CourseServiceImpl implements CourseService {
         @Override
         public void deleteCourse(UUID courseId) {
                 Course course = courseRepository.findById(courseId).orElseThrow(
-                                () -> new EntityNotFoundException("Course not found with id: " + courseId));
+                                () -> new NotFoundException(MessageConstant.NOT_FOUND));
                 courseRepository.delete(course);
 
         }
