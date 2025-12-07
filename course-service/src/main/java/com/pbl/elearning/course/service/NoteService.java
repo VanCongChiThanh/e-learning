@@ -8,7 +8,7 @@ import java.util.UUID;
 
 public interface NoteService {
     NoteResponse createNote(NoteRequest noteRequest, UUID lectureId, UUID userId);
-    List<NoteResponse> getAllNotesByLectureId(UUID lectureId);
+    List<NoteResponse> getAllNotesByLectureId(UUID lectureId, UUID userId);
     NoteResponse getNoteById(UUID noteId);
     NoteResponse updateNote(UUID noteId, NoteRequest noteRequest);
     void deleteNote(UUID noteId);
