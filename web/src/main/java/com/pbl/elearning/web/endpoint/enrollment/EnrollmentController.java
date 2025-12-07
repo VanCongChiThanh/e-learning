@@ -7,13 +7,15 @@ import com.pbl.elearning.enrollment.payload.response.EnrollmentResponse;
 import com.pbl.elearning.enrollment.payload.response.EnrollmentReportResponse;
 import com.pbl.elearning.enrollment.services.EnrollmentService;
 import com.pbl.elearning.user.payload.response.UserInfoResponse;
+
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+
 import com.pbl.elearning.course.service.impl.CourseServiceImpl;
 
 import com.pbl.elearning.security.annotation.CurrentUser;
 import com.pbl.elearning.security.domain.UserPrincipal;
-import com.pbl.elearning.security.annotation.CurrentUser;
-import com.pbl.elearning.security.domain.UserPrincipal;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -124,11 +126,33 @@ public class EnrollmentController {
 
     @GetMapping("/courses/{courseId}/check-exists-enrollment")
     public ResponseEntity<ResponseDataAPI> checkExistsEnrollment(@PathVariable("courseId") UUID courseId,
-                                                                 @CurrentUser UserPrincipal userPrincipal){
+            @CurrentUser UserPrincipal userPrincipal) {
         UUID userId = userPrincipal.getId();
         Boolean check = enrollmentService.checkExistsByUserId(userId, courseId);
         return ResponseEntity.ok(ResponseDataAPI.successWithoutMeta(check));
 
     }
 
+    @PostMapping("/enroll/{courseId}")
+    @ApiOperation(value = "Enroll in free course", 
+                 notes = "Directly enroll user in a free course without payment")
+    public ResponseEntity<?> enrollInFreeCourse(
+            @ApiParam(value = "Course ID to enroll in", required = true)
+            @PathVariable UUID courseId,
+            @CurrentUser UserPrincipal userPrincipal) {
+        
+        try {
+            Enrollment enrollment = enrollmentService.enrollInFreeCourse(
+                    userPrincipal.getId(), courseId);
+            
+            return ResponseEntity.ok(toResponse(enrollment));
+
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(e.getMessage());
+        } catch (Exception e) {
+             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(e.getMessage());
+        }
+    }
 }

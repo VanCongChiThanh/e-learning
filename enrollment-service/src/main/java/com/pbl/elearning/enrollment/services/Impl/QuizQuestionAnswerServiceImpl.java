@@ -7,8 +7,7 @@ import com.pbl.elearning.enrollment.repository.QuizQuestionAnswerRepository;
 import com.pbl.elearning.enrollment.services.QuizQuestionAnswerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -18,11 +17,26 @@ public class QuizQuestionAnswerServiceImpl implements QuizQuestionAnswerService 
     private final QuizQuestionAnswerRepository repository;
 
     public static QuizQuestionAnswerResponse mapToResponse(QuizQuestionAnswer entity) {
+        return mapToResponseWithShuffle(entity, false);
+    }
+    
+    public static QuizQuestionAnswerResponse mapToResponseWithShuffle(QuizQuestionAnswer entity, boolean shouldShuffle) {
+        List<String> options = new ArrayList<>(entity.getOptions());
+        Integer correctAnswerIndex = entity.getCorrectAnswerIndex();
+        
+        if (shouldShuffle && options.size() > 1) {
+            String correctAnswer = options.get(correctAnswerIndex);
+            
+            Collections.shuffle(options);
+            
+            correctAnswerIndex = options.indexOf(correctAnswer);
+        }
+        
         return QuizQuestionAnswerResponse.builder()
                 .id(entity.getId())
                 .questionText(entity.getQuestionText())
-                .options(entity.getOptions())
-                .correctAnswerIndex(entity.getCorrectAnswerIndex())
+                .options(options)
+                .correctAnswerIndex(correctAnswerIndex)
                 .points(entity.getPoints())
                 .sortOrder(entity.getSortOrder())
                 .createdAt(entity.getCreatedAt())
@@ -60,8 +74,11 @@ public class QuizQuestionAnswerServiceImpl implements QuizQuestionAnswerService 
     public List<QuizQuestionAnswerResponse> getAllByQuizId(UUID quizId) {
         List<QuizQuestionAnswer> entities = repository.findAllByQuizId(quizId);
 
-        return entities.stream()
-                .map(QuizQuestionAnswerServiceImpl::mapToResponse)
+        List<QuizQuestionAnswer> shuffledQuestions = new ArrayList<>(entities);
+        Collections.shuffle(shuffledQuestions);
+
+        return shuffledQuestions.stream()
+                .map(question -> mapToResponseWithShuffle(question, true))
                 .collect(Collectors.toList());
     }
 }
