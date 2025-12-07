@@ -20,5 +20,5 @@ public interface CertificateRepository extends JpaRepository<Certificate, UUID> 
     @Query("SELECT c FROM Certificate c WHERE c.enrollment.course.courseId = :courseId")
     List<Certificate> findByCourseId(@Param("courseId") UUID courseId);
 
-    List<Certificate> findAllByEnrollment_User_Id(UUID userId);
+    List<Certificate> findAllByEnrollment_User_UserId(UUID userId);
 }
