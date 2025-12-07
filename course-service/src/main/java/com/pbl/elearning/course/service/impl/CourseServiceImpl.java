@@ -292,4 +292,29 @@ public class CourseServiceImpl implements CourseService {
                                 .toList();
         }
 
+        @Override
+        public CourseResponse getCourseDetailForInstructor(UUID courseId, UUID instructorId) {
+            Course course = courseRepository.findByCourseIdAndInstructorId(courseId, instructorId)
+                    .orElseThrow(() -> new EntityNotFoundException(
+                            "Course not found with id: " + courseId + " for instructor: " + instructorId));
+            return CourseResponse.toCourseResponse(course);
+        }
+
+        @Override
+        public Page<CourseResponse> getCoursesByInstructor(UUID instructorId, Specification<Course> spec, Pageable pageable) {
+            Specification<Course> instructorSpec = (root, query, cb) ->
+                    cb.equal(root.get("instructorId"), instructorId);
+
+            Specification<Course> finalSpec = (spec == null)
+                    ? instructorSpec
+                    : Specification.where(spec).and(instructorSpec);
+
+            Page<Course> coursePage = courseRepository.findAll(finalSpec, pageable);
+
+            return coursePage.map(CourseResponse::toCourseResponse);
+        }
+
+
+
+
 }
