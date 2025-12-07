@@ -1,5 +1,6 @@
 package com.pbl.elearning.web.endpoint.course;
 
+import com.pbl.elearning.security.annotation.CurrentUser;
 import org.springframework.security.core.Authentication;
 import com.pbl.elearning.common.constant.CommonConstant;
 import com.pbl.elearning.common.payload.general.ResponseDataAPI;
@@ -48,8 +49,9 @@ public class NoteController {
     }
 
     @GetMapping
-    public ResponseEntity<ResponseDataAPI> getAllNotes(@PathVariable UUID lectureId) {
-        var notes = noteService.getAllNotesByLectureId(lectureId);
+    public ResponseEntity<ResponseDataAPI> getAllNotes(@PathVariable UUID lectureId, @CurrentUser UserPrincipal currentUser) {
+        UUID userId = currentUser.getId();
+        var notes = noteService.getAllNotesByLectureId(lectureId, userId);
         return ResponseEntity.ok(ResponseDataAPI.builder()
                 .status(CommonConstant.SUCCESS)
                 .data(notes)

@@ -6,7 +6,6 @@ import com.pbl.elearning.email.service.EmailService;
 import com.pbl.elearning.email.service.SendEmailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -47,7 +46,6 @@ public class EmailServiceImpl implements EmailService {
     sendEmailService.sendDeleteAccount(email, code, language);
   }
 
-  @Async("asyncExecutor")
   @Override
   public void sendMailConfirmInstructorApplication(String firstname, String lastname, String email, UUID applicationId, String language) {
     String url = webURL + "/instructor/application/confirm?applicationId=" + applicationId;
@@ -61,7 +59,6 @@ public class EmailServiceImpl implements EmailService {
         language);
   }
 
-  @Async("asyncExecutor")
   @Override
   public void sendMailRejectInstructorApplication(String firstname, String lastname, String email, UUID applicationId, String reason, String language) {
     String url = webURL + "/instructor/application/reject?applicationId=" + applicationId;
@@ -74,5 +71,21 @@ public class EmailServiceImpl implements EmailService {
         firstname.concat(" ").concat(lastname),
         language,
         reason);
+  }
+
+  @Override
+  public void sendMailConfirmBankAccount(String bankName, String accountNumber, String accountHolderName, String token,String email, String language) {
+    String url = webURL + "/bank/account/confirm?token=" + token;
+    String bankInfo = String.format(
+            "Ngân hàng: %s\nSTK: %s\nChủ tài khoản: %s\nMã xác thực: %s",
+            bankName, accountNumber, accountHolderName, token
+    );
+    sendEmailService.sendEmailFromTemplate(
+        email,
+        "mail/confirmBankAccount",
+        url,
+        "email.confirm.bank.account.subject",
+        bankInfo,
+        language);
   }
 }

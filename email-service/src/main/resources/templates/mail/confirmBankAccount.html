@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Xác nhận tài khoản ngân hàng</title>
+</head>
+<body>
+
+<p>Xin chào</p>
+
+<p>
+    Bạn vừa thực hiện yêu cầu xác thực / cập nhật tài khoản ngân hàng trên hệ thống
+    <strong th:text="Coursevo"></strong>.
+</p>
+
+<p>Dưới đây là thông tin bạn đã cung cấp:</p>
+<pre th:text="${additionText}"></pre>
+
+<p>
+    Để hoàn tất quá trình xác thực, vui lòng nhấn vào liên kết sau (link có hiệu lực trong
+    <strong>15</strong> phút):
+</p>
+
+<p>
+    <a th:href="${url}" target="_blank" style="color:#1a73e8; text-decoration:none;">
+        Xác nhận tài khoản ngân hàng
+    </a>
+</p>
+
+<p>Nếu liên kết không mở được, bạn có thể sao chép và dán vào trình duyệt:</p>
+<p th:text="${url}" style="word-break: break-all;"></p>
+
+<br/>
+
+<p>Trân trọng,</p>
+<p>Coursevo</p>
+
+</body>
+</html>

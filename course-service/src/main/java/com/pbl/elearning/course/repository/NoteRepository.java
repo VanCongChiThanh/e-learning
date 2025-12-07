@@ -9,5 +9,5 @@ import java.util.UUID;
 
 @Repository
 public interface NoteRepository extends JpaRepository<Note, UUID> {
-    List<Note> findByLecture_LectureId(UUID lectureId);
+    List<Note> findByLecture_LectureIdAndUserId(UUID lectureId, UUID userId);
 }
