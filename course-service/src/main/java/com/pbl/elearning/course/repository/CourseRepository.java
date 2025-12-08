@@ -36,4 +36,8 @@ public interface CourseRepository extends JpaRepository<Course, UUID>, JpaSpecif
                 )
             """)
     Page<Course> findCoursesUserHasNotPurchased(UUID userId, Pageable pageable);
+
+    Page<Course> findAllByInstructorId(UUID instructorId, Pageable pageable);
+
+    Optional<Course> findByCourseIdAndInstructorId(UUID courseId, UUID instructorId);
 }

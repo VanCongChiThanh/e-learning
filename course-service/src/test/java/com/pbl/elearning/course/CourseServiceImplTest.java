@@ -1,5 +1,6 @@
 package com.pbl.elearning.course;
 
+import com.pbl.elearning.common.exception.NotFoundException;
 import com.pbl.elearning.course.domain.Course;
 import com.pbl.elearning.course.domain.Tag;
 import com.pbl.elearning.course.payload.request.CourseRequest;
@@ -13,6 +14,7 @@ import com.pbl.elearning.course.service.TagService;
 import com.pbl.elearning.course.service.impl.CourseServiceImpl;
 import com.pbl.elearning.user.domain.UserInfo;
 import com.pbl.elearning.user.repository.UserInfoRepository;
+import org.hibernate.validator.internal.constraintvalidators.bv.notempty.NotEmptyValidatorForArray;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -107,7 +109,7 @@ public class CourseServiceImplTest {
         UUID courseId = UUID.randomUUID();
         when(courseRepository.findById(courseId)).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class, () -> courseService.getCourseById(courseId));
+        assertThrows(NotFoundException.class, () -> courseService.getCourseById(courseId));
     }
 
     @Test

@@ -37,10 +37,10 @@ public class NoteServiceImpl implements NoteService {
         }
 
         @Override
-        public List<NoteResponse> getAllNotesByLectureId(UUID lectureId) {
+        public List<NoteResponse> getAllNotesByLectureId(UUID lectureId, UUID userId) {
                 Lecture lecture = lectureRepository.findById(lectureId)
                                 .orElseThrow(() -> new RuntimeException("Lecture not found with id: " + lectureId));
-                List<Note> note = noteRepository.findByLecture_LectureId(lectureId);
+                List<Note> note = noteRepository.findByLecture_LectureIdAndUserId(lectureId, userId);
                 return note.stream()
                                 .map(NoteResponse::fromEntity)
                                 .toList();

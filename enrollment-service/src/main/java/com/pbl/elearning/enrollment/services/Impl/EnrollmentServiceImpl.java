@@ -9,12 +9,15 @@ import com.pbl.elearning.enrollment.services.EnrollmentService;
 import com.pbl.elearning.user.domain.UserInfo;
 import com.pbl.elearning.course.domain.Course;
 import com.pbl.elearning.course.domain.Lecture;
+import com.pbl.elearning.course.repository.CourseRepository;
 import com.pbl.elearning.course.repository.LectureRepository;
-
+import com.pbl.elearning.user.repository.UserInfoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import lombok.extern.slf4j.Slf4j;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -24,8 +27,9 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class EnrollmentServiceImpl implements EnrollmentService {
-
+    private final CourseRepository courseRepository;
     private final EnrollmentRepository enrollmentRepository;
     private final QuizSubmissionRepository quizSubmissionRepository;
     private final AssignmentSubmissionRepository assignmentSubmissionRepository;
@@ -34,9 +38,11 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     private final AssignmentRepository assignmentRepository;
     private final LectureRepository lectureRepository;
     private final ProgressRepository progressRepository;
+    private final UserInfoRepository userInfoRepository;
 
     @Autowired
     public EnrollmentServiceImpl(
+            CourseRepository courseRepository,
             EnrollmentRepository enrollmentRepository,
             QuizSubmissionRepository quizSubmissionRepository,
             AssignmentSubmissionRepository assignmentSubmissionRepository,
@@ -44,7 +50,9 @@ public class EnrollmentServiceImpl implements EnrollmentService {
             QuizRepository quizRepository,
             AssignmentRepository assignmentRepository,
             LectureRepository lectureRepository,
-            ProgressRepository progressRepository) {
+            ProgressRepository progressRepository,
+            UserInfoRepository userInfoRepository) {
+        this.courseRepository = courseRepository;
         this.enrollmentRepository = enrollmentRepository;
         this.quizSubmissionRepository = quizSubmissionRepository;
         this.assignmentSubmissionRepository = assignmentSubmissionRepository;
@@ -53,14 +61,18 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         this.assignmentRepository = assignmentRepository;
         this.lectureRepository = lectureRepository;
         this.progressRepository = progressRepository;
+        this.userInfoRepository = userInfoRepository;
     }
 
     @Transactional
     @Override
     public Enrollment createEnrollment(EnrollmentRequest request) {
-        // User user = new User();
-        UserInfo user = new UserInfo();
-        user.setUserId(request.getUserId());
+        UserInfo user = userInfoRepository.findByUserId(request.getUserId())
+                .orElseGet(() -> {
+                    UserInfo newUser = new UserInfo();
+                    newUser.setUserId(request.getUserId());
+                    return userInfoRepository.save(newUser);
+                });
 
         Course course = Course.builder()
                 .courseId(request.getCourseId())
@@ -95,7 +107,14 @@ public class EnrollmentServiceImpl implements EnrollmentService {
                 newProgresses.add(progress);
             }
 
-            progressRepository.saveAll(newProgresses);
+            try {
+                List<Progress> savedProgresses = progressRepository.saveAll(newProgresses);
+                log.info("Created {} progress records for enrollment: {}", savedProgresses.size(), savedEnrollment.getId());
+            } catch (Exception e) {
+                throw e;
+            }
+        } else {
+            log.warn("No lectures found for course: {} - No progress records created", request.getCourseId());
         }
 
         return savedEnrollment;
@@ -211,5 +230,42 @@ public class EnrollmentServiceImpl implements EnrollmentService {
                 .certificateNumber(certificate.map(Certificate::getCertificateNumber).orElse(null))
                 .certificateIssuedDate(certificate.map(Certificate::getIssuedDate).orElse(null))
                 .build();
+    }
+
+    @Override
+    public Boolean checkExistsByUserId(UUID userId, UUID courseId) {
+        return enrollmentRepository.existsByUser_UserIdAndCourse_CourseId(userId, courseId);
+    }
+
+    @Override
+    @Transactional
+    public Enrollment enrollInFreeCourse(UUID userId, UUID courseId) {
+        
+        Optional<Course> courseOpt = courseRepository.findById(courseId);
+        if (courseOpt.isEmpty()) {
+            throw new RuntimeException("Course not found");
+        }
+        
+        Course course = courseOpt.get();
+        
+        BigDecimal price = course.getPrice();
+        boolean isFree = price == null || price.compareTo(BigDecimal.ZERO) == 0;
+        if (!isFree) {
+            throw new RuntimeException("This course is not free. Please use the payment flow.");
+        }
+        
+        boolean alreadyEnrolled = checkExistsByUserId(userId, courseId);
+        if (alreadyEnrolled) {
+            throw new RuntimeException("You are already enrolled in this course.");
+        }
+        
+        EnrollmentRequest request = EnrollmentRequest.builder()
+                .userId(userId)
+                .courseId(courseId)
+                .enrollmentDate(OffsetDateTime.now())
+                .build();
+        
+        Enrollment enrollment = createEnrollment(request);
+        return enrollment;
     }
 }

@@ -19,7 +19,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -257,4 +256,50 @@ public class CourseController {
                 return ResponseEntity.ok(ResponseDataAPI.successWithoutMeta(
                                 courseService.getCoursesByListIds(courseIds.stream().toList())));
         }
+
+        @GetMapping("/instructor")
+        @PreAuthorize("hasRole('INSTRUCTOR')")
+        public ResponseEntity<ResponseDataAPI> getCoursesForInstructor(
+                @CurrentUser UserPrincipal userPrincipal, // Lấy ID giảng viên từ Token
+                @RequestParam(value = "page", defaultValue = "1") int page,
+                @RequestParam(value = "paging", defaultValue = "10") int paging,
+                @RequestParam(value = "sort", defaultValue = "createdAt") String sort,
+                @RequestParam(value = "order", defaultValue = "desc") String order,
+                @Filter Specification<Course> specification // Cho phép search/filter các trường khác
+        ) {
+            Pageable pageable = PagingUtils.makePageRequest(sort, order, page, paging);
+
+            Page<CourseResponse> coursesPage = courseService.getCoursesByInstructor(
+                    userPrincipal.getId(),
+                    specification,
+                    pageable
+            );
+
+            PageInfo pageInfo = new PageInfo(
+                    pageable.getPageNumber() + 1,
+                    coursesPage.getTotalPages(),
+                    coursesPage.getTotalElements()
+            );
+
+            return ResponseEntity.ok(ResponseDataAPI.success(coursesPage.getContent(), pageInfo));
+        }
+
+        @GetMapping("/instructor/{courseId}/detail")
+        @PreAuthorize("hasRole('INSTRUCTOR')")
+        public ResponseEntity<ResponseDataAPI> getCourseDetailForInstructor(
+                @PathVariable UUID courseId,
+                @CurrentUser UserPrincipal userPrincipal
+        ) {
+            CourseResponse result = courseService.getCourseDetailForInstructor(
+                    courseId,
+                    userPrincipal.getId()
+            );
+
+            return ResponseEntity.ok(ResponseDataAPI.builder()
+                    .status(CommonConstant.SUCCESS)
+                    .data(result)
+                    .build()
+            );
+        }
+
 }

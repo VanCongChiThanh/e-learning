@@ -151,7 +151,7 @@ public class CertificateServiceImpl implements CertificateService {
 
     @Override
     public List<CertificateResponse> getAllCertificatesForUser(UUID userId) {
-        List<Certificate> certificates = certificateRepository.findAllByEnrollment_User_Id(userId);
+        List<Certificate> certificates = certificateRepository.findAllByEnrollment_User_UserId(userId);
         return certificates.stream().map(this::mapToResponse).toList();
     }
 

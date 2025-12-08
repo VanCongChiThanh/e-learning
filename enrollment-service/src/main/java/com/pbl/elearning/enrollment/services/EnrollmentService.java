@@ -79,4 +79,7 @@ public interface EnrollmentService {
      * @return List<EnrollmentReportResponse>
      */
     List<EnrollmentReportResponse> getEnrollmentReportsByUser(UUID userId);
+
+    Boolean checkExistsByUserId(UUID userId, UUID courseId);
+    Enrollment enrollInFreeCourse(UUID userId, UUID courseId);
 }

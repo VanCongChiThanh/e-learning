@@ -21,7 +21,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.pbl.elearning.enrollment.payload.response.RecentLearningResponse;
-import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -130,9 +129,9 @@ public class ProgressServiceImpl implements ProgressService {
     @Override
     @Transactional
     public LectureProgressUpdateResponse updateLectureProgress(UpdateLectureProgressRequest request) {
+        System.out.println("UpdateLectureProgressRequest: " + request);
         Optional<Progress> existingProgress = progressRepository
                 .findByEnrollment_User_UserIdAndLecture_LectureId(request.getUserId(), request.getLectureId());
-        System.out.println("Existing Progress: " + existingProgress);
         Progress progress;
         if (existingProgress.isPresent()) {
             progress = existingProgress.get();
@@ -146,7 +145,7 @@ public class ProgressServiceImpl implements ProgressService {
         }
         Integer totalDurationSeconds = lecture.getDuration();
         Double totalDurationMinutes = totalDurationSeconds / 60.0;
-        Double newWatchTimeSecondsFromRequest = (double) request.getLastViewAt().toSecondOfDay(); 
+        Double newWatchTimeSecondsFromRequest = (double) request.getLastViewAt().toSecondOfDay();
         Double currentWatchTimeSeconds = progress.getLastViewedAt() != null 
             ? (double) progress.getLastViewedAt().toSecondOfDay() 
             : 0.0;
@@ -157,8 +156,7 @@ public class ProgressServiceImpl implements ProgressService {
         finalWatchTimeSeconds = Math.min(finalWatchTimeSeconds, (double) totalDurationSeconds);   
         Double finalWatchTimeMinutes = finalWatchTimeSeconds / 60.0;
         Double lectureProgressPercentage = (finalWatchTimeMinutes / totalDurationMinutes) * 100.0;
-        long totalSeconds = finalWatchTimeSeconds.longValue();
-        progress.setLastViewedAt(LocalTime.ofSecondOfDay(totalSeconds));
+        progress.setLastViewedAt(request.getLastViewAt());
         Boolean isLectureCompleted = lectureProgressPercentage >= 95.0;
         progress.setIsCompleted(isLectureCompleted);
         progress.setCompletionDate(isLectureCompleted ? OffsetDateTime.now() : null);

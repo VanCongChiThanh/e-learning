@@ -14,7 +14,9 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -65,22 +67,37 @@ public class ProgressController {
         return ResponseEntity.ok(responses);
     }
     @GetMapping("/lecture/{id}")
-    public ResponseEntity<List<ProgressResponse>> getProgressByLectureId(@PathVariable UUID id){
-        List<Progress> progress = progressService.getProgressByLectureId(id);
+    public ResponseEntity<List<Map<String, Object>>> getProgressByLectureId(@PathVariable UUID id) {
+        List<Progress> progressList = progressService.getProgressByLectureId(id);
 
-        if (progress.isEmpty()) {
+        if (progressList.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-        List<ProgressResponse> responses = progress.stream()
-                .map(this::toResponse)
-                .toList();
-        System.out.println("123" + responses);
 
-        return ResponseEntity.ok(responses);
+        List<Map<String, Object>> result = progressList.stream()
+            .map(progress -> {
+                Map<String, Object> map = new LinkedHashMap<>();
+
+                map.put("id", progress.getId());
+                map.put("enrollmentId", progress.getEnrollment().getId());
+                map.put("lectureId", progress.getLecture().getLectureId());
+                map.put("isCompleted", progress.getIsCompleted());
+                map.put("lastViewedAt", progress.getLastViewedAt()); 
+                map.put("completionDate", progress.getCompletionDate());
+                map.put("createdAt", progress.getCreatedAt());
+                map.put("updatedAt", progress.getUpdatedAt());
+
+                map.put("sectionId", progress.getLecture().getSection().getSectionId());
+                map.put("courseId", progress.getLecture().getSection().getCourse().getCourseId());
+
+                return map;
+            })
+            .toList();
+
+        return ResponseEntity.ok(result);
     }
+
     
-    
-    // Enhanced standard endpoints that use service layer response mapping
     @GetMapping("/{id}/response")
     public ResponseEntity<ProgressResponse> getProgressResponseById(@PathVariable UUID id) {
         ProgressResponse response = progressService.getProgressResponseById(id);

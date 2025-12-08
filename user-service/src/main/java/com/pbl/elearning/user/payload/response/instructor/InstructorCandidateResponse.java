@@ -25,6 +25,7 @@ public class InstructorCandidateResponse {
     private String motivation;
     private String status;
     private Timestamp createdAt;
+    private Timestamp updatedAt;
     public static InstructorCandidateResponse toResponse(UserInfoResponse userInfo, InstructorApplication application) {
         return InstructorCandidateResponse.builder()
                 .userInfo(userInfo)
@@ -34,6 +35,7 @@ public class InstructorCandidateResponse {
                 .motivation(application.getMotivation())
                 .status(application.getStatus().name())
                 .createdAt(application.getCreatedAt())
+                .updatedAt(application.getUpdatedAt())
                 .build();
     }
 }

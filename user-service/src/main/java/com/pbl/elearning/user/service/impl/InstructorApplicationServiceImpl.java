@@ -44,8 +44,8 @@ public class InstructorApplicationServiceImpl implements InstructorApplicationSe
     private final UserService userService;
 
     @Override
-    public Page<InstructorCandidateResponse> getAllApplications(Pageable pageable) {
-        Page<Object[]> results = instructorApplicationRepository.findAllWithUserInfo(pageable);
+    public Page<InstructorCandidateResponse> getAllApplications(Pageable pageable,ApplicationStatus status,ApplicationStatus excludeStatus) {
+        Page<Object[]> results = instructorApplicationRepository.findAllWithUserInfo(pageable,status,excludeStatus);
 
         return results.map(record -> {
             InstructorApplication app = (InstructorApplication) record[0];
