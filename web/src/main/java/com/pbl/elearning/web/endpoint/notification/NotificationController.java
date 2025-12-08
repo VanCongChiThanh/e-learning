@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RequestMapping("/v1/notifications")
@@ -113,15 +114,20 @@ public class NotificationController {
         public ResponseEntity<ResponseDataAPI> sendPaymentNotification(
                         @RequestBody PaymentNotificationRequest request) {
                 try {
-                        log.info("Received payment notification request: userId={}, type={}, orderCode={}",
-                                        request.getUserId(), request.getType(), request.getOrderCode());
+                        // log.info("Received payment notification request: userId={}, type={},
+                        // orderCode={}",
+                        // request.getUserId(), request.getType(), request.getOrderCode());
+                        Map<String, String> metadata = Map.of();
+                        metadata.put("orderCode", request.getOrderCode() != null ? request.getOrderCode() : "");
+                        metadata.put("paymentStatus",
+                                        request.getPaymentStatus() != null ? request.getPaymentStatus() : "");
 
                         notificationService.sendNotificationToUsers(
                                         List.of(request.getUserId()),
                                         request.getType(),
                                         request.getTitle(),
                                         request.getMessage(),
-                                        request.getMetadata() != null ? request.getMetadata() : java.util.Map.of());
+                                        request.getMetadata());
 
                         log.info("Payment notification sent successfully to user: {}", request.getUserId());
                         return ResponseEntity.ok(
