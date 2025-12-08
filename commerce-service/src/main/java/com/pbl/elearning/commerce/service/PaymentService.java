@@ -69,22 +69,67 @@ public class PaymentService {
         // 2. Check if payment already exists for this order
         Optional<Payment> existingPayment = paymentRepository.findByOrderId(order.getId());
 
-        if (existingPayment.isPresent() && existingPayment.get().isPending()) {
-            // check expiration
-            if (existingPayment.get().getExpiresAt().before(new Timestamp(System.currentTimeMillis()))) {
-                existingPayment.get().setStatus(PaymentStatus.CANCELLED);
-                paymentRepository.save(existingPayment.get());
-            } else {
-                // return existing payment if still pending
-                return mapToPaymentResponse(existingPayment.get());
+        Payment payment;
+
+        if (existingPayment.isPresent()) {
+            Payment existing = existingPayment.get();
+
+            if (existing.isPaid()) {
+                throw new RuntimeException("Payment already completed for this order");
             }
+
+            if (existing.isPending()) {
+                if (existing.getExpiresAt() != null &&
+                        existing.getExpiresAt().before(new Timestamp(System.currentTimeMillis()))) {
+                    // Expired - cancel it and reuse for new payment
+                    existing.setStatus(PaymentStatus.CANCELLED);
+                    existing.setCancelledAt(new Timestamp(System.currentTimeMillis()));
+                    paymentRepository.save(existing);
+                    payment = existing;
+                } else {
+                    // Still valid - return existing payment
+                    return mapToPaymentResponse(existing);
+                }
+            } else {
+                // Payment is CANCELLED or FAILED - reuse it for new payment
+                payment = existing;
+            }
+
+            // Reset payment fields for reuse
+            payment.setOrderCode(generateOrderCode());
+            payment.setAmount(order.getTotalAmount());
+            payment.setDescription(
+                    request.getDescription() != null ? request.getDescription() : order.getOrderNumber());
+            payment.setPaymentMethod(PaymentMethod.PAYOS);
+            payment.setStatus(PaymentStatus.PENDING);
+            payment.setPaidAt(null);
+            payment.setCancelledAt(null);
+            payment.setPayosPaymentLinkId(null);
+            payment.setPayosTransactionId(null);
+            payment.setCheckoutUrl(null);
+            payment.setQrCode(null);
+            payment.setBankCode(null);
+            payment.setBankName(null);
+            payment.setAccountNumber(null);
+            payment.setAccountName(null);
+            payment.setWebhookData(null);
+            payment.setCallbackData(null);
+
+            // Set expiration time
+            LocalDateTime expirationTime = LocalDateTime.now()
+                    .plusMinutes(request.getExpirationMinutes() != null ? request.getExpirationMinutes()
+                            : payOSConfig.getDefaultExpirationMinutes());
+            payment.setExpiresAt(Timestamp.valueOf(expirationTime));
+
+        } else {
+            // 3. Create new payment record if none exists
+            payment = createPaymentEntity(order, request, userId);
         }
 
-        // 3. Create new payment record
-        Payment payment = createPaymentEntity(order, request, userId);
+        // 4. Save payment (either new or reused)
         payment = paymentRepository.save(payment);
 
-        // 4. Create PayOS payment link
+        // 5. Create PayOS payment link
         try {
             CreatePaymentLinkResponse payosResponse = createPayOSPaymentLink(payment, order);
             updatePaymentWithPayOSResponse(payment, payosResponse);
@@ -175,7 +220,8 @@ public class PaymentService {
         try {
             // Cancel payment in PayOS
             if (payment.getPayosPaymentLinkId() != null) {
-                // payOS.cancelPaymentLink(Long.parseLong(payment.getPayosPaymentLinkId()), "User cancelled");
+                // payOS.cancelPaymentLink(Long.parseLong(payment.getPayosPaymentLinkId()),
+                // "User cancelled");
                 payOS.paymentRequests().cancel(payment.getPayosPaymentLinkId(), "User cancelled");
             }
 
@@ -221,24 +267,25 @@ public class PaymentService {
     private CreatePaymentLinkResponse createPayOSPaymentLink(Payment payment, Order order) throws Exception {
         // // Create item data for PayOS
         // ItemData itemData = ItemData.builder()
-        //         .name(order.getOrderNumber())
-        //         .quantity(1)
-        //         .price(payment.getAmount().intValue())
-        //         .build();
+        // .name(order.getOrderNumber())
+        // .quantity(1)
+        // .price(payment.getAmount().intValue())
+        // .build();
 
         // // Create payment data
         // PaymentData paymentData = PaymentData.builder()
-        //         .orderCode(Long.parseLong(payment.getOrderCode()))
-        //         .amount(payment.getAmount().intValue())
-        //         .description(payment.getDescription())
-        //         .items(Collections.singletonList(itemData))
-        //         .returnUrl(payOSConfig.getReturnUrl())
-        //         .cancelUrl(payOSConfig.getCancelUrl())
-        //         .build();
+        // .orderCode(Long.parseLong(payment.getOrderCode()))
+        // .amount(payment.getAmount().intValue())
+        // .description(payment.getDescription())
+        // .items(Collections.singletonList(itemData))
+        // .returnUrl(payOSConfig.getReturnUrl())
+        // .cancelUrl(payOSConfig.getCancelUrl())
+        // .build();
 
         // return payOS.createPaymentLink(paymentData);
 
-        /* Use payos version 2.0.1
+        /*
+         * Use payos version 2.0.1
          */
         PaymentLinkItem item = PaymentLinkItem.builder()
                 .name(order.getOrderNumber())
@@ -309,12 +356,13 @@ public class PaymentService {
             String message = String.format(
                     "Đơn hàng %s đã được thanh toán thành công. Bạn đã được cấp quyền truy cập khóa học.",
                     order.getOrderNumber());
-            Map<String, String> metadata = Map.of(
-                    "orderId", order.getId().toString(),
-                    "orderCode", payment.getOrderCode(),
-                    "orderNumber", order.getOrderNumber(),
-                    "amount", payment.getAmount().toString(),
-                    "paymentStatus", "SUCCESS");
+
+            // Map<String, String> metadata = Map.of(
+            // "orderId", order.getId().toString(),
+            // "orderCode", payment.getOrderCode(),
+            // "orderNumber", order.getOrderNumber(),
+            // "amount", payment.getAmount().toString(),
+            // "paymentStatus", "SUCCESS");
 
             notificationClient.sendPaymentNotification(
                     payment.getUserId(),
@@ -323,7 +371,7 @@ public class PaymentService {
                     message,
                     payment.getOrderCode(),
                     "SUCCESS",
-                    metadata);
+                    Map.of());
         } catch (Exception e) {
             log.error("Failed to send payment success notification for orderCode: {}", payment.getOrderCode(), e);
         }

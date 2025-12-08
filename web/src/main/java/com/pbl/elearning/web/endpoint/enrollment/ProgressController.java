@@ -1,7 +1,5 @@
 package com.pbl.elearning.web.endpoint.enrollment;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.pbl.elearning.course.domain.Lecture;
 import com.pbl.elearning.enrollment.models.Progress;
 import com.pbl.elearning.enrollment.payload.request.CreateProgressRequest;
 import com.pbl.elearning.enrollment.payload.request.UpdateLectureProgressRequest;
@@ -16,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;

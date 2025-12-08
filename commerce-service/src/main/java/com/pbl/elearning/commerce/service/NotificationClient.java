@@ -19,7 +19,6 @@ public class NotificationClient {
     public NotificationClient() {
         this.webClient = WebClient.builder()
                 .baseUrl("https://api-coursevo-dev.id.vn/api/v1/notifications")
-                // .baseUrl("https://0c54e222adbf.ngrok-free.app/api/v1/notifications")
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .build();
     }
