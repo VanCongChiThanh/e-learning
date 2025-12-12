@@ -177,8 +177,8 @@ public class PaymentService {
                 return false;
             }
 
-            // 2. Find payment by order code
-            Payment payment = paymentRepository.findByOrderCode(webhookRequest.getData().getOrderCode())
+            // 2. Find payment (prefer orderCode, fallback paymentLinkId)
+            Payment payment = findPaymentByWebhook(webhookRequest)
                     .orElseThrow(() -> new BadRequestException(MessageConstant.PAYMENT_NOT_FOUND));
 
             // 3. Check if already processed (idempotency)
@@ -204,6 +204,17 @@ public class PaymentService {
             log.error("Error processing PayOS webhook", e);
             return false;
         }
+    }
+
+    private Optional<Payment> findPaymentByWebhook(PayOSWebhookRequest webhookRequest) {
+        String orderCode = webhookRequest.getData().getOrderCode();
+        String paymentLinkId = webhookRequest.getData().getPaymentLinkId();
+
+        Optional<Payment> paymentOpt = paymentRepository.findByOrderCode(orderCode);
+        if (paymentOpt.isEmpty() && paymentLinkId != null) {
+            paymentOpt = paymentRepository.findByPayosPaymentLinkId(paymentLinkId);
+        }
+        return paymentOpt;
     }
 
     @Transactional
@@ -405,11 +416,12 @@ public class PaymentService {
     }
 
     private boolean verifyWebhookSignature(PayOSWebhookRequest webhookRequest) {
-        // Implement PayOS webhook signature verification
-        // This would use the checksum key to verify the webhook signature
-        // For now, returning true - in production, implement proper verification
+        // Demo mode: accept all signatures. TODO: re-enable verification when moving to
+        // prod.
         return true;
     }
+
+    // Placeholder for future signature verification logic
 
     private String generateOrderCode() {
         // Generate unique order code for PayOS (numeric, max 12 digits)

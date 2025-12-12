@@ -27,6 +27,7 @@ import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -46,6 +47,13 @@ public class OrderService {
     public OrderResponse createOrder(CreateOrderRequest request, UUID userId) {
         // 1. Validate request
         validateOrderRequest(request, userId);
+
+        // 1.1 Reuse pending order if exists for any requested course
+        Optional<Order> existingPending = findExistingPendingOrder(request, userId);
+        if (existingPending.isPresent()) {
+            log.info("Reusing existing pending order {} for user {}", existingPending.get().getOrderNumber(), userId);
+            return mapToOrderResponse(existingPending.get());
+        }
 
         // 2. Create order entity
         Order order = new Order();
@@ -236,6 +244,19 @@ public class OrderService {
                 throw new BadRequestException(MessageConstant.USER_ALREADY_PURCHASED_COURSE);
             }
         }
+    }
+
+    private Optional<Order> findExistingPendingOrder(CreateOrderRequest request, UUID userId) {
+        for (CreateOrderRequest.OrderItemRequest item : request.getItems()) {
+            Optional<Order> existing = orderRepository.findByUserIdAndCourseIdAndStatusIn(
+                    userId,
+                    item.getCourseId(),
+                    List.of(OrderStatus.PENDING));
+            if (existing.isPresent()) {
+                return existing;
+            }
+        }
+        return Optional.empty();
     }
 
     private OrderItem createOrderItem(CreateOrderRequest.OrderItemRequest itemRequest, Order order) {
