@@ -297,3 +297,57 @@ illegal_quiz_submission_state:
 question_not_found:
   code: ERR.QS0101
   message: Question not found!
+
+#Commerce - Order
+order_not_found:
+  code: ERR.ORD0101
+  message: Order not found!
+order_access_denied:
+  code: ERR.ORD0102
+  message: Access denied to this order!
+order_already_paid:
+  code: ERR.ORD0103
+  message: Order already paid!
+order_cannot_be_cancelled:
+  code: ERR.ORD0104
+  message: Order cannot be cancelled!
+order_items_cannot_be_empty:
+  code: ERR.ORD0105
+  message: Order items cannot be empty!
+course_not_found:
+  code: ERR.ORD0106
+  message: Course not found!
+user_already_purchased_course:
+  code: ERR.ORD0107
+  message: You have already purchased this course!
+cannot_create_order_from_empty_cart:
+  code: ERR.ORD0108
+  message: Cannot create order from empty cart!
+
+#Commerce - Payment
+payment_not_found:
+  code: ERR.PAY0101
+  message: Payment not found!
+payment_access_denied:
+  code: ERR.PAY0102
+  message: Access denied to this payment!
+payment_already_completed:
+  code: ERR.PAY0103
+  message: Payment already completed for this order!
+payment_cannot_be_cancelled:
+  code: ERR.PAY0104
+  message: Payment cannot be cancelled!
+failed_to_create_payment_link:
+  code: ERR.PAY0105
+  message: Failed to create payment link!
+failed_to_cancel_payment:
+  code: ERR.PAY0106
+  message: Failed to cancel payment!
+
+#Commerce - Cart
+cart_not_found:
+  code: ERR.CRT0101
+  message: Cart not found!
+course_already_in_cart:
+  code: ERR.CRT0102
+  message: Course already in cart!
