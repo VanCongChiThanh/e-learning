@@ -82,5 +82,27 @@ public final class MessageConstant {
   public static final String NOT_FOUND = "not_found";
 
   public static final String BAD_REQUEST = "bad_request";
+
+  // Commerce - Order
+  public static final String ORDER_NOT_FOUND = "order_not_found";
+  public static final String ORDER_ACCESS_DENIED = "order_access_denied";
+  public static final String ORDER_ALREADY_PAID = "order_already_paid";
+  public static final String ORDER_CANNOT_BE_CANCELLED = "order_cannot_be_cancelled";
+  public static final String ORDER_ITEMS_CANNOT_BE_EMPTY = "order_items_cannot_be_empty";
+  public static final String COURSE_NOT_FOUND = "course_not_found";
+  public static final String USER_ALREADY_PURCHASED_COURSE = "user_already_purchased_course";
+  public static final String CANNOT_CREATE_ORDER_FROM_EMPTY_CART = "cannot_create_order_from_empty_cart";
+
+  // Commerce - Payment
+  public static final String PAYMENT_NOT_FOUND = "payment_not_found";
+  public static final String PAYMENT_ACCESS_DENIED = "payment_access_denied";
+  public static final String PAYMENT_ALREADY_COMPLETED = "payment_already_completed";
+  public static final String PAYMENT_CANNOT_BE_CANCELLED = "payment_cannot_be_cancelled";
+  public static final String FAILED_TO_CREATE_PAYMENT_LINK = "failed_to_create_payment_link";
+  public static final String FAILED_TO_CANCEL_PAYMENT = "failed_to_cancel_payment";
+
+  // Commerce - Cart
+  public static final String CART_NOT_FOUND = "cart_not_found";
+  public static final String COURSE_ALREADY_IN_CART = "course_already_in_cart";
   private MessageConstant() {}
 }

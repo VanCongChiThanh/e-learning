@@ -12,6 +12,8 @@ import com.pbl.elearning.commerce.payload.response.PaymentResponse;
 import com.pbl.elearning.commerce.payload.webhook.PayOSWebhookRequest;
 import com.pbl.elearning.commerce.repository.OrderRepository;
 import com.pbl.elearning.commerce.repository.PaymentRepository;
+import com.pbl.elearning.common.constant.MessageConstant;
+import com.pbl.elearning.common.exception.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -56,14 +58,14 @@ public class PaymentService {
     public PaymentResponse createPayment(CreatePaymentRequest request, UUID userId) {
         // 1. Validate and get order
         Order order = orderRepository.findById(request.getOrderId())
-                .orElseThrow(() -> new RuntimeException("Order not found"));
+                .orElseThrow(() -> new BadRequestException(MessageConstant.ORDER_NOT_FOUND));
 
         if (!order.getUserId().equals(userId)) {
-            throw new RuntimeException("Access denied to this order");
+            throw new BadRequestException(MessageConstant.ORDER_ACCESS_DENIED);
         }
 
         if (order.isPaid()) {
-            throw new RuntimeException("Order already paid");
+            throw new BadRequestException(MessageConstant.ORDER_ALREADY_PAID);
         }
 
         // 2. Check if payment already exists for this order
@@ -75,7 +77,7 @@ public class PaymentService {
             Payment existing = existingPayment.get();
 
             if (existing.isPaid()) {
-                throw new RuntimeException("Payment already completed for this order");
+                throw new BadRequestException(MessageConstant.PAYMENT_ALREADY_COMPLETED);
             }
 
             if (existing.isPending()) {
@@ -142,17 +144,17 @@ public class PaymentService {
             log.error("Failed to create PayOS payment for order: {}", order.getId(), e);
             payment.setStatus(PaymentStatus.FAILED);
             paymentRepository.save(payment);
-            throw new RuntimeException("Failed to create payment link: " + e.getMessage());
+            throw new BadRequestException(MessageConstant.FAILED_TO_CREATE_PAYMENT_LINK);
         }
     }
 
     @Transactional
     public PaymentResponse getPaymentByOrderCode(String orderCode, UUID userId) {
         Payment payment = paymentRepository.findByOrderCode(orderCode)
-                .orElseThrow(() -> new RuntimeException("Payment not found"));
+                .orElseThrow(() -> new BadRequestException(MessageConstant.PAYMENT_NOT_FOUND));
 
         if (!payment.getUserId().equals(userId)) {
-            throw new RuntimeException("Access denied to this payment");
+            throw new BadRequestException(MessageConstant.PAYMENT_ACCESS_DENIED);
         }
 
         return mapToPaymentResponse(payment);
@@ -175,9 +177,9 @@ public class PaymentService {
                 return false;
             }
 
-            // 2. Find payment by order code
-            Payment payment = paymentRepository.findByOrderCode(webhookRequest.getData().getOrderCode())
-                    .orElseThrow(() -> new RuntimeException("Payment not found"));
+            // 2. Find payment (prefer orderCode, fallback paymentLinkId)
+            Payment payment = findPaymentByWebhook(webhookRequest)
+                    .orElseThrow(() -> new BadRequestException(MessageConstant.PAYMENT_NOT_FOUND));
 
             // 3. Check if already processed (idempotency)
             if (payment.isPaid()) {
@@ -204,17 +206,28 @@ public class PaymentService {
         }
     }
 
+    private Optional<Payment> findPaymentByWebhook(PayOSWebhookRequest webhookRequest) {
+        String orderCode = webhookRequest.getData().getOrderCode();
+        String paymentLinkId = webhookRequest.getData().getPaymentLinkId();
+
+        Optional<Payment> paymentOpt = paymentRepository.findByOrderCode(orderCode);
+        if (paymentOpt.isEmpty() && paymentLinkId != null) {
+            paymentOpt = paymentRepository.findByPayosPaymentLinkId(paymentLinkId);
+        }
+        return paymentOpt;
+    }
+
     @Transactional
     public PaymentResponse cancelPayment(String orderCode, UUID userId) {
         Payment payment = paymentRepository.findByOrderCode(orderCode)
-                .orElseThrow(() -> new RuntimeException("Payment not found"));
+                .orElseThrow(() -> new BadRequestException(MessageConstant.PAYMENT_NOT_FOUND));
 
         if (!payment.getUserId().equals(userId)) {
-            throw new RuntimeException("Access denied to this payment");
+            throw new BadRequestException(MessageConstant.PAYMENT_ACCESS_DENIED);
         }
 
         if (!payment.isPending()) {
-            throw new RuntimeException("Payment cannot be cancelled");
+            throw new BadRequestException(MessageConstant.PAYMENT_CANNOT_BE_CANCELLED);
         }
 
         try {
@@ -241,7 +254,7 @@ public class PaymentService {
 
         } catch (Exception e) {
             log.error("Failed to cancel payment for orderCode: {}", orderCode, e);
-            throw new RuntimeException("Failed to cancel payment: " + e.getMessage());
+            throw new BadRequestException(MessageConstant.FAILED_TO_CANCEL_PAYMENT);
         }
     }
 
@@ -403,11 +416,12 @@ public class PaymentService {
     }
 
     private boolean verifyWebhookSignature(PayOSWebhookRequest webhookRequest) {
-        // Implement PayOS webhook signature verification
-        // This would use the checksum key to verify the webhook signature
-        // For now, returning true - in production, implement proper verification
+        // Demo mode: accept all signatures. TODO: re-enable verification when moving to
+        // prod.
         return true;
     }
+
+    // Placeholder for future signature verification logic
 
     private String generateOrderCode() {
         // Generate unique order code for PayOS (numeric, max 12 digits)

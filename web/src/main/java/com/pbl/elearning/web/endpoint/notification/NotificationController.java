@@ -114,10 +114,10 @@ public class NotificationController {
         public ResponseEntity<ResponseDataAPI> sendPaymentNotification(
                         @RequestBody PaymentNotificationRequest request) {
                 try {
-                        // log.info("Received payment notification request: userId={}, type={},
-                        // orderCode={}",
-                        // request.getUserId(), request.getType(), request.getOrderCode());
-                        Map<String, String> metadata = Map.of();
+                        Map<String, String> metadata = new java.util.HashMap<>();
+                        if (request.getMetadata() != null) {
+                                metadata.putAll(request.getMetadata());
+                        }
                         metadata.put("orderCode", request.getOrderCode() != null ? request.getOrderCode() : "");
                         metadata.put("paymentStatus",
                                         request.getPaymentStatus() != null ? request.getPaymentStatus() : "");
@@ -127,7 +127,7 @@ public class NotificationController {
                                         request.getType(),
                                         request.getTitle(),
                                         request.getMessage(),
-                                        request.getMetadata());
+                                        metadata);
 
                         log.info("Payment notification sent successfully to user: {}", request.getUserId());
                         return ResponseEntity.ok(
