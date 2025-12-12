@@ -7,6 +7,8 @@ import com.pbl.elearning.commerce.payload.response.CartResponse;
 import com.pbl.elearning.commerce.payload.response.CartSummaryResponse;
 import com.pbl.elearning.commerce.repository.CartItemRepository;
 import com.pbl.elearning.commerce.repository.CartRepository;
+import com.pbl.elearning.common.constant.MessageConstant;
+import com.pbl.elearning.common.exception.BadRequestException;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,13 +34,13 @@ public class CartService {
     public CartResponse addToCart(AddToCartRequest request, java.util.UUID userId) {
         // 1. Validate if user already purchased this course
         if (orderService.hasUserPurchasedCourse(userId, request.getCourseId())) {
-            throw new RuntimeException("You have already purchased this course");
+            throw new BadRequestException(MessageConstant.USER_ALREADY_PURCHASED_COURSE);
         }
 
         // Validate if course id is exists in course service
         CourseClient courseClient = new CourseClient();
         if (!courseClient.isCourseExist(request.getCourseId().toString())) {
-            throw new RuntimeException("Course does not exist");
+            throw new BadRequestException(MessageConstant.COURSE_NOT_FOUND);
         }
 
         // 2. Get or create cart for user
@@ -47,7 +49,7 @@ public class CartService {
         // 3. Check if course already in cart
         CartItem existingItem = cart.getItemByCourseId(request.getCourseId());
         if (existingItem != null) {
-            throw new RuntimeException("Course already in cart");
+            throw new BadRequestException(MessageConstant.COURSE_ALREADY_IN_CART);
             // log.info("Course {} already in cart for user {}", request.getCourseId(),
             // userId);
         } else {
@@ -156,7 +158,7 @@ public class CartService {
 
     private Cart getUserCart(UUID userId) {
         return cartRepository.findByUserIdWithItems(userId)
-                .orElseThrow(() -> new RuntimeException("Cart not found"));
+                .orElseThrow(() -> new BadRequestException(MessageConstant.CART_NOT_FOUND));
     }
 
     private Cart createNewCart(UUID userId) {

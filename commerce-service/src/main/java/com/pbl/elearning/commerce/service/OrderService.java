@@ -8,6 +8,8 @@ import com.pbl.elearning.commerce.payload.response.OrderResponse;
 import com.pbl.elearning.commerce.repository.CartRepository;
 import com.pbl.elearning.commerce.repository.OrderItemRepository;
 import com.pbl.elearning.commerce.repository.OrderRepository;
+import com.pbl.elearning.common.constant.MessageConstant;
+import com.pbl.elearning.common.exception.BadRequestException;
 import com.pbl.elearning.enrollment.payload.request.EnrollmentRequest;
 import com.pbl.elearning.enrollment.services.EnrollmentService;
 
@@ -73,17 +75,17 @@ public class OrderService {
     public OrderResponse createOrderFromCart(CreateOrderFromCartRequest request, UUID userId) {
         // 1. Get user's cart
         Cart cart = cartRepository.findByUserIdWithItems(userId)
-                .orElseThrow(() -> new RuntimeException("Cart not found"));
+                .orElseThrow(() -> new BadRequestException(MessageConstant.CART_NOT_FOUND));
 
         if (cart.isEmpty()) {
-            throw new RuntimeException("Cannot create order from empty cart");
+            throw new BadRequestException(MessageConstant.CANNOT_CREATE_ORDER_FROM_EMPTY_CART);
         }
 
         // 2. Validate cart items (check if courses still available and user hasn't
         // purchased them)
         for (CartItem cartItem : cart.getItems()) {
             if (hasUserPurchasedCourse(userId, cartItem.getCourseId())) {
-                throw new RuntimeException("You have already purchased course: " + cartItem.getCourseId());
+                throw new BadRequestException(MessageConstant.USER_ALREADY_PURCHASED_COURSE);
             }
         }
 
@@ -121,10 +123,10 @@ public class OrderService {
     @Transactional(readOnly = true)
     public OrderResponse getOrderById(UUID orderId, UUID userId) {
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Order not found"));
+                .orElseThrow(() -> new BadRequestException(MessageConstant.ORDER_NOT_FOUND));
 
         if (!order.getUserId().equals(userId)) {
-            throw new RuntimeException("Access denied to this order");
+            throw new BadRequestException(MessageConstant.ORDER_ACCESS_DENIED);
         }
 
         return mapToOrderResponse(order);
@@ -133,10 +135,10 @@ public class OrderService {
     @Transactional(readOnly = true)
     public OrderResponse getOrderByNumber(String orderNumber, UUID userId) {
         Order order = orderRepository.findByOrderNumber(orderNumber)
-                .orElseThrow(() -> new RuntimeException("Order not found"));
+                .orElseThrow(() -> new BadRequestException(MessageConstant.ORDER_NOT_FOUND));
 
         if (!order.getUserId().equals(userId)) {
-            throw new RuntimeException("Access denied to this order");
+            throw new BadRequestException(MessageConstant.ORDER_ACCESS_DENIED);
         }
 
         return mapToOrderResponse(order);
@@ -197,14 +199,14 @@ public class OrderService {
     @Transactional
     public OrderResponse cancelOrder(UUID orderId, UUID userId) {
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Order not found"));
+                .orElseThrow(() -> new BadRequestException(MessageConstant.ORDER_NOT_FOUND));
 
         if (!order.getUserId().equals(userId)) {
-            throw new RuntimeException("Access denied to this order");
+            throw new BadRequestException(MessageConstant.ORDER_ACCESS_DENIED);
         }
 
         if (order.getStatus() != OrderStatus.PENDING) {
-            throw new RuntimeException("Order cannot be cancelled");
+            throw new BadRequestException(MessageConstant.ORDER_CANNOT_BE_CANCELLED);
         }
 
         order.setStatus(OrderStatus.CANCELLED);
@@ -219,19 +221,19 @@ public class OrderService {
     private void validateOrderRequest(CreateOrderRequest request, UUID userId) {
 
         if (request.getItems() == null || request.getItems().isEmpty()) {
-            throw new RuntimeException("Order items cannot be empty");
+            throw new BadRequestException(MessageConstant.ORDER_ITEMS_CANNOT_BE_EMPTY);
         }
 
         // Validate course availability and prices
         for (CreateOrderRequest.OrderItemRequest item : request.getItems()) {
             boolean courseExists = courseClient.isCourseExist(item.getCourseId().toString());
             if (!courseExists) {
-                throw new RuntimeException("Can not found course with ID: " + item.getCourseId());
+                throw new BadRequestException(MessageConstant.COURSE_NOT_FOUND);
             }
 
             // Validate user hasn't already purchased this course
             if (hasUserPurchasedCourse(userId, item.getCourseId())) {
-                throw new RuntimeException("User has already purchased course: " + item.getCourseId());
+                throw new BadRequestException(MessageConstant.USER_ALREADY_PURCHASED_COURSE);
             }
         }
     }
