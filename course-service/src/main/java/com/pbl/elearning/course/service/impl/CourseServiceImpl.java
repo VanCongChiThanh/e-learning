@@ -238,7 +238,7 @@ public class CourseServiceImpl implements CourseService {
                 Integer totalReviews = reviewService.getTotalReviewsByCourseId(course.getCourseId());
                 Integer totalLectures = lectureService.countLectureByCourseId(course.getCourseId());
                 return CourseResponse.toCourseDetailResponse(
-                                course, tags, avgRating, totalReviews, totalLectures, 40, instructorName);
+                                course, tags, avgRating, totalReviews, totalLectures, course.getTotalStudents(), instructorName);
 
         }
 

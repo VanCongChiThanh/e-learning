@@ -8,6 +8,7 @@ import com.pbl.elearning.course.domain.Review;
 import com.pbl.elearning.course.domain.enums.VoteType;
 import com.pbl.elearning.course.payload.request.ReviewRequest;
 import com.pbl.elearning.course.payload.response.ReviewResponse;
+import com.pbl.elearning.course.payload.response.ReviewStatisticResponse;
 import com.pbl.elearning.course.service.ReviewService;
 import com.pbl.elearning.security.domain.UserPrincipal;
 import com.turkraft.springfilter.boot.Filter;
@@ -140,6 +141,31 @@ public class ReviewController {
         UUID userId = getUserIdFromAuthentication(authentication);
         reviewService.voteReview(reviewId, userId, voteType);
         return ResponseEntity.ok(ResponseDataAPI.success(null, "Voted successfully"));
+    }
+    @GetMapping("/me/exist")
+    @PreAuthorize("hasAnyRole('LEARNER','INSTRUCTOR', 'ADMIN')")
+    public ResponseEntity<ResponseDataAPI> checkReviewExist(
+            @PathVariable UUID courseId,
+            Authentication authentication) {
+
+        UUID userId = getUserIdFromAuthentication(authentication);
+
+        boolean exists = reviewService.hasUserReviewedCourse(courseId, userId);
+
+        return ResponseEntity.ok(ResponseDataAPI.builder()
+                .status(CommonConstant.SUCCESS)
+                .data(exists) // Trả về true/false
+                .build());
+    }
+
+    @GetMapping("/statistics")
+    public ResponseEntity<ResponseDataAPI> getReviewStatistics(@PathVariable UUID courseId) {
+        ReviewStatisticResponse response = reviewService.getReviewStatistics(courseId);
+
+        return ResponseEntity.ok(ResponseDataAPI.builder()
+                .status(CommonConstant.SUCCESS)
+                .data(response)
+                .build());
     }
 
 

@@ -56,6 +56,9 @@ public class CourseResponse {
                 .image(course.getImage())
                 .createdAt(course.getCreatedAt())
                 .deletedAt(course.getDeletedAt())
+                .averageRating(course.getAverageRating() != null ? course.getAverageRating() : 0.0)
+                .totalReviews(course.getTotalReviews() != null ? course.getTotalReviews() : 0)
+                .totalStudents(course.getTotalStudents() != null ? course.getTotalStudents() : 0)
                 .build();
     }
 
@@ -75,6 +78,9 @@ public class CourseResponse {
                 .image(course.getImage())
                 .createdAt(course.getCreatedAt())
                 .deletedAt(course.getDeletedAt())
+                .averageRating(course.getAverageRating() != null ? course.getAverageRating() : 0.0)
+                .totalReviews(course.getTotalReviews() != null ? course.getTotalReviews() : 0)
+                .totalStudents(course.getTotalStudents() != null ? course.getTotalStudents() : 0)
                 .build();
     }
 
