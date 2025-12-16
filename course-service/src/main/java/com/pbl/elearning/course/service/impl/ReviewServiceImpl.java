@@ -6,6 +6,7 @@ import com.pbl.elearning.course.domain.ReviewVote;
 import com.pbl.elearning.course.domain.enums.VoteType;
 import com.pbl.elearning.course.payload.request.ReviewRequest;
 import com.pbl.elearning.course.payload.response.ReviewResponse;
+import com.pbl.elearning.course.payload.response.ReviewStatisticResponse;
 import com.pbl.elearning.course.repository.CourseRepository;
 import com.pbl.elearning.course.repository.ReviewRepository;
 import com.pbl.elearning.course.repository.ReviewVoteRepository;
@@ -113,19 +114,25 @@ public class ReviewServiceImpl implements ReviewService {
         if (!courseRepository.existsById(courseId)) {
             throw new RuntimeException("Course not found with id: " + courseId);
         }
-        // 3. **THÊM ĐIỀU KIỆN MỚI**: Chỉ lấy các review gốc (parentReview IS NULL)
-        Specification<Review> parentSpec = (root, query, criteriaBuilder) -> criteriaBuilder
-                .isNull(root.get("parentReview"));
 
-        // 4. Kết hợp CẢ BA Specification: từ controller, của courseId, và điều kiện mới
-        Specification<Review> finalSpec = parentSpec.and(spec);
+        Specification<Review> courseSpec = (root, query, criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("course").get("courseId"), courseId);
+
+        Specification<Review> parentSpec = (root, query, criteriaBuilder) ->
+                criteriaBuilder.isNull(root.get("parentReview"));
+
+        Specification<Review> finalSpec = Specification.where(courseSpec)
+                .and(parentSpec)
+                .and(spec);
 
         Page<Review> reviewPage = reviewRepository.findAll(finalSpec, pageable);
 
+        // ... (Phần logic map dữ liệu User giữ nguyên không đổi)
         List<UUID> userIds = reviewPage.getContent().stream()
                 .map(Review::getUserId)
                 .distinct()
                 .collect(Collectors.toList());
+
         Map<UUID, UserInfo> userInfoMap = userInfoRepository.findAllByUserIdIn(userIds).stream()
                 .collect(Collectors.toMap(UserInfo::getUserId, userInfo -> userInfo));
 
@@ -143,7 +150,6 @@ public class ReviewServiceImpl implements ReviewService {
             }
             return ReviewResponse.fromEntityDetail(review, userName, avatar);
         });
-
     }
 
     @Override
@@ -174,7 +180,7 @@ public class ReviewServiceImpl implements ReviewService {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new RuntimeException("Course not found with id: " + courseId));
         Double avg = reviewRepository.findAverageRatingByCourseId(courseId);
-        return avg != null ? avg : 4.7;
+        return avg != null ? avg : 0;
     }
 
     @Override
@@ -237,6 +243,58 @@ public class ReviewServiceImpl implements ReviewService {
                     .build();
             reviewVoteRepository.save(newVote);
         }
+    }
+    @Override
+    public boolean hasUserReviewedCourse(UUID courseId, UUID userId) {
+        return reviewRepository.existsByCourse_CourseIdAndUserId(courseId, userId);
+    }
+
+    @Override
+    public ReviewStatisticResponse getReviewStatistics(UUID courseId) {
+        // 1. Lấy dữ liệu thô từ DB (Dùng Group By cho tối ưu)
+        List<Object[]> rawData = reviewRepository.countReviewsByRatingGroup(courseId);
+
+        // 2. Khởi tạo map đếm
+        int s1 = 0, s2 = 0, s3 = 0, s4 = 0, s5 = 0;
+        int total = 0;
+        double sumRating = 0.0;
+
+        // 3. Duyệt qua kết quả DB và map vào biến
+        for (Object[] row : rawData) {
+            int rating = (int) row[0];       // Cột rating (1-5)
+            long count = (long) row[1];      // Cột count
+
+            total += count;
+            sumRating += rating * count;
+
+            switch (rating) {
+                case 1 -> s1 = (int) count;
+                case 2 -> s2 = (int) count;
+                case 3 -> s3 = (int) count;
+                case 4 -> s4 = (int) count;
+                case 5 -> s5 = (int) count;
+            }
+        }
+
+        // 4. Tính toán
+        double average = total > 0 ? (Math.round((sumRating / total) * 10.0) / 10.0) : 0.0;
+
+        // 5. Build response
+        return ReviewStatisticResponse.builder()
+                .totalReviews(total)
+                .averageRating(average)
+                .star1Count(s1)
+                .star2Count(s2)
+                .star3Count(s3)
+                .star4Count(s4)
+                .star5Count(s5)
+                // Tính phần trăm để vẽ thanh progress bar
+                .star1Percent(total > 0 ? (s1 * 100.0 / total) : 0)
+                .star2Percent(total > 0 ? (s2 * 100.0 / total) : 0)
+                .star3Percent(total > 0 ? (s3 * 100.0 / total) : 0)
+                .star4Percent(total > 0 ? (s4 * 100.0 / total) : 0)
+                .star5Percent(total > 0 ? (s5 * 100.0 / total) : 0)
+                .build();
     }
 
 }

@@ -4,6 +4,7 @@ import com.pbl.elearning.course.domain.Review;
 import com.pbl.elearning.course.domain.enums.VoteType;
 import com.pbl.elearning.course.payload.request.ReviewRequest;
 import com.pbl.elearning.course.payload.response.ReviewResponse;
+import com.pbl.elearning.course.payload.response.ReviewStatisticResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -26,4 +27,6 @@ public interface ReviewService {
 
     ReviewResponse replyToReview(UUID parentReviewId, UUID userId, ReviewRequest reviewRequest);
     void voteReview(UUID reviewId, UUID userId, VoteType voteType);
+    boolean hasUserReviewedCourse(UUID courseId, UUID userId);
+    ReviewStatisticResponse getReviewStatistics(UUID courseId);
 }

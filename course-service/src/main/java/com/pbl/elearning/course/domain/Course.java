@@ -5,6 +5,7 @@ import com.pbl.elearning.course.domain.enums.CourseLevel;
 import com.pbl.elearning.course.domain.enums.CourseStatus;
 import com.pbl.elearning.common.domain.AbstractEntity;
 import lombok.*;
+import org.hibernate.annotations.Formula;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -68,6 +69,15 @@ public class Course extends AbstractEntity {
 
     )
     private Set<Tag> tags = new HashSet<>();
+
+    @Formula("(SELECT AVG(r.rating) FROM reviews r WHERE r.course_id = course_id)")
+    private Double averageRating;
+
+    @Formula("(SELECT COUNT(r.review_id) FROM reviews r WHERE r.course_id = course_id)")
+    private Integer totalReviews;
+
+    @Formula("(SELECT COUNT(*) FROM enrollments e WHERE e.course_id = course_id)")
+    private Integer totalStudents;
 
 }
 
