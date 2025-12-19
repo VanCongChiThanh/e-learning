@@ -4,7 +4,6 @@ import com.pbl.elearning.common.payload.general.ResponseDataAPI;
 import com.pbl.elearning.security.annotation.CurrentUser;
 import com.pbl.elearning.security.domain.UserPrincipal;
 import com.pbl.elearning.user.domain.UserInfo;
-import com.pbl.elearning.user.domain.enums.Gender;
 import com.pbl.elearning.user.payload.request.profile.UserProfileRequest;
 import com.pbl.elearning.user.payload.response.UserProfileResponse;
 import com.pbl.elearning.user.service.UserInfoService;

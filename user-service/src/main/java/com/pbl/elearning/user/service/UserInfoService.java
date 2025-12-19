@@ -11,7 +11,4 @@ public interface UserInfoService {
     UserInfo createUserInfo(UUID userId, String firstname, String lastname, String avatar);
     UserInfo updateUserInfo(UUID userId, String firstname, String lastname, String avatar, Gender gender);
     UserInfo getUserInfoByUserId(UUID userId);
-    List<UserInfo> getAllUserInfos(List<UUID> userIds);
-
-    List<UserInfo> getUserInfosByUserIds(List<UUID> userIds);
 }
