@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.UUID;
 @Service
 @Transactional
@@ -48,30 +47,6 @@ public class UserInfoServiceImpl implements UserInfoService {
     public UserInfo getUserInfoByUserId(UUID userId) {
         return userInfoRepository.findByUserId(userId)
                 .orElseThrow(() -> new NotFoundException("UserInfo not found for userId: " + userId));
-    }
-
-    @Override
-    public List<UserInfo> getAllUserInfos(List<UUID> userIds) {
-        if (userIds == null || userIds.isEmpty()) {
-            return List.of();
-        }
-        List<UserInfo> userInfos = userInfoRepository.findAllByUserIdIn(userIds);
-        if (userInfos.isEmpty()) {
-            throw new NotFoundException("No UserInfo found for the provided userIds");
-        }
-        return userInfos;
-    }
-
-    @Override
-    public List<UserInfo> getUserInfosByUserIds(List<UUID> userIds) {
-        if (userIds == null || userIds.isEmpty()) {
-            return List.of();
-        }
-        List<UserInfo> userInfos = userInfoRepository.findAllByUserIdIn(userIds);
-        if (userInfos.isEmpty()) {
-            throw new NotFoundException("No UserInfo found for the provided userIds");
-        }
-        return userInfos;
     }
 
     private UserInfo toUserInfoEntity(UUID userId, String firstname, String lastname) {
