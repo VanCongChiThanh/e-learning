@@ -129,7 +129,6 @@ public class ProgressServiceImpl implements ProgressService {
     @Override
     @Transactional
     public LectureProgressUpdateResponse updateLectureProgress(UpdateLectureProgressRequest request) {
-        System.out.println("UpdateLectureProgressRequest: " + request);
         Optional<Progress> existingProgress = progressRepository
                 .findByEnrollment_User_UserIdAndLecture_LectureId(request.getUserId(), request.getLectureId());
         Progress progress;

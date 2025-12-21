@@ -15,7 +15,7 @@ public interface CertificateRepository extends JpaRepository<Certificate, UUID> 
 
     Certificate findByEnrollment_Id(UUID enrollmentId);
     boolean existsByEnrollmentId(UUID enrollmentId);
-    Optional<Certificate> findByCertificateNumber(String certificateNumber);
+    Certificate findByCertificateNumber(String certificateNumber);
     
     @Query("SELECT c FROM Certificate c WHERE c.enrollment.course.courseId = :courseId")
     List<Certificate> findByCourseId(@Param("courseId") UUID courseId);

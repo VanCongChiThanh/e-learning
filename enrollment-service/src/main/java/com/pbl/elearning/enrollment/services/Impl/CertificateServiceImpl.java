@@ -31,6 +31,7 @@ public class CertificateServiceImpl implements CertificateService {
     private EnrollmentRepository enrollmentRepository;
 
     private CertificateResponse mapToResponse(Certificate certificate) {
+        System.out.println("Mapping certificate: " + certificate);
         Enrollment enrollment = certificate.getEnrollment();
         return CertificateResponse.builder()
                 .id(certificate.getId())
@@ -49,17 +50,20 @@ public class CertificateServiceImpl implements CertificateService {
                         enrollment != null && enrollment.getCourse() != null ? enrollment.getCourse().getTitle() : null)
                 .courseCode(
                         enrollment != null && enrollment.getCourse() != null ? enrollment.getCourse().getSlug() : null)
-                .userName(enrollment != null && enrollment.getUser() != null ? enrollment.getUser().getEmail() : null)
+                .userName(enrollment != null && enrollment.getUser() != null
+                        ? (enrollment.getUser().getFirstName() + " " + enrollment.getUser().getLastName()).trim()
+                        : null)
                 .userEmail(enrollment != null && enrollment.getUser() != null ? enrollment.getUser().getEmail() : null)
                 .completionScore(enrollment != null ? enrollment.getProgressPercentage() : null)
                 .courseCompletionDate(certificate.getIssuedDate())
-                .imageUrl(enrollment != null && enrollment.getCourse() != null ? enrollment.getCourse().getImage() : null)
+                .imageUrl(
+                        enrollment != null && enrollment.getCourse() != null ? enrollment.getCourse().getImage() : null)
                 .build();
     }
-    
-        
+
     public Certificate mapToEntity(CertificateResponse resp) {
-        if (resp == null) return null;
+        if (resp == null)
+            return null;
 
         Certificate entity = new Certificate();
         entity.setId(resp.getId());
@@ -80,25 +84,54 @@ public class CertificateServiceImpl implements CertificateService {
         return entity;
     }
 
-
     // Sync API trả về Certificate (đã tạo)
+    // public CertificateResponse getOrGenerateCertificate(UUID enrollmentId) {
+    //     Certificate certificate = certificateRepository.findByEnrollment_Id(enrollmentId);
+    //     if (certificate == null) {
+    //         return  generateCertificate(enrollmentId);
+    //     }
+    //     System.out.println("Found certificate: " + certificate);
+    //     return mapToResponse(certificate);
+    // }
     public CertificateResponse getOrGenerateCertificate(UUID enrollmentId) {
-        CertificateResponse cert = mapToResponse(certificateRepository.findByEnrollment_Id(enrollmentId));
-        if (cert == null) {
-            cert = generateCertificate(enrollmentId);
-        }
-        return cert;
-    }
+        Certificate certificate = certificateRepository.findByEnrollment_Id(enrollmentId);
+        if (certificate == null) {
+            // 1. Tạo certificate record
+            CertificateResponse cert = generateCertificate(enrollmentId);
+            
+            try {
+                // 2. Tạo PDF ngay lập tức (synchronous)
+                String template = pdfService.loadTemplate("index.html");
+                Map<String, Object> vars = pdfService.toTemplateVariables(cert);
+                String html = pdfService.renderTemplateWithMap(template, vars);
+                byte[] pdfBytes = pdfService.generatePdfFromHtml(html);
 
+                // 3. Upload PDF → get S3 URL
+                String s3Url = pdfService.uploadPdfToS3(pdfBytes, cert.getCertificateNumber() + ".pdf");
+
+                // 4. Update certificate với URL
+                cert.setCertificateUrl(s3Url);
+                certificateRepository.save(mapToEntity(cert));
+                
+                return cert;
+            } catch (Exception e) {
+                e.printStackTrace();
+                return cert; // Trả về certificate record ngay cả khi PDF fail
+            }
+        }
+        System.out.println("Found certificate: " + certificate);
+        return mapToResponse(certificate);
+    }
     // Async generation
-    @Async
+    @Async("asyncExecutor")
     @Override
     @EventListener
     public void generateCertificateAsync(EnrollmentCompletedEvent event) {
         UUID enrollmentId = event.getEnrollmentId();
 
         // 1. Check if certificate exists
-        if (certificateRepository.existsByEnrollmentId(enrollmentId)) return;
+        if (certificateRepository.existsByEnrollmentId(enrollmentId))
+            return;
 
         try {
             // 2. Generate certificate record
@@ -126,7 +159,6 @@ public class CertificateServiceImpl implements CertificateService {
         Enrollment enrollment = enrollmentRepository.findById(enrollmentId)
                 .orElseThrow(() -> new RuntimeException("Enrollment not found"));
 
-
         Certificate existing = certificateRepository.findByEnrollment_Id(enrollmentId);
         if (existing != null) {
             return mapToResponse(existing);
@@ -144,10 +176,10 @@ public class CertificateServiceImpl implements CertificateService {
         Certificate saved = certificateRepository.save(certificate);
         return mapToResponse(saved);
     }
+
     private String generateCertificateNumber() {
         return "CERT-" + System.currentTimeMillis() + "-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
     }
-
 
     @Override
     public List<CertificateResponse> getAllCertificatesForUser(UUID userId) {
@@ -161,5 +193,15 @@ public class CertificateServiceImpl implements CertificateService {
                 .orElseThrow(() -> new RuntimeException("Certificate not found: " + certificateId));
         return mapToResponse(certificate);
     }
+
+    @Override
+    public CertificateResponse verifyCertificateByCode(String code) {
+        Certificate certificate = certificateRepository.findByCertificateNumber(code);
+        if (certificate == null) {
+            return null;
+        }
+        return mapToResponse(certificate);
+    }
+
 }
 
