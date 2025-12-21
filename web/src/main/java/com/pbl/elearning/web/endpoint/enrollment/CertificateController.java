@@ -14,10 +14,7 @@ import java.util.UUID;
 public class CertificateController {
     @Autowired
     private CertificateService certificateService;
-    /**
-     * Trả về certificate URL nếu đã có PDF.
-     * Nếu chưa upload PDF thì chỉ trả về thông báo.
-     */
+
     @GetMapping("/get-or-generate")
     public ResponseEntity<String> getCertificate(@RequestParam UUID enrollmentId) {
         try {
@@ -60,6 +57,23 @@ public class CertificateController {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error retrieving certificate");
+        }
+    }
+
+    @GetMapping("/verify-certificate")
+    public ResponseEntity<?> verifyCertificate(@RequestParam String code) {
+        try {
+            CertificateResponse cert = certificateService.verifyCertificateByCode(code);
+            if (cert != null) {
+                return ResponseEntity.ok(cert);
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("Certificate not found for the provided code");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error verifying certificate");
         }
     }
 }

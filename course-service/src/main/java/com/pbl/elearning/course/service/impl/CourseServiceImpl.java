@@ -6,6 +6,7 @@ import com.pbl.elearning.common.exception.NotFoundException;
 import com.pbl.elearning.course.domain.Course;
 import com.pbl.elearning.course.domain.Tag;
 import com.pbl.elearning.course.domain.enums.Category;
+import com.pbl.elearning.course.domain.enums.CourseStatus;
 import com.pbl.elearning.course.payload.request.CourseRequest;
 import com.pbl.elearning.course.payload.response.CourseResponeInstructor;
 import com.pbl.elearning.course.payload.response.CourseResponse;
@@ -100,8 +101,11 @@ public class CourseServiceImpl implements CourseService {
         @Override
         public Page<CourseResponse> coursePageResponse(Pageable pageable, Specification<Course> spec) {
                 Page<Course> coursePage;
+                Specification<Course> publicSpec = (root, query, criteriaBuilder) ->
+                        criteriaBuilder.equal(root.get("courseStatus"), CourseStatus.PUBLISHED);
+                Specification<Course> finalSpec = Specification.where(publicSpec).and(spec);
 
-                coursePage = courseRepository.findAll(spec, pageable);
+                coursePage = courseRepository.findAll(finalSpec, pageable);
                 return coursePage.map(course -> {
                         String instructorName = userInfoRepository.findByUserId(course.getInstructorId())
                                         .map(user -> user.getFirstName() + " " + user.getLastName())
