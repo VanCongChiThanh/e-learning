@@ -126,9 +126,7 @@ public class UserServiceImpl implements UserService {
       String firstname, String lastname, String email, String avatar, AuthProvider provider,String providerId) {
     Optional<User> existingUser = userRepository.findByEmail(email.toLowerCase());
     if (existingUser.isPresent()) {
-      User user = existingUser.get();
-      userInfoService.updateUserInfo(user.getId(), firstname, lastname, avatar,null);
-      return user;
+        return existingUser.get();
     }
     User user = this.toUserEntity(email, null);
     user.setRole(Role.ROLE_LEARNER);
