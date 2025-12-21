@@ -21,16 +21,16 @@ public class QuizQuestionAnswerServiceImpl implements QuizQuestionAnswerService 
     }
     
     public static QuizQuestionAnswerResponse mapToResponseWithShuffle(QuizQuestionAnswer entity, boolean shouldShuffle) {
-        List<String> options = new ArrayList<>(entity.getOptions());
-        Integer correctAnswerIndex = entity.getCorrectAnswerIndex();
+        // List<String> options = new ArrayList<>(entity.getOptions());
+        // Integer correctAnswerIndex = entity.getCorrectAnswerIndex();
         
-        if (shouldShuffle && options.size() > 1) {
-            String correctAnswer = options.get(correctAnswerIndex);
+        // if (shouldShuffle && options.size() > 1) {
+        //     String correctAnswer = options.get(correctAnswerIndex);
             
-            Collections.shuffle(options);
+        //     Collections.shuffle(options);
             
-            correctAnswerIndex = options.indexOf(correctAnswer);
-        }
+        //     correctAnswerIndex = options.indexOf(correctAnswer);
+        // }
         
         return QuizQuestionAnswerResponse.builder()
                 .id(entity.getId())
@@ -74,11 +74,8 @@ public class QuizQuestionAnswerServiceImpl implements QuizQuestionAnswerService 
     public List<QuizQuestionAnswerResponse> getAllByQuizId(UUID quizId) {
         List<QuizQuestionAnswer> entities = repository.findAllByQuizId(quizId);
 
-        List<QuizQuestionAnswer> shuffledQuestions = new ArrayList<>(entities);
-        Collections.shuffle(shuffledQuestions);
-
-        return shuffledQuestions.stream()
-                .map(question -> mapToResponseWithShuffle(question, true))
+        return entities.stream()
+                .map(QuizQuestionAnswerServiceImpl::mapToResponse)
                 .collect(Collectors.toList());
     }
 }
