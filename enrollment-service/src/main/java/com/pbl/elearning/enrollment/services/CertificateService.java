@@ -11,5 +11,7 @@ public interface CertificateService {
     void generateCertificateAsync(EnrollmentCompletedEvent event);
     CertificateResponse getCertificateById(UUID certificateId);
     CertificateResponse generateCertificate(UUID enrollmentId);
+
     List<CertificateResponse> getAllCertificatesForUser(UUID userId);
+    CertificateResponse verifyCertificateByCode(String code);
 }
