@@ -115,9 +115,7 @@ The application is fully containerized using **Docker multi-stage builds**.
 
 ```bash
 docker build -t coursevo:latest .
-Run Container Locally
 
-```bash
 docker run -d \
   --name coursevo \
   -p 8105:8105 \
@@ -199,23 +197,6 @@ Payment gateway (PayOS)
 
 Secrets are injected as environment variables at runtime.
 
-❤️ Health Check
-After deployment, the pipeline checks:
-
-arduino
-Copy code
-https://api-coursevo-dev.id.vn/api
-Accepted responses:
-
-200 OK
-
-301 / 302 Redirect
-
-401 / 403 Unauthorized
-
-404 Not Found
-
-This confirms the application is running and reachable via HTTPS.
 
 
 
