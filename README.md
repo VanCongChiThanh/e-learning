@@ -5,9 +5,11 @@
 Coursevo is an **E-Learning platform** built as a **Maven Multi-Module project** following a **Modular Monolith architecture**.  
 The system focuses on clean modular design, maintainability, and real-world deployment using **Docker** and **CI/CD pipelines**.
 
-This repository is developed and maintained by the **Coursevo Group** as part of our **software engineering group project** for the semester.  
-📄 You can find the **full project report and detailed documentation** here:  
+This repository is developed and maintained by the **Coursevo Group** as part of our **software engineering group project** for the semester.
+
+📄 **Full project report and detailed documentation:**  
 https://docs.google.com/document/d/16ysBVgDKLP7sDw38MfwE2NgUnGPX6-Ri/edit
+
 ---
 
 ## 🎯 Project Goals
@@ -33,24 +35,7 @@ https://docs.google.com/document/d/16ysBVgDKLP7sDw38MfwE2NgUnGPX6-Ri/edit
 
 ---
 
-## 📦 Module Structure
-
-coursevo
-├── common-service
-├── security-service
-├── user-service
-├── course-service
-├── enrollment-service
-├── commerce-service
-├── notification-service
-├── email-service
-├── file-service
-└── web
-
-markdown
-Copy code
-
-### Module Responsibilities
+### Module 
 
 - **common-service**  
   Shared utilities, constants, DTOs, base exceptions, and configurations.
@@ -95,10 +80,6 @@ Example:
 web → course-service → common-service
 web → user-service → common-service
 
-markdown
-Copy code
-
----
 
 ## 🛠️ Technology Stack
 
@@ -135,13 +116,13 @@ The application is fully containerized using **Docker multi-stage builds**.
 ```bash
 docker build -t coursevo:latest .
 Run Container Locally
-bash
-Copy code
+
+```bash
 docker run -d \
   --name coursevo \
   -p 8105:8105 \
   coursevo:latest
-🔄 CI/CD Pipeline
+##🔄 CI/CD Pipeline
 Pipeline Name
 CI/CD Docker to EC2
 
