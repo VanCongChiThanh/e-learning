@@ -121,7 +121,7 @@ docker run -d \
   -p 8105:8105 \
   coursevo:latest
 ```
-##🔄 CI/CD Pipeline
+## 🔄 CI/CD Pipeline
 Pipeline Name
 CI/CD Docker to EC2
 
