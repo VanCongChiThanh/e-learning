@@ -200,22 +200,7 @@ cd e-learning
 createdb elearning_db
 ```
 
-### 3. Cài đặt Redis
-
-```bash
-# Ubuntu/Debian
-sudo apt-get install redis-server
-sudo systemctl start redis
-
-# macOS
-brew install redis
-brew services start redis
-
-# Windows
-# Download từ https://github.com/microsoftarchive/redis/releases
-```
-
-### 4. Cài đặt RabbitMQ
+### 3. Cài đặt RabbitMQ
 
 ```bash
 # Ubuntu/Debian
