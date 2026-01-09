@@ -1,6 +1,6 @@
 # E-Learning Platform
 
-Nền tảng học trực tuyến toàn diện được xây dựng bằng Spring Boot với kiến trúc microservices, cung cấp các tính năng quản lý khóa học, thanh toán, thông báo và nhiều hơn nữa.
+Nền tảng học trực tuyến toàn diện được xây dựng bằng Spring Boot với kiến trúc multi-module, cung cấp các tính năng quản lý khóa học, thanh toán, thông báo và nhiều hơn nữa.
 
 ## Mục lục
 
